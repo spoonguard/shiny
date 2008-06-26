@@ -1,0 +1,1147 @@
+/*
+   Shiny
+   $Id$
+    Copyright 2006-2008, David Brown <dave@spoonguard.org>
+   
+   This Program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License, version 2, as
+   published by the Free Software Foundation.
+
+   The Program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+
+   You should have received a copy of the GNU General Public
+   License along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+   USA.
+*/
+
+/**
+    Global:
+**/
+
+html, body, form {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-size: 8.5pt;
+  overflow: hidden;
+}
+
+html, body, form, input, select, button {
+  font-family: 'Lucida Grande', 'Verdana', 'Helvetica', 'Arial', sans-serif;
+}
+
+select {
+  border: solid 1px #888;
+}
+
+option {
+  background-color: #fff;
+}
+
+.shiny {
+  width: 100%;
+  height: 100%;
+}
+
+input.shiny, img.shiny {
+  width: auto;
+  height: auto;
+}
+
+.shiny #header {
+  margin: 0 0 0.5em 0;
+  background-image: url('../images/gradient-dark-gray.png');
+  height: 3.6em;
+}
+
+.shiny #header h1 {
+ margin: 0;
+ padding: 0.2em 0 0 0.6em;
+ font-weight: normal;
+ letter-spacing: 0.1em;
+ color: #fff;
+ height: 1.5em;
+ font-size: 2.1em;
+ text-shadow: #000 3px 3px 2px;
+}
+
+.shiny #sidebar {
+  position: absolute;
+  right: 0;
+  top: 3.6em;
+  bottom: 0;
+  width: 25em;
+  background-image: url('../images/gradient-light-gray.png');
+}
+
+.shiny .status {
+  line-height: 2.5em;
+  background-color: #ddd;
+  background-image: url('../images/gradient-small-gray.png');
+  border-bottom: solid 2px #cdcdcd;
+  overflow: hidden;
+}
+
+.shiny .status .right {
+  height: 100%;
+  text-align: right;
+}
+
+.shiny .status h3 {
+  margin: 0;
+  color: #111;
+  float: left;
+  font-size: 1.1em;
+  padding: 0.1em 0 0 1.2em;
+  text-shadow: #ccc 2px 2px 2px;
+}
+
+.shiny .status .right input,
+.shiny .status .right button {
+  font-size: 0.8em;
+  color: #444;
+  margin: 0.9em 0 0 1em;
+  padding: 0;
+  font-weight: normal;
+}
+
+.shiny #body {
+  position: absolute;
+  left: 0;
+  top: 3.6em;
+  bottom: 0;
+  right: 25em;
+  background-image: url('../images/gradient-light-gray.png');
+}
+
+.no-scroll .scrollable {
+  overflow-y: hidden !important;
+  overflow-x: hidden !important;
+  overflow: hidden !important;
+}
+
+.full-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+}
+
+.cursor-disabled {
+  cursor: not-allowed; /* CSS 3 */
+}
+
+.center {
+  text-align: center;
+}
+
+.left {
+  float: left;
+}
+
+.right {
+  float: right;
+}
+
+.middle {
+  vertical-align: middle;
+}
+
+.bottom {
+  vertical-align: bottom;
+}
+
+.left-abs {
+  left: 0;
+}
+
+.right-abs {
+  right: 0;
+}
+
+.inline {
+  display: inline;
+}
+
+.trace-r {
+  border: solid 1px #f49;
+}
+
+.trace-g {
+  border: solid 1px #4f9;
+}
+
+.trace-b {
+  border: solid 1px #94f;
+}
+
+
+/**
+    Shiny.Dialog:
+**/
+
+.shiny .dialog {
+  position: absolute;
+  z-index: 1010;
+  width: 70%;
+  margin: 15% 15% 0 15%;
+  background-color: transparent;
+}
+
+.shiny .dialog div {
+  cursor: move;
+}
+
+.shiny .dialog .controls {
+  line-height: 2em;
+  margin: 0 1em 0 0;
+}
+
+.shiny .dialog .controls input,
+.shiny .dialog .controls label {
+  vertical-align: middle;
+}
+
+
+/**
+    Shiny.Form:
+**/
+
+.shiny div.dark,
+.shiny span.dark {
+  background-color: #3a3a3a;
+}
+
+.shiny div.dark,
+.shiny span.dark,
+.shiny div.dark label,
+.shiny span.dark label,
+.shiny div.dark select,
+.shiny span.dark select {
+  color: #fff;
+}
+
+.shiny div.dark select,
+.shiny span.dark select {
+  border-color: #222 !important;
+}
+
+.shiny .form .tuple .elt,
+.shiny .panels .panel .form .tuple .elt {
+  padding: 0;
+  margin-bottom: 0.6em;
+}
+
+.shiny .form .tuple .elt input,
+.shiny .form .tuple .elt select {
+  margin: 0.3em 0 0 0;
+}
+
+.shiny .form .tuple .elt input.radio,
+.shiny .form .tuple .elt input.checkbox {
+  padding: 0;
+}
+
+.shiny .form .tuple img.radio,
+.shiny .form .tuple img.checkbox {
+  float: none;
+  padding: 0;
+  margin: 0;
+}
+
+.shiny .form .panel,
+.shiny .panels .panel .form .panel {
+  background-color: transparent !important;
+}
+
+.shiny .form .interior,
+.shiny .panels .panel .form .interior {
+  padding: 1em 0.8em 0.5em 1em;
+  margin: 0;
+}
+
+.shiny .form {
+  min-height: 4em;
+  background-color: #fcfbff;
+  border: solid 1px #c0c0c0;
+}
+
+.shiny .form .tuple .elt label,
+.shiny .panels .panel .form .elt label {
+  left: 0;
+  line-height: 1.0;
+  margin-bottom: 0;
+  margin-left: 0;
+  font-size: 1em;
+  padding-left: 0;
+  padding-bottom: 0.25em;
+}
+
+
+/**
+    Shiny.Control:
+**/
+
+.shiny .control {
+  cursor: default;
+}
+
+.shiny img {
+  border: 0;
+}
+
+.shiny .hidden {
+  position: absolute;
+  left: -1000%;
+  height: 1px;
+  width: 1px;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.shiny .focused {
+}
+
+.shiny .selected {
+}
+
+
+/**
+    Shiny.Radio:
+**/
+
+.shiny .radio {
+}
+
+
+/**
+    Shiny.Checkbox:
+**/
+
+.shiny .checkbox {
+}
+
+
+/**
+    Shiny.Button:
+**/
+
+.shiny a.button {
+  display: block;
+  cursor: pointer;
+  float: left;
+  padding: 0 7px 0 0;
+  margin: 2px 0.6em 0 0;
+  vertical-align: middle;
+  background-color: transparent;
+  background-image: url('../images/button-right.png');
+  background-repeat: no-repeat;
+  background-position: center right;
+}
+
+.shiny a.button .interior {
+  cursor: pointer;
+  padding: 0 5px 0 12px;
+  display: block;
+  background-color: transparent;
+  background-image: url('../images/button-left.png');
+  background-repeat: no-repeat;
+  background-position: center left;
+}
+
+.shiny a.button .interior label {
+  margin: 0;
+  font-size: 0.8em;
+  cursor: pointer;
+  padding: 0 0.4em 0 0.4em;
+}
+
+
+/**
+    Shiny.Round:
+**/
+
+.shiny .round {
+}
+
+.shiny .round p {
+  margin: 0.6em 0 0.5em 0.5em;
+}
+
+.shiny .round .border {
+  border-left: solid 1px #b0b0b0;
+  border-right: solid 1px #b0b0b0;
+  background-image: url('../images/gradient-light.png');
+  background-repeat: repeat-x;
+  background-color: #f4f4f4;
+}
+
+.shiny .round .corner {
+  background-color: transparent;
+}
+
+.shiny .round .corner div {
+  height: 1px;
+  border: solid 1px #b0b0b0;
+  background-color: transparent;
+  border-width: 0 1px 0 1px;
+  overflow: hidden;
+}
+
+.shiny .round .corner div.y {
+  background-color: #d0d0d0;
+}
+
+.shiny .round .corner div.z {
+  background-color: #e8e8e8;
+}
+
+.shiny .round .corner div.a {
+  height: 0;
+  margin: 0 3px 0 3px;
+  border-width: 1px 0 0 0;
+}
+
+.shiny .round .corner div.b {
+  margin: 0 2px 0 2px;
+}
+
+.shiny .round .corner div.c {
+  margin: 0 1px 0 1px;
+}
+
+.shiny .round .corner div.d {
+  margin: 0;
+}
+
+.shiny .white .border {
+  background-color: #fff;
+  background-image: none;
+}
+
+.shiny .white div.corner div.y,
+.shiny .white div.corner div.z {
+  background-color: #fff;
+}
+
+.shiny .dark-gray .border {
+  border-color: #4a4a4a;
+  background-image: url('../images/gradient-dark-gray.png');
+}
+
+.shiny .dark-gray div.corner div.a {
+  border-color: #4a4a4a;
+}
+
+.shiny .dark-gray div.corner div.b {
+  border-color: #4a4a4a;
+}
+
+.shiny .dark-gray div.corner div.c {
+  border-color: #4a4a4a;
+}
+
+.shiny .dark-gray div.corner div.d {
+  border-color: #4a4a4a;
+}
+
+.shiny .dark-gray div.corner div.y {
+  background-color: #6f6f6f;
+}
+
+.shiny .dark-gray div.corner div.z {
+  background-color: #494949;
+}
+
+.shiny .gray .border {
+  border-color: #cacaca;
+  background-image: none;
+}
+
+.shiny .gray div.corner div.a {
+  border-color: #cacaca;
+}
+
+.shiny .gray div.corner div.b {
+  border-color: #cacaca;
+}
+
+.shiny .gray div.corner div.c {
+  border-color: #cacaca;
+}
+
+.shiny .gray div.corner div.d {
+  border-color: #cacaca;
+}
+
+.shiny .gray div.corner div.y {
+  background-color: #efefef;
+}
+
+.shiny .gray div.corner div.z {
+  background-color: #ececec;
+}
+
+.shiny .panels .transition .interior {
+  text-align: center;
+  margin: 0 55px 0 50px;
+}
+
+.shiny .transition {
+  font-family: 'Verdana', 'Helvetica', 'Arial', sans-serif;
+  font-size: 0.8em;
+  width: 56em;
+  color: #333;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.shiny .panels .panel .transition select {
+  margin: 0 0.5em 0 0.5em;
+  font-size: 1em;
+  color: #222;
+  border: solid 1px #888;
+}
+
+
+/**
+    Shiny.Resizer:
+**/
+
+.shiny .resize, .shiny .resize-y, .shiny .resize-x {
+  position: absolute;
+  z-index: 100;
+}
+
+.shiny .resize, .shiny .resize-y {
+  cursor: s-resize; /* CSS 2 */
+  cursor: row-resize; /* CSS 3 */
+}
+
+.shiny .resize-x {
+  cursor: w-resize; /* CSS 2 */
+  cursor: col-resize; /* CSS 3 */
+}
+
+.shiny .resize,
+.shiny .resize-y {
+  width: 100%;
+  height: 1em;
+}
+
+.shiny .resize-x {
+  height: 100%;
+  width: 1em;
+}
+
+
+/**
+    Shiny.Panel:
+**/
+
+.shiny .panel {
+  margin: 0;
+  padding: 0;
+  height: auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.shiny .panels .small {
+}
+
+.shiny .panel .progress {
+  float: right;
+  margin: 0 0.8em 0 0;
+  color: #555;
+  font-weight: bold;
+  text-shadow: #ddd 2px 2px 2px;
+  font-size: 1em;
+  line-height: 1.6;
+}
+
+.shiny .panel .progress img {
+  margin: 0 0 0 0.8em;
+}
+
+.shiny .panel .handle {
+  width: auto;
+  display: block;
+  cursor: move;
+}
+
+.shiny .panel .height-1 {
+  height: 10em;
+}
+
+.shiny .panel .height-2 {
+  height: 15em;
+}
+
+.shiny .panel .height-3 {
+  height: 20em;
+}
+
+.shiny .panel .height-4 {
+  height: 25em;
+}
+
+.shiny .panel .checkbox, .shiny .panel .radio {
+  padding: 0 0.4em 0 0;
+}
+
+.shiny .panel .top, .shiny .panel .bottom {
+  padding: 0.18em;
+}
+
+.shiny .panel a.selected,
+.shiny .panel label.selected {
+  border: dotted 1px #999;
+}
+
+.shiny .panel a.title,
+.shiny .panel label.title {
+  cursor: pointer;
+}
+
+.shiny .panel a.title,
+.shiny .panel label.title,
+.shiny .panel select.title {
+  margin: 0;
+  padding: 0;
+  font-weight: bold;
+  text-shadow: #eee 2px 2px 2px;
+  text-decoration: none;
+}
+
+.shiny .panels .panel a.large,
+.shiny .panels .panel label.large,
+.shiny .panels .panel select.large {
+}
+
+.shiny .panel a.title,
+.shiny .panel label.title {
+  font-family: 'Lucida Grande', 'Verdana', 'Arial', 'Helvetica', sans-serif;
+}
+
+.shiny .panels .panel .small label,
+.shiny .panels .panel .normal label {
+  font-size: 1em;
+  line-height: 2em;
+  vertical-align: middle;
+}
+
+.shiny .panels .panel .tiny label {
+  font-size: 0.89em;
+}
+
+.shiny .panels .large label {
+  font-size: 1.3em;
+  vertical-align: middle;
+  text-shadow: #eee 2px 2px 2px;
+}
+
+.shiny .panels .large .panel label {
+  text-shadow: #fff 2px 2px 2px;
+}
+
+.shiny .panels .collection .tuple label {
+  text-shadow: none;
+}
+
+.shiny .panels .large select {
+  font-size: 1.2em;
+  font-weight: bold;
+  font-family: 'Lucida Grande', 'Verdana', 'Arial', 'Helvetica', sans-serif;
+}
+
+.shiny .panel select.large option {
+  color: #000;
+}
+
+.shiny .panel .interior {
+  margin: 0;
+  padding: 0.2em 0 0.4em 0.8em;
+}
+
+.shiny .panel .body p {
+  margin: 0;
+  padding: 0.4em;
+}
+
+
+/**
+    Shiny.Panels:
+**/
+
+.shiny .panels {
+  background-color: transparent;
+}
+
+.shiny .fill-y {
+  height: 100%;
+}
+
+.shiny .panels,
+.shiny .fill-x {
+  width: auto;
+}
+
+.shiny .scrollable {
+  overflow: scroll;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.shiny .pad {
+  padding-left: 0.8em;
+  padding-right: 0.8em;
+}
+
+.shiny .pad-lite {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+.shiny .pad-top {
+  padding-top: 0.6em;
+}
+
+.shiny .pad-bottom {
+  padding-bottom: 0.6em;
+}
+
+.shiny .pad-all {
+  padding: 0.8em;
+}
+
+.shiny .margin {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+
+.shiny .margin-lite {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+
+/**
+    Shiny.Collection
+**/
+
+.selection {
+  background-color: #c7d0df;
+}
+
+.selection-light {
+  background-color: #eaeafd;
+}
+
+.shiny .collection {
+  clear: both;
+}
+
+.shiny .collection .selected .elt label {
+  background-color: transparent !important;
+}
+
+.shiny .collection .centered .elt {
+  text-align: center;
+}
+
+.shiny .collection .tuple {
+  display: block;
+  position: relative;
+  clear: both !important;
+  width: auto;
+  min-height: 2em;
+  background-color: inherit;
+}
+
+.shiny .collection .tuple .elt {
+  position: relative;
+  padding: 0;
+}
+
+.shiny .tuple .elt .arrow,
+.shiny .collection .tuple .elt .arrow {
+  float: none;
+  padding: 0 0.1em 0 0.5em;
+  margin: 0;
+}
+
+.shiny .tuple .elt .icon,
+.shiny .collection .tuple .elt .icon,
+.shiny .collection .radio,
+.shiny .collection .checkbox {
+  float: none;
+  padding: 0.1em 0 0 0.5em;
+  margin: 0;
+}
+
+.shiny .collection input.selector {
+  padding: 0.5em 0.1em 0 0.4em;
+
+}
+
+.shiny .collection .tuple .elt input.radio,
+.shiny .collection .tuple .elt input.checkbox {
+  margin: 0 0.2em 0 0.4em;
+  padding: 0.2em 0 0 0;
+}
+
+.shiny .collection .tuple .elt .guard {
+  margin: 0 0.4em 0 0;
+  font-size: 0.8em; /* Webkit */
+}
+
+.shiny .collection .tuple .elt,
+.shiny .collection .tuple label {
+  float: left;
+  font-size: 0.9em;
+}
+
+.shiny .tuple .elt label,
+.shiny .collection .tuple label {
+  left: -1em;
+  font-size: 0.9em;
+  position: relative;
+  margin: 0 0.4em 0 0.6em;
+  padding: 0 0 0 0.5em;
+}
+
+.shiny .header .tuple .elt {
+  padding: 0;
+}
+
+.shiny .header .tuple .elt label {
+  left: 0;
+  vertical-align: middle;
+  position: relative;
+  margin: 0.3em 0.2em 0.2em 0;
+  padding: 0 0 0 0.5em;
+}
+
+.shiny .tuple .i0 label,
+.shiny .collection .tuple .i0 label {
+  left: 0;
+}
+
+.shiny .tuple label {
+  font-size: 0.95em;
+}
+
+.shiny .collection .tuple .i0 input {
+  margin-right: 0.6em;
+}
+
+.shiny .tuple .i0 label {
+  padding-left: 0em !important;
+}
+
+.shiny .collection .tuple .elt input.text,
+.shiny .collection .tuple .elt select {
+  font-size: 1.05em;
+  font-family: 'Lucida Grande', 'Verdana', 'Helvetica', 'Arial', sans-serif;
+  font-weight: normal;
+}
+
+.shiny .collection .tuple .elt select {
+  margin-right: 1.2em;
+}
+
+.shiny .collection .tuple .elt input {
+  background-color: #fff;
+}
+
+.shiny .collection .elt,
+.shiny .collection .elt .title {
+  text-shadow: #fefefe 1px 1px 1px;
+}
+
+.shiny .collection .selected .elt,
+.shiny .collection .selected .title,
+.shiny .collection .selected .collection .selected .elt,
+.shiny .collection .selected .collection .selected .title,
+.shiny .collection .selected .collection .selected .collection .selected .elt,
+.shiny .collection .selected .collection .selected .collection .selected .title,
+.shiny .collection .selected .collection .selected .collection .selected .collection .selected .elt,
+.shiny .collection .selected .collection .selected .collection .selected .collection .selected .title {
+  color: #111 !important;
+  text-shadow: #fff 1px 1px 1px !important;
+}
+
+.shiny .collection .selected .elt label {
+  text-shadow: inherit;
+}
+
+.shiny .collection .selected .collection .elt,
+.shiny .collection .selected .collection .title,
+.shiny .collection .selected .collection .selected .collection .elt,
+.shiny .collection .selected .collection .selected .collection .title,
+.shiny .collection .selected .collection .selected .collection .selected .collection .elt,
+.shiny .collection .selected .collection .selected .collection .selected .collection .title {
+  color: #000 !important;
+  text-shadow: none !important;
+}
+
+.shiny .panel .handle .control,
+.shiny .collection .tuple .control {
+  vertical-align: middle;
+}
+
+.shiny .collection .x_ {
+  background-color: #fff;
+}
+
+.shiny .collection .x- {
+  background-color: #f8f8f8;
+}
+
+.shiny .x-red .collection .x- {
+  background-color: #fff6f6;
+}
+
+.shiny .x-blue .collection .x- {
+  background-color: #f1f5fa;
+}
+
+.shiny .collection .x_ .x_,
+.shiny .collection .x_ .x-,
+.shiny .collection .x- .x_,
+.shiny .collection .x- .x- {
+  background-color: #fff;
+}
+
+.shiny .collection .collection .i0 .selector {
+  padding-left: 2em;
+}
+
+.shiny .collection .collection .elt label {
+  padding-left: 1em;
+}
+
+.shiny .collection .collection label {
+  font-size: 7.5pt;
+}
+
+.shiny .collection .collection .collection .i0 .selector {
+  padding-left: 4em;
+}
+
+.shiny .collection .collection .collection .elt label {
+  padding-left: 2em;
+}
+
+.shiny .collection .collection .collection .collection .i0 .selector {
+  padding-left: 6em;
+}
+
+.shiny .collection .collection .collection .collection .elt label {
+  padding-left: 3em;
+}
+
+.shiny .collection .collection
+.collection .collection .collection .i0 .selector {
+  padding-left: 8em;
+}
+
+.shiny .collection .collection
+.collection .collection .collection .elt label {
+  padding-left: 4em;
+}
+
+.shiny .collection .collection .collection
+.collection .collection .collection .i0 .selector {
+  padding-left: 10em;
+}
+
+.shiny .collection .collection .collection
+.collection .collection .collection .elt label {
+  padding-left: 5em;
+}
+
+.shiny .collection .collection .collection
+.collection .collection .collection .collection .i0 .selector {
+  padding-left: 12em;
+}
+
+.shiny .collection .collection .collection
+.collection .collection .collection .collection .elt label {
+  padding-left: 6em;
+}
+
+.shiny .tuple .elt label,
+.shiny .collection .tuple .elt label {
+  width: auto;
+  float: none;
+}
+
+.shiny .x0 .tuple label,
+.shiny .x0 .tuple .elt,
+.shiny .x1 .tuple label,
+.shiny .x1 .tuple .elt {
+  width: 99.5%;
+}
+
+.shiny .x2 .tuple label,
+.shiny .x2 .tuple .elt {
+  width: 49.8%;
+}
+
+.shiny .x3 .tuple label,
+.shiny .x3 .tuple .elt {
+  width: 33.2%;
+}
+
+.shiny .x4 .tuple label,
+.shiny .x4 .tuple .elt {
+  width: 24.9%;
+}
+
+.shiny .x5 .tuple label,
+.shiny .x5 .tuple .elt {
+  width: 19.9%;
+}
+
+.shiny .x6 .tuple label,
+.shiny .x6 .tuple .elt {
+  width: 16.5%;
+}
+
+.shiny .x7 .tuple label,
+.shiny .x7 .tuple .elt {
+  width: 14.18%;
+}
+
+.shiny .x8 .tuple label,
+.shiny .x8 .tuple .elt {
+  width: 12.4%;
+}
+
+.shiny .x9 .tuple label,
+.shiny .x9 .tuple .elt {
+  width: 10.95%;
+}
+
+.shiny .x10 .tuple label,
+.shiny .x10 .tuple .elt {
+  width: 9.95%;
+}
+
+.shiny .collection .body {
+  margin: 0;
+  clear: both;
+}
+
+.shiny .collection .body p {
+  padding: 0.2em 0.4em 0.8em 0.8em;
+}
+
+.shiny .header {
+  padding: 0 16px 0 0.2em;
+  margin: 0.75em 0.8em 0 0.2em;
+  border: solid 1px #ccc;
+  background-image: url('../images/gradient-light-small.png');
+  overflow: hidden;
+  clear: both;
+}
+
+.shiny .header select.sort {
+  float: left;
+  font-size: 0.9em;
+  margin-top: 0.1em;
+  margin-left: 0;
+}
+
+.shiny .header .tuple {
+  min-height: 1.85em;
+  overflow: hidden;
+}
+
+.shiny .header .elt .control {
+  padding-top: 0.49em;
+}
+
+.shiny .header .i1 .sort {
+  margin-left: 0.3em;
+}
+
+.shiny .header .elt .control,
+.shiny .header .tuple input.sort {
+  float: left;
+}
+
+.shiny .header .tuple .elt .resize {
+  width: 0.6em;
+  height: 1.4em;
+  float: right;
+  position: relative;
+  left: -0.2em;
+  cursor: e-resize; /* CSS 2 */
+  cursor: col-resize; /* CSS 3 */
+}
+
+.shiny .header .spacer {
+  width: 1em;
+  height: 1.6em;
+  float: left;
+}
+
+.shiny .header .tuple .elt,
+.shiny .header .tuple label {
+  color: #222;
+  font-size: 1em;
+  font-weight: bold;
+  display: block;
+  text-shadow: #aaa 3px 3px 2px;
+  overflow: hidden;
+}
+
+.shiny .header .tuple label {
+  display: block;
+  border: solid 1px #ccc;
+  border-width: 0 1px 0 0;
+  overflow: hidden;
+}
+
+.shiny .form,
+.shiny .region {
+  clear: both;
+  position: relative;
+  margin-right: 0.8em;
+  margin-left: 0.2em;
+}
+
+.shiny .region {
+  background-color: #fff;
+  border: solid 1px #c0c0c0;
+}
+
+.shiny .shaded {
+  background-color: #fcfcfc;
+}
+
+.shiny .divider {
+  visibility: hidden;
+  padding-bottom: 0.5em;
+}
+
+.shiny .clear {
+  clear: both !important;
+  height: 0.5em;
+}
+
+.shiny .x0 {
+}
+

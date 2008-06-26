@@ -1,0 +1,187 @@
+<?xml version="1.0" ?>
+
+<shiny
+  xmlns="http://xml.spoonguard.org/shiny"
+  xmlns:xi="http://www.w3.org/2003/XInclude"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://xml.spoonguard.org/shiny/shiny.xsd">
+
+  <xi:include href="library/library.xml" />
+
+  <update>
+    <panels id="ps2" title="Current Workspace - Unsaved"
+      accept="c3" size="large" reorderable="true" scroll="true">
+      <panel title="Users" selector="users_selector" open="true">
+        <collection id="c4" extent="2" ajax="ajax/collection-c4.html">
+          <schema id="h1">
+            <elt type="numeric">User ID</elt>
+            <elt type="string">Full Name</elt>
+            <elt>Groups/Roles</elt>
+            <elt type="date">Created</elt>
+            <elt type="auto">Expires</elt>
+          </schema>
+          <tuple>
+            <elt>browndav</elt>
+            <elt>David Brown</elt>
+            <elt>Administrators, Plebians</elt>
+            <elt>1/1/1982 5:44am</elt>
+            <elt>1/1/2100 12:00am</elt>
+            <collection id="c7" ajax="ajax/collection-c7.html">
+              <tuple>
+                <elt>browndav</elt>
+                <elt>David Brown</elt>
+                <elt>Administrators, Plebians</elt>
+                <elt>1/1/1982 5:44am</elt>
+                <elt>1/1/2100 12:00am</elt>
+              </tuple>
+              <tuple>
+                <elt>browndav</elt>
+                <elt>David Brown</elt>
+                <elt>Administrators, Plebians</elt>
+                <elt>1/1/1982 5:44am</elt>
+                <elt>1/1/2100 12:00am</elt>
+                <collection id="cc7">
+                 <tuple>
+                    <elt>browndav</elt>
+                    <elt>David Brown</elt>
+                    <elt>Administrators, Plebians</elt>
+                    <elt>1/1/1982 5:44am</elt>
+                    <elt>1/1/2100 12:00am</elt>
+                  </tuple>
+                </collection>
+              </tuple>
+            </collection>
+          </tuple>
+          <tuple>
+            <elt>browndav</elt>
+            <elt>David Brown</elt>
+            <elt>Administrators, Plebians</elt>
+            <elt>1/1/1982 5:44am</elt>
+            <elt>1/1/2100 12:00am</elt>
+          </tuple>
+          <tuple>
+            <elt>browndav</elt>
+            <elt>David Brown</elt>
+            <elt>Administrators, Plebians</elt>
+            <elt>1/1/1982 5:44am</elt>
+            <elt>1/1/2100 12:00am</elt>
+          </tuple>
+          <tuple>
+            <elt>browndav</elt>
+            <elt>David Brown</elt>
+            <elt>Administrators, Plebians</elt>
+            <elt>1/1/1982 5:44am</elt>
+            <elt>1/1/2100 12:00am</elt>
+          </tuple>
+          <tuple>
+            <elt>browndav</elt>
+            <elt>David Brown</elt>
+            <elt>Administrators, Plebians</elt>
+            <elt>1/1/1982 5:44am</elt>
+            <elt>1/1/2100 12:00am</elt>
+          </tuple>
+          <tuple>
+            <elt>browndav</elt>
+            <elt>David Brown</elt>
+            <elt>Administrators, Plebians</elt>
+            <elt>1/1/1982 5:44am</elt>
+            <elt>1/1/2100 12:00am</elt>
+            <collection id="c8">
+              <tuple>
+                <elt>browndav</elt>
+                <elt>David Brown</elt>
+                <elt>Administrators, Plebians</elt>
+                <elt>1/1/1982 5:44am</elt>
+                <elt>1/1/2100 12:00am</elt>
+              </tuple>
+              <tuple>
+                <elt>browndav</elt>
+                <elt>David Brown</elt>
+                <elt>Administrators, Plebians</elt>
+                <elt>1/1/1982 5:44am</elt>
+                <elt>1/1/2100 12:00am</elt>
+              </tuple>
+            </collection>
+          </tuple>
+          <tuple>
+            <elt>browndav</elt>
+            <elt>David Brown</elt>
+            <elt>Administrators, Plebians</elt>
+            <elt>1/1/1982 5:44am</elt>
+            <elt>1/1/2100 12:00am</elt>
+          </tuple>
+        </collection>
+        <panels id="detail1" size="small">
+          <panel title="Selection Details">
+          </panel>
+          <panel title="Visualization Options">
+          </panel>
+        </panels>
+        <transition>
+          <library ref="before-transition" />
+          <library ref="transition-select" selected="0" />
+          <library ref="after-transition" />
+        </transition>
+      </panel>
+      <panel title="Roles">
+        <collection id="c5">
+          <schema id="h2">
+            <elt>Role Name</elt>
+            <elt>Members</elt>
+          </schema>
+          <tuple>
+            <elt>Plebians</elt>
+            <elt>browndav</elt>
+          </tuple>
+        </collection>
+        <transition>
+          <library ref="before-transition" />
+          <library ref="transition-select" selected="1" />
+          <library ref="after-transition" />
+        </transition>
+      </panel>
+      <panel title="Groups">
+        <collection id="c6">
+          <schema id="h3">
+            <elt>Group ID</elt>
+            <elt type="numeric">Group Name</elt>
+            <elt>Group Members</elt>
+          </schema>
+          <tuple>
+            <elt>admins</elt>
+            <elt>Administrators</elt>
+            <elt>browndav</elt>
+          </tuple>
+          <tuple>
+            <elt>plebes</elt>
+            <elt>Plebians</elt>
+            <elt>browndav</elt>
+          </tuple>
+          <tuple>
+            <elt>programmers</elt>
+            <elt>Software Engineers</elt>
+            <elt>browndav</elt>
+          </tuple>
+          <tuple>
+            <elt>people</elt>
+            <elt>Human Race</elt>
+            <elt>browndav</elt>
+          </tuple>
+        </collection>
+        <panels id="detail2" size="small">
+          <panel title="Selection Details">
+          </panel>
+          <panel title="Visualization Options">
+          </panel>
+        </panels>
+        <transition>
+          <library ref="before-transition" />
+          <library ref="transition-select" selected="2" />
+          <library ref="after-transition" />
+        </transition>
+      </panel>
+    </panels>
+  </update>
+
+</shiny>
+

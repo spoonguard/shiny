@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!--
+   Shiny: A Portable Javascript User-Interface Toolkit
+    Copyright 2006-2008, David Brown <dave@spoonguard.org>
+    $Id$
+   
+   This Program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License, version 2, as
+   published by the Free Software Foundation.
+
+   The Program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+
+   You should have received a copy of the GNU General Public
+   License along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+   USA.
+-->
+
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:sml="http://xml.spoonguard.org/shiny"
+  targetNamespace="http://xml.spoonguard.org/shiny"
+  elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+  <xs:simpleType name="size_attribute_type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="small"/>
+      <xs:enumeration value="medium"/>
+      <xs:enumeration value="large"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+
+ <xs:simpleType name="extent_attribute_type">
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="1" />
+      <xs:maxInclusive value="5" />
+    </xs:restriction>
+  </xs:simpleType>
+
+
+  <xs:complexType name="collection_schema_elt_type">
+    <xs:simpleContent>
+      <xs:extension base="xs:token">
+        <xs:attribute name="type" type="xs:string" use="optional" />
+        <xs:attribute name="sort" type="xs:string" use="optional" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+
+  <xs:complexType name="elt_type">
+    <xs:simpleContent>
+      <xs:extension base="xs:token">
+        <xs:attribute name="align" type="xs:string" use="optional" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+
+  <xs:complexType name="tuple_type">
+    <xs:sequence>
+      <xs:element name="elt"
+        type="sml:elt_type" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="collection"
+        type="sml:recursive_collection_type" minOccurs="0" maxOccurs="1" />
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="optional" />
+  </xs:complexType>
+
+
+  <xs:complexType name="collection_schema_type">
+    <xs:sequence>
+      <xs:element name="elt"
+        type="sml:collection_schema_elt_type" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required" />
+  </xs:complexType>
+
+
+  <xs:complexType name="collection_type">
+    <xs:sequence>
+      <xs:element name="schema"
+        type="sml:collection_schema_type" minOccurs="0" maxOccurs="1" />
+      <xs:element name="tuple"
+        type="sml:tuple_type" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required" />
+    <xs:attribute name="accept" type="xs:IDREFS" use="optional" />
+    <xs:attribute name="extent" type="sml:extent_attribute_type" use="optional" />
+    <xs:attribute name="checkboxes" type="xs:boolean" use="optional" />
+  </xs:complexType>
+
+
+  <xs:complexType name="recursive_collection_type">
+    <xs:sequence>
+      <xs:element name="tuple"
+        type="sml:tuple_type" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required" />
+  </xs:complexType>
+
+
+  <xs:complexType name="panel_type">
+    <xs:sequence>
+      <xs:element name="collection"
+        type="sml:collection_type" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="panels"
+        type="sml:panels_type" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="optional" />
+    <xs:attribute name="title" type="xs:string" use="optional" />
+    <xs:attribute name="open" type="xs:boolean" use="optional" />
+    <xs:attribute name="selector" type="xs:IDREF" use="optional" />
+    <xs:attribute name="transition-selector" type="xs:IDREF" use="optional" />
+  </xs:complexType>
+
+
+  <xs:complexType name="panels_type">
+    <xs:sequence>
+      <xs:element name="panel"
+       type="sml:panel_type" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required" />
+    <xs:attribute name="scroll" type="xs:boolean" use="optional" />
+    <xs:attribute name="reorderable" type="xs:boolean" use="optional" />
+    <xs:attribute name="size" type="sml:size_attribute_type" use="optional" />
+  </xs:complexType>
+
+
+  <xs:complexType name="sidebar_type">
+    <xs:sequence>
+      <xs:element name="panels"
+       type="sml:panels_type" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="optional" />
+  </xs:complexType>
+
+
+  <xs:complexType name="library_type">
+    <xs:sequence>
+      <!-- XHTML <select> element -->
+      <xs:element name="select" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="optgroup" minOccurs="0" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="option" minOccurs="0" maxOccurs="unbounded" />
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="option" minOccurs="0" maxOccurs="unbounded" />
+          </xs:sequence>
+          <xs:attribute name="id" type="xs:ID" use="optional" />
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="optional" />
+  </xs:complexType>
+
+
+  <xs:complexType name="body_type">
+    <xs:sequence>
+      <xs:element name="panels"
+        type="sml:panels_type" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="optional" />
+  </xs:complexType>
+
+
+  <xs:complexType name="page_type">
+    <xs:all>
+      <xs:element name="library" type="sml:library_type" />
+      <xs:element name="sidebar" type="sml:sidebar_type" />
+      <xs:element name="body" type="sml:body_type" />
+    </xs:all>
+    <xs:attribute name="id" use="optional" />
+    <xs:attribute name="title" type="xs:string" use="required" />
+    <xs:attribute name="action" type="xs:string" use="optional" />
+  </xs:complexType>
+
+
+  <xs:complexType name="shiny_type">
+    <xs:sequence>
+      <xs:element name="page" type="sml:page_type">
+        <xs:unique name="library_key">
+          <xs:selector xpath=".//sml:library/sml:select" />
+          <xs:field xpath="@id" />
+        </xs:unique>
+        <!-- Panel attribute references child of <library> -->
+        <xs:keyref name="panel_selector_keyref" refer="sml:library_key">
+          <xs:selector xpath=".//sml:panel" />
+          <xs:field xpath="@selector" />
+        </xs:keyref>
+        <!-- Panel attribute references child of <library> -->
+        <xs:keyref name="panel_transition_selector_keyref" refer="sml:library_key">
+          <xs:selector xpath=".//sml:panel" />
+          <xs:field xpath="@transition-selector" />
+        </xs:keyref>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="shiny" type="sml:shiny_type" />
+
+</xs:schema>

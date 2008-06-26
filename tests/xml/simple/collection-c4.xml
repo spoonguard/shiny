@@ -1,0 +1,104 @@
+<?xml version="1.0" ?>
+
+<shiny
+  xmlns="http://xml.spoonguard.org/shiny"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://xml.spoonguard.org/shiny/shiny.xsd">
+
+<update>
+  <collection id="c4" extent="2">
+    <tuple>
+      <elt>changed</elt>
+      <elt>David Brown</elt>
+      <elt>Administrators, Plebians</elt>
+      <elt>1/1/1982 5:44am</elt>
+      <elt>1/1/2100 12:00am</elt>
+      <collection id="c7">
+        <tuple>
+          <elt>browndav</elt>
+          <elt>David Brown</elt>
+          <elt>Administrators, Plebians</elt>
+          <elt>1/1/1982 5:44am</elt>
+          <elt>1/1/2100 12:00am</elt>
+        </tuple>
+        <tuple>
+          <elt>browndav</elt>
+          <elt>David Brown</elt>
+          <elt>Administrators, Plebians</elt>
+          <elt>1/1/1982 5:44am</elt>
+          <elt>1/1/2100 12:00am</elt>
+          <collection id="cc7">
+           <tuple>
+              <elt>browndav</elt>
+              <elt>David Brown</elt>
+              <elt>Administrators, Plebians</elt>
+              <elt>1/1/1982 5:44am</elt>
+              <elt>1/1/2100 12:00am</elt>
+            </tuple>
+          </collection>
+        </tuple>
+      </collection>
+    </tuple>
+    <tuple>
+      <elt>browndav</elt>
+      <elt>David Brown</elt>
+      <elt>Administrators, Plebians</elt>
+      <elt>1/1/1982 5:44am</elt>
+      <elt>1/1/2100 12:00am</elt>
+    </tuple>
+    <tuple>
+      <elt>changed</elt>
+      <elt>David Brown</elt>
+      <elt>Administrators, Plebians</elt>
+      <elt>1/1/1982 5:44am</elt>
+      <elt>1/1/2100 12:00am</elt>
+    </tuple>
+    <tuple>
+      <elt>browndav</elt>
+      <elt>David Brown</elt>
+      <elt>Administrators, Plebians</elt>
+      <elt>1/1/1982 5:44am</elt>
+      <elt>1/1/2100 12:00am</elt>
+    </tuple>
+    <tuple>
+      <elt>changed</elt>
+      <elt>David Brown</elt>
+      <elt>Administrators, Plebians</elt>
+      <elt>1/1/1982 5:44am</elt>
+      <elt>1/1/2100 12:00am</elt>
+    </tuple>
+    <tuple>
+      <elt>changed</elt>
+      <elt>David Brown</elt>
+      <elt>Administrators, Plebians</elt>
+      <elt>1/1/1982 5:44am</elt>
+      <elt>1/1/2100 12:00am</elt>
+      <collection id="c8">
+        <tuple>
+          <elt>changed</elt>
+          <elt>David Brown</elt>
+          <elt>Administrators, Plebians</elt>
+          <elt>1/1/1982 5:44am</elt>
+          <elt>1/1/2100 12:00am</elt>
+        </tuple>
+        <tuple>
+          <elt>changed</elt>
+          <elt>David Brown</elt>
+          <elt>Administrators, Plebians</elt>
+          <elt>1/1/1982 5:44am</elt>
+          <elt>1/1/2100 12:00am</elt>
+        </tuple>
+      </collection>
+    </tuple>
+    <tuple>
+      <elt>changed</elt>
+      <elt>David Brown</elt>
+      <elt>Administrators, Plebians</elt>
+      <elt>1/1/1982 5:44am</elt>
+      <elt>1/1/2100 12:00am</elt>
+    </tuple>
+  </collection>
+</update>
+
+</shiny>
+

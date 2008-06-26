@@ -1,0 +1,53 @@
+<?xml version="1.0" ?>
+
+<shiny
+  xmlns="http://xml.spoonguard.org/shiny"
+  xmlns:xi="http://www.w3.org/2003/XInclude"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://xml.spoonguard.org/shiny/shiny.xsd">
+
+  <xi:include href="library/library.xml" />
+
+  <update>
+
+    <panel title="Selection Details" open="true">
+      <collection id="dc1" type="form" edit-mode="normal">
+        <tuple>
+          <elt id="elt3">
+            <library ref="test-input"
+              label="Description" value="This is a Textual Description" />
+          </elt>
+        </tuple>
+        <tuple id="Boxes">
+          <elt id="Testing">
+            <library ref="test-select" selected="1" />
+          </elt>
+          <elt>
+            <library ref="test-select" selected="3" />
+          </elt>
+          <elt>
+            <library ref="test-select" selected="2" />
+          </elt>
+        </tuple>
+        <tuple id="tuple1">
+          <elt>
+            <library ref="test-select"
+              label="Test" selected="1" />
+          </elt>
+          <elt id="elt1">
+            <library ref="test-select"
+              label="Another Test" selected="0" />
+          </elt>
+          <elt>
+            <library id="Test" ref="test-select" selected="3" />
+          </elt>
+          <elt>
+            <library id="Box" ref="test-select" selected="2" />
+          </elt>
+        </tuple>
+      </collection>
+    </panel>
+
+  </update>
+
+</shiny>
