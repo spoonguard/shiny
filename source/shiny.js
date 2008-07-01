@@ -823,7 +823,7 @@ Shiny.Screen = Class.create(Shiny.Container,
 
     this._page_effect = new Effect.Opacity(e, {
       duration:
-        (options.get('duration') || 1.2),
+        (options.get('duration') || 0.8),
       from: o, to: 0, afterFinish: function(options) {
         this._darken_elt = null;
         this._page_effect = null;
@@ -855,7 +855,7 @@ Shiny.Screen = Class.create(Shiny.Container,
 
     this._page_effect = new Effect.Opacity(e, {
       duration:
-        (options.get('duration') || 1.2),
+        (options.get('duration') || 0.8),
       from: 0.0, to: 0.7, afterFinish: function(options) {
         this._page_effect = null;
         var f = options.get('afterFinish'); if (f) f();
@@ -919,10 +919,13 @@ Shiny.Dialog = Class.create(Shiny.Container,
 
   show: function(options)
   {
+    var c = this.get_container();
+
     options = $H(options || {});
     this._screen.disable();
 
-    this.get_container().appear({
+    c.appear({
+      from: 0.0, to: 0.75,
       duration: (options.get('duration') || 1.0)
     });
 
@@ -931,10 +934,12 @@ Shiny.Dialog = Class.create(Shiny.Container,
 
   hide: function(options)
   {
+    var c = this.get_container();
+
     options = $H(options || {});
     this._screen.enable();
 
-    this.get_container().fade({
+    c.fade({
       duration: (options.get('duration') || 1.0)
     });
 
@@ -3555,24 +3560,24 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     if (!this._ajax_uri)
       return this;
 
-    var i = Element.getComputedIndex(elt);
-    var i_prev = Element.getComputedIndex(elt, true);
+    var i_current = Element.getComputedIndex(elt);
+    var i_previous = Element.getComputedIndex(elt, true);
 
-    if (i == i_prev)
+    if (i_current == i_previous)
       return this; /* No movement - skip */
 
     var panels = this.get_all();
-    var drop_index = Element.getOriginalIndex(elt);
+    var i_original = Element.getOriginalIndex(elt);
 
     var options = {
-      message: 'Updating...', delay: 350 /* ms */
+      message: '', delay: 350 /* ms */
     };
 
     if (this._ajax_scope == 'successors') {
 
       /* All panels originally following dropped panel */
       for (var i = 0, len = panels.length; i < len; ++i) {
-        if (i >= drop_index)
+        if (i >= i_original)
           panels[i].update(null, this._ajax_uri, options);
       }
 
@@ -3581,10 +3586,24 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
       /* All panels originally preceding dropped panel */
       for (var i = 0, len = panels.length; i < len; ++i) {
         panels[i].update(null, this._ajax_uri, options);
-        if (i >= drop_index) break;
+        if (i >= i_original) break;
       }
 
-    } else if (this._ajax_scope == 'minimal') {
+    } else if (this._ajax_scope == 'stack') {
+
+      var updated = $H({});
+
+      /* All panels following dropped panel, before or after drag */
+      [ i_current, i_original ].each(function(limit) {
+        for (var i = 0, len = panels.length; i < len; ++i) {
+          if (i >= limit && !updated.get(i)) {
+            panels[i].update(null, this._ajax_uri, options);
+            updated.set(i, true);
+          }
+        }
+      }.bind(this));
+
+    } else if (this._ajax_scope == 'self') {
 
       /* Dropped panel only */
       panels[drop_index].update(null, this._ajax_uri, options);
@@ -3599,7 +3618,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     } else {
 
       /* Whole Shiny.Panels object */
-      this.update(null, this._ajax_uri, options);
+      return this.update(null, this._ajax_uri, options);
 
     }
 

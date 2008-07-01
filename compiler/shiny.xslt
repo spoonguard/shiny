@@ -429,8 +429,8 @@
                   id="dialog_info" name="dialog" value="info">
                     More Information...
                 </button>
-                <button type="button" class="shiny button"
-                  onclick="return _shiny.dialog.hide();">
+                <button type="button" class="shiny button default"
+                  accesskey="w" onclick="return _shiny.dialog.hide();">
                     Close
                 </button>
               </div>
@@ -596,6 +596,11 @@
     </xsl:for-each>
     <xsl:for-each select="sml:panel">
       <xsl:call-template name="generate-panel-content">
+        <xsl:with-param name="update" select="$update" />
+      </xsl:call-template>
+    </xsl:for-each>
+    <xsl:for-each select="sml:tuple">
+      <xsl:call-template name="generate-tuple-content">
         <xsl:with-param name="update" select="$update" />
       </xsl:call-template>
     </xsl:for-each>
@@ -879,7 +884,7 @@
               shiny: 'shiny'
               <xsl:for-each select=".//sml:panels | .//sml:collection | .">
                 <xsl:if test="@ajax != ''">,
-                  <xsl:call-template name="generate-panel-or-collection-id" />:
+                  <xsl:call-template name="generate-panel-or-collection-id" />:[
                   <xsl:choose>
                     <xsl:when test="@ajax = 'inherit'">
                       '<xsl:value-of select="ancestor::*[@ajax != ''][1]/@ajax" />'
@@ -888,6 +893,10 @@
                       '<xsl:value-of select="@ajax" />'
                     </xsl:otherwise>
                   </xsl:choose>
+                  <xsl:if test="@ajax-scope != ''">
+                    , '<xsl:value-of select="@ajax-scope" />'
+                  </xsl:if>
+                  ]
                 </xsl:if>
               </xsl:for-each>
             },
@@ -1291,117 +1300,126 @@
         <xsl:with-param name="skip-own-id" select="true()" />
       </xsl:call-template>
     </xsl:variable>
+    <div id="{$panel-id}">
+      <xsl:call-template name="generate-tuple-content">
+        <xsl:with-param name="update" select="$update" />
+      </xsl:call-template>
+    </div>
+  </xsl:template>
+
+
+  <xsl:template name="generate-tuple-content">
+    <xsl:param name="update" type="xs:boolean" select="false()" />
     <xsl:variable name="tuple-id">
       <xsl:call-template name="generate-id">
         <xsl:with-param name="prefix" select="'t'" />
-        <xsl:with-param name="skip-own-id" select="true()" />
       </xsl:call-template>
     </xsl:variable>
-    <div id="{$panel-id}">
-      <xsl:call-template name="generate-collection-panel-class" />
-      <div id="{$tuple-id}" class="tuple xr">
-        <!-- First element -->
-        <xsl:for-each select="sml:elt[1]">
-          <xsl:variable name="elt-id">
-            <xsl:call-template name="generate-id">
-              <xsl:with-param name="base-id" select="$tuple-id" />
-              <xsl:with-param name="prefix" select="'e'" />
-              <xsl:with-param name="prefer-parent" select="true()" />
-            </xsl:call-template>
-          </xsl:variable>
-          <div id="{$elt-id}">
-            <xsl:attribute name="class">elt i0 xr<xsl:if
-              test="not(ancestor::sml:collection[1]/@type = 'form')"> handle
-            </xsl:if></xsl:attribute>
-            <xsl:if test="not(ancestor::sml:collection[1]/@type = 'form')">
-              <!-- Attribute 'id' is required on sml:collection -->
-              <input name="{ancestor::sml:collection[1]/@id}">
-                <xsl:call-template name="generate-tuple-input-class" />
+    <xsl:call-template name="generate-collection-panel-class" />
+    <div id="{$tuple-id}" class="tuple xr">
+      <!-- First element -->
+      <xsl:for-each select="sml:elt[1]">
+        <xsl:variable name="elt-id">
+          <xsl:call-template name="generate-id">
+            <xsl:with-param name="base-id" select="$tuple-id" />
+            <xsl:with-param name="prefix" select="'e'" />
+            <xsl:with-param name="prefer-parent" select="true()" />
+          </xsl:call-template>
+        </xsl:variable>
+        <div id="{$elt-id}">
+          <xsl:attribute name="class">elt i0 xr<xsl:if
+            test="not(ancestor::sml:collection[1]/@type = 'form')"> handle
+          </xsl:if></xsl:attribute>
+          <xsl:if test="not(ancestor::sml:collection[1]/@type = 'form')">
+            <!-- Attribute 'id' is required on sml:collection -->
+            <input name="{ancestor::sml:collection[1]/@id}">
+              <xsl:call-template name="generate-tuple-input-class" />
+              <xsl:call-template name="generate-id-attribute">
+                <xsl:with-param name="id" select="$tuple-id" />
+                <xsl:with-param name="suffix">ck</xsl:with-param>
+              </xsl:call-template>
+              <xsl:attribute name="value">
+                <xsl:choose>
+                  <xsl:when test="../@id"><xsl:value-of select="../@id" /></xsl:when>
+                  <xsl:otherwise>x<xsl:value-of
+                    select="count(../preceding-sibling::*) - count(../sml:schema)"
+                  /></xsl:otherwise>
+                </xsl:choose>
+              </xsl:attribute>
+            </input>
+            <xsl:choose>
+              <xsl:when test="../sml:collection">
+                <input type="checkbox" class="shiny arrow title checkbox">
+                  <xsl:call-template name="generate-id-and-name-attributes">
+                    <xsl:with-param name="id" select="$tuple-id" />
+                    <xsl:with-param name="suffix">arr</xsl:with-param>
+                  </xsl:call-template>
+                </input>
+              </xsl:when>
+              <xsl:otherwise>
+                <img src="../images/dot-gray.png"
+                  class="png icon control" alt="*" />
+              </xsl:otherwise>
+            </xsl:choose>
+            <xsl:if test="normalize-space(text()) != ''">
+              <label class="title">
                 <xsl:call-template name="generate-id-attribute">
                   <xsl:with-param name="id" select="$tuple-id" />
                   <xsl:with-param name="suffix">ck</xsl:with-param>
+                  <xsl:with-param name="attribute">for</xsl:with-param>
                 </xsl:call-template>
-                <xsl:attribute name="value">
-                  <xsl:choose>
-                    <xsl:when test="../@id"><xsl:value-of select="../@id" /></xsl:when>
-                    <xsl:otherwise>x<xsl:value-of
-                      select="count(../preceding-sibling::*) - count(../sml:schema)"
-                    /></xsl:otherwise>
-                  </xsl:choose>
-                </xsl:attribute>
-              </input>
-              <xsl:choose>
-                <xsl:when test="../sml:collection">
-                  <input type="checkbox" class="shiny arrow title checkbox">
-                    <xsl:call-template name="generate-id-and-name-attributes">
-                      <xsl:with-param name="id" select="$tuple-id" />
-                      <xsl:with-param name="suffix">arr</xsl:with-param>
-                    </xsl:call-template>
-                  </input>
-                </xsl:when>
-                <xsl:otherwise>
-                  <img src="../images/dot-gray.png"
-                    class="png icon control" alt="*" />
-                </xsl:otherwise>
-              </xsl:choose>
-              <xsl:if test="normalize-space(text()) != ''">
-                <label class="title">
-                  <xsl:call-template name="generate-id-attribute">
-                    <xsl:with-param name="id" select="$tuple-id" />
-                    <xsl:with-param name="suffix">ck</xsl:with-param>
-                    <xsl:with-param name="attribute">for</xsl:with-param>
-                  </xsl:call-template>
-                  <xsl:value-of select="text()" />
-                </label>
-              </xsl:if>
-            </xsl:if>
-            <xsl:call-template name="output-using-library">
-              <xsl:with-param name="id" select="$elt-id" />
-              <xsl:with-param name="update" select="$update" />
-              <xsl:with-param name="content" select="*" />
-            </xsl:call-template>
-          </div>
-        </xsl:for-each>
-        <!-- Elements two through final -->
-        <xsl:for-each select="sml:elt[1]/following-sibling::sml:elt">
-          <xsl:variable name="elt-id">
-            <xsl:call-template name="generate-id">
-              <xsl:with-param name="prefix" select="'e'" />
-              <xsl:with-param name="base-id" select="$tuple-id" />
-              <xsl:with-param name="prefer-parent" select="true()" />
-            </xsl:call-template>
-          </xsl:variable>
-          <div id="{$elt-id}">
-            <xsl:call-template name="generate-tuple-elt-class" />
-            <xsl:if test="normalize-space(text()) != ''">
-              <label>
-                <xsl:if test="@color">
-                  <xsl:attribute name="style">
-                    color: <xsl:value-of select="@color" />;
-                  </xsl:attribute>
-                </xsl:if>
                 <xsl:value-of select="text()" />
               </label>
             </xsl:if>
-            <xsl:call-template name="output-using-library">
-              <xsl:with-param name="id" select="$elt-id" />
-              <xsl:with-param name="update" select="$update" />
-              <xsl:with-param name="content" select="*" />
-            </xsl:call-template>
-          </div>
-        </xsl:for-each>
-        <xsl:for-each select="sml:collection">
-          <div class="body xr">
-            <xsl:call-template name="generate-collection">
-              <xsl:with-param name="update" select="$update" />
-              <xsl:with-param name="recursive">true</xsl:with-param>
-            </xsl:call-template>
-          </div>
-        </xsl:for-each>
-      </div>
+          </xsl:if>
+          <xsl:call-template name="output-using-library">
+            <xsl:with-param name="id" select="$elt-id" />
+            <xsl:with-param name="update" select="$update" />
+            <xsl:with-param name="content" select="*" />
+          </xsl:call-template>
+        </div>
+      </xsl:for-each>
+      <!-- Elements two through final -->
+      <xsl:for-each select="sml:elt[1]/following-sibling::sml:elt">
+        <xsl:variable name="elt-id">
+          <xsl:call-template name="generate-id">
+            <xsl:with-param name="prefix" select="'e'" />
+            <xsl:with-param name="base-id" select="$tuple-id" />
+            <xsl:with-param name="prefer-parent" select="true()" />
+          </xsl:call-template>
+        </xsl:variable>
+        <div id="{$elt-id}">
+          <xsl:call-template name="generate-tuple-elt-class" />
+          <xsl:if test="normalize-space(text()) != ''">
+            <label>
+              <xsl:if test="@color">
+                <xsl:attribute name="style">
+                  color: <xsl:value-of select="@color" />;
+                </xsl:attribute>
+              </xsl:if>
+              <xsl:value-of select="text()" />
+            </label>
+          </xsl:if>
+          <xsl:call-template name="output-using-library">
+            <xsl:with-param name="id" select="$elt-id" />
+            <xsl:with-param name="update" select="$update" />
+            <xsl:with-param name="content" select="*" />
+          </xsl:call-template>
+          <xsl:if test="not(following-sibling::sml:elt)">
+            <div class="progress"></div>
+          </xsl:if>
+        </div>
+      </xsl:for-each>
+      <xsl:for-each select="sml:collection">
+        <div class="body xr">
+          <xsl:call-template name="generate-collection">
+            <xsl:with-param name="update" select="$update" />
+            <xsl:with-param name="recursive">true</xsl:with-param>
+          </xsl:call-template>
+        </div>
+      </xsl:for-each>
     </div>
   </xsl:template>
-  
 
 </xsl:stylesheet>
 

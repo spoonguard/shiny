@@ -566,10 +566,10 @@ input.shiny, img.shiny {
   font-weight: bold;
   text-shadow: #ddd 2px 2px 2px;
   font-size: 1em;
-  line-height: 1.6;
 }
 
 .shiny .panel .progress img {
+  vertical-align: middle;
   margin: 0 0 0 0.8em;
 }
 

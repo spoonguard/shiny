@@ -66,8 +66,8 @@
     </sidebar>
 
     <body>
-      <panels id="ps2" title="Current Workspace - Unsaved"
-        accept="c3" size="large" ajax="ajax/panels-ps2.html" scroll="true">
+      <panels id="ps2" title="Current Workspace - Unsaved" accept="c3"
+        size="large" scroll="true" ajax="ajax/panels-ps2.html">
         <status>
           <xhtml>
             <a class="button control">
@@ -88,7 +88,7 @@
           </xhtml>
         </status>
         <panel title="Users" selector="users_selector" open="true">
-          <collection id="c4" select="single" extent="2" ajax="ajax/collection-c4.html">
+          <collection id="c4" ajax-scope="stack" select="single" extent="2" ajax="ajax/collection-c4-panel.html">
             <schema id="h1">
               <elt type="numeric">User ID</elt>
               <elt type="string">Full Name</elt>
