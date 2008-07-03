@@ -3561,9 +3561,10 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
       return this;
 
     var i_current = Element.getComputedIndex(elt);
+    var i_original = Element.getOriginalIndex(elt);
     var i_previous = Element.getComputedIndex(elt, true);
 
-    if (i_current == i_previous)
+    if (i_current == i_original)
       return this; /* No movement - skip */
 
     var panels = this.get_all();
@@ -3606,7 +3607,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     } else if (this._ajax_scope == 'self') {
 
       /* Dropped panel only */
-      panels[drop_index].update(null, this._ajax_uri, options);
+      panels[i_original].update(null, this._ajax_uri, options);
 
     } else if (this._ajax_scope == 'each') {
 

@@ -88,7 +88,7 @@
           </xhtml>
         </status>
         <panel title="Users" selector="users_selector" open="true">
-          <collection id="c4" ajax-scope="stack" select="single" extent="2" ajax="ajax/collection-c4-panel.html">
+          <collection id="c4" ajax-scope="self" select="single" extent="2" ajax="ajax/collection-c4-panel.html">
             <schema id="h1">
               <elt type="numeric">User ID</elt>
               <elt type="string">Full Name</elt>
