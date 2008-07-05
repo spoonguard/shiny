@@ -1,0 +1,218 @@
+# Logfile created on Fri Jul 04 16:21:11 -0700 2008 by /
+D, [2008-07-04T16:21:11.298038 #1239] DEBUG -- : TRACING ON Fri Jul 04 16:21:11 -0700 2008
+Fri Jul 04 16:21:16 -0700 2008 REQUEST /shiny
+0.0.0.0:3000 -- THREADS: 1 -----
+	KEYS:
+		-- #<Thread:0x1b04f7c>: [:started_on]
+Fri Jul 04 16:21:18 -0700 2008 REQUEST /styles/shiny.css
+Fri Jul 04 16:21:18 -0700 2008 REQUEST /favicon.ico
+Fri Jul 04 16:21:18 -0700 2008 REQUEST /source/contrib/prototype.js
+0.0.0.0:3000 -- THREADS: 3 -----
+	KEYS:
+		-- #<Thread:0x26f5444>: [:started_on]
+		-- #<Thread:0x26f5bc4>: [:started_on]
+		-- #<Thread:0x26f6330>: [:started_on, :__inspect_key__]
+0.0.0.0:3000 -- THREADS: 3 -----
+	KEYS:
+		-- #<Thread:0x26f6330>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x26f5444>: [:started_on]
+		-- #<Thread:0x26f5bc4>: [:started_on, :__inspect_key__]
+0.0.0.0:3000 -- THREADS: 3 -----
+	KEYS:
+		-- #<Thread:0x26f5bc4>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x26f6330>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x26f5444>: [:started_on, :__inspect_key__]
+Fri Jul 04 16:21:19 -0700 2008 REQUEST /source/contrib/effects.js
+0.0.0.0:3000 -- THREADS: 1 -----
+	KEYS:
+		-- #<Thread:0x263e320>: [:started_on]
+Fri Jul 04 16:21:20 -0700 2008 REQUEST /source/contrib/dragdrop.js
+0.0.0.0:3000 -- THREADS: 1 -----
+	KEYS:
+		-- #<Thread:0x234ef5c>: [:started_on]
+Fri Jul 04 16:21:21 -0700 2008 REQUEST /source/shiny.js
+0.0.0.0:3000 -- THREADS: 1 -----
+	KEYS:
+		-- #<Thread:0x18404bc>: [:started_on]
+Fri Jul 04 16:21:24 -0700 2008 REQUEST /images/checkbox-active.png
+0.0.0.0:3000 -- THREADS: 4 -----
+	KEYS:
+		-- #<Thread:0x2582d14>: [:started_on]
+		-- #<Thread:0x25843d0>: [:started_on]
+		-- #<Thread:0x2584b50>: [:started_on]
+		-- #<Thread:0x25856cc>: [:started_on, :__inspect_key__]
+Fri Jul 04 16:21:24 -0700 2008 REQUEST /images/radio-active.png
+Fri Jul 04 16:21:24 -0700 2008 REQUEST /images/arrow-open.png
+0.0.0.0:3000 -- THREADS: 4 -----
+	KEYS:
+		-- #<Thread:0x25856cc>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x2582d14>: [:started_on]
+		-- #<Thread:0x25843d0>: [:started_on]
+		-- #<Thread:0x2584b50>: [:started_on, :__inspect_key__]
+Fri Jul 04 16:21:24 -0700 2008 REQUEST /images/arrow-open-red.png
+0.0.0.0:3000 -- THREADS: 4 -----
+	KEYS:
+		-- #<Thread:0x2584b50>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x25856cc>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x2582d14>: [:started_on]
+		-- #<Thread:0x25843d0>: [:started_on, :__inspect_key__]
+0.0.0.0:3000 -- THREADS: 4 -----
+	KEYS:
+		-- #<Thread:0x25843d0>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x2584b50>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x25856cc>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x2582d14>: [:started_on, :__inspect_key__]
+Fri Jul 04 16:21:28 -0700 2008 REQUEST /images/button-right.png
+0.0.0.0:3000 -- THREADS: 4 -----
+	KEYS:
+		-- #<Thread:0x1134448>: [:started_on]
+		-- #<Thread:0x1a1e388>: [:started_on]
+		-- #<Thread:0x2192664>: [:started_on]
+		-- #<Thread:0x229924c>: [:started_on, :__inspect_key__]
+Fri Jul 04 16:21:28 -0700 2008 REQUEST /images/blank.png
+Fri Jul 04 16:21:28 -0700 2008 REQUEST /images/arrow-closed.png
+Fri Jul 04 16:21:28 -0700 2008 REQUEST /images/arrow-down.png
+0.0.0.0:3000 -- THREADS: 5 -----
+	KEYS:
+		-- #<Thread:0x229924c>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x27b3124>: [:started_on]
+		-- #<Thread:0x1134448>: [:started_on]
+		-- #<Thread:0x1a1e388>: [:started_on]
+		-- #<Thread:0x2192664>: [:started_on, :__inspect_key__]
+0.0.0.0:3000 -- THREADS: 5 -----
+	KEYS:
+		-- #<Thread:0x2192664>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x229924c>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x27b3124>: [:started_on]
+		-- #<Thread:0x1134448>: [:started_on]
+		-- #<Thread:0x1a1e388>: [:started_on, :__inspect_key__]
+0.0.0.0:3000 -- THREADS: 5 -----
+	KEYS:
+		-- #<Thread:0x1a1e388>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x2192664>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x229924c>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x27b3124>: [:started_on]
+		-- #<Thread:0x1134448>: [:started_on, :__inspect_key__]
+Fri Jul 04 16:21:29 -0700 2008 REQUEST /images/arrow-to-large.png
+0.0.0.0:3000 -- THREADS: 1 -----
+	KEYS:
+		-- #<Thread:0x27b3124>: [:started_on]
+Fri Jul 04 16:21:30 -0700 2008 REQUEST /shiny
+0.0.0.0:3000 -- THREADS: 1 -----
+	KEYS:
+		-- #<Thread:0x249de58>: [:started_on]
+Fri Jul 04 16:21:33 -0700 2008 REQUEST /styles/shiny.css
+Fri Jul 04 16:21:33 -0700 2008 REQUEST /source/contrib/prototype.js
+0.0.0.0:3000 -- THREADS: 3 -----
+	KEYS:
+		-- #<Thread:0x19bc818>: [:started_on]
+		-- #<Thread:0x1a767e0>: [:started_on]
+		-- #<Thread:0x1a7b754>: [:started_on, :__inspect_key__]
+Fri Jul 04 16:21:33 -0700 2008 REQUEST /favicon.ico
+0.0.0.0:3000 -- THREADS: 3 -----
+	KEYS:
+		-- #<Thread:0x1a7b754>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x19bc818>: [:started_on]
+		-- #<Thread:0x1a767e0>: [:started_on, :__inspect_key__]
+0.0.0.0:3000 -- THREADS: 3 -----
+	KEYS:
+		-- #<Thread:0x1a767e0>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x1a7b754>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x19bc818>: [:started_on, :__inspect_key__]
+Fri Jul 04 16:21:35 -0700 2008 REQUEST /source/contrib/effects.js
+0.0.0.0:3000 -- THREADS: 1 -----
+	KEYS:
+		-- #<Thread:0x199ae84>: [:started_on]
+Fri Jul 04 16:21:36 -0700 2008 REQUEST /source/contrib/dragdrop.js
+0.0.0.0:3000 -- THREADS: 1 -----
+	KEYS:
+		-- #<Thread:0x2603400>: [:started_on]
+Fri Jul 04 16:21:37 -0700 2008 REQUEST /source/shiny.js
+0.0.0.0:3000 -- THREADS: 1 -----
+	KEYS:
+		-- #<Thread:0x2338b08>: [:started_on]
+Fri Jul 04 16:21:40 -0700 2008 REQUEST /images/arrow-up-blue.png
+Fri Jul 04 16:21:40 -0700 2008 REQUEST /images/radio.png
+Fri Jul 04 16:21:40 -0700 2008 REQUEST /images/dot-blue.png
+Fri Jul 04 16:21:40 -0700 2008 REQUEST /images/arrow-up.png
+0.0.0.0:3000 -- THREADS: 4 -----
+	KEYS:
+		-- #<Thread:0x1870054>: [:started_on]
+		-- #<Thread:0x186e5c4>: [:started_on]
+		-- #<Thread:0x186f3d4>: [:started_on]
+		-- #<Thread:0x186fb40>: [:started_on, :__inspect_key__]
+0.0.0.0:3000 -- THREADS: 4 -----
+	KEYS:
+		-- #<Thread:0x186e5c4>: [:started_on]
+		-- #<Thread:0x186f3d4>: [:started_on]
+		-- #<Thread:0x186fb40>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x1870054>: [:started_on, :__inspect_key__]
+0.0.0.0:3000 -- THREADS: 4 -----
+	KEYS:
+		-- #<Thread:0x186fb40>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x1870054>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x186e5c4>: [:started_on]
+		-- #<Thread:0x186f3d4>: [:started_on, :__inspect_key__]
+0.0.0.0:3000 -- THREADS: 4 -----
+	KEYS:
+		-- #<Thread:0x186f3d4>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x186fb40>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x1870054>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x186e5c4>: [:started_on, :__inspect_key__]
+Fri Jul 04 16:21:42 -0700 2008 REQUEST /images/arrow-closed-red.png
+Fri Jul 04 16:21:42 -0700 2008 REQUEST /images/blank.png
+0.0.0.0:3000 -- THREADS: 2 -----
+	KEYS:
+		-- #<Thread:0x25530b4>: [:started_on]
+		-- #<Thread:0x254edfc>: [:started_on, :__inspect_key__]
+0.0.0.0:3000 -- THREADS: 2 -----
+	KEYS:
+		-- #<Thread:0x254edfc>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x25530b4>: [:started_on, :__inspect_key__]
+Fri Jul 04 16:21:43 -0700 2008 REQUEST /shiny
+0.0.0.0:3000 -- THREADS: 1 -----
+	KEYS:
+		-- #<Thread:0x27c7c3c>: [:started_on]
+Fri Jul 04 16:21:46 -0700 2008 REQUEST /styles/shiny.css
+0.0.0.0:3000 -- THREADS: 4 -----
+	KEYS:
+		-- #<Thread:0x245fb08>: [:started_on]
+		-- #<Thread:0x245c3a4>: [:started_on]
+		-- #<Thread:0x245cb24>: [:started_on]
+		-- #<Thread:0x245d290>: [:started_on, :__inspect_key__]
+Fri Jul 04 16:21:46 -0700 2008 REQUEST /favicon.ico
+Fri Jul 04 16:21:46 -0700 2008 REQUEST /source/contrib/prototype.js
+0.0.0.0:3000 -- THREADS: 4 -----
+	KEYS:
+		-- #<Thread:0x245d290>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x245fb08>: [:started_on]
+		-- #<Thread:0x245c3a4>: [:started_on]
+		-- #<Thread:0x245cb24>: [:started_on, :__inspect_key__]
+0.0.0.0:3000 -- THREADS: 4 -----
+	KEYS:
+		-- #<Thread:0x245cb24>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x245d290>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x245fb08>: [:started_on]
+		-- #<Thread:0x245c3a4>: [:started_on, :__inspect_key__]
+Fri Jul 04 16:21:48 -0700 2008 REQUEST /shiny
+0.0.0.0:3000 -- THREADS: 1 -----
+	KEYS:
+		-- #<Thread:0x245fb08>: [:started_on]
+Fri Jul 04 16:21:51 -0700 2008 REQUEST /favicon.ico
+0.0.0.0:3000 -- THREADS: 3 -----
+	KEYS:
+		-- #<Thread:0x19bbdb4>: [:started_on]
+		-- #<Thread:0x19bc534>: [:started_on]
+		-- #<Thread:0x19bccb4>: [:started_on, :__inspect_key__]
+Fri Jul 04 16:21:51 -0700 2008 REQUEST /styles/shiny.css
+Fri Jul 04 16:21:51 -0700 2008 REQUEST /source/contrib/prototype.js
+0.0.0.0:3000 -- THREADS: 3 -----
+	KEYS:
+		-- #<Thread:0x19bccb4>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x19bbdb4>: [:started_on]
+		-- #<Thread:0x19bc534>: [:started_on, :__inspect_key__]
+0.0.0.0:3000 -- THREADS: 3 -----
+	KEYS:
+		-- #<Thread:0x19bc534>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x19bccb4>: [:started_on, :__inspect_key__]
+		-- #<Thread:0x19bbdb4>: [:started_on, :__inspect_key__]

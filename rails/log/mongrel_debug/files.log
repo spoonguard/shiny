@@ -1,0 +1,344 @@
+# Logfile created on Fri Jul 04 16:21:11 -0700 2008 by /
+D, [2008-07-04T16:21:11.297492 #1239] DEBUG -- : TRACING ON Fri Jul 04 16:21:11 -0700 2008
+Fri Jul 04 16:21:16 -0700 2008 FILES OPEN BEFORE REQUEST /shiny
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:16 -0700 2008 FILES OPEN BEFORE REQUEST /styles/shiny.css
+Fri Jul 04 16:21:16 -0700 2008 FILES OPEN BEFORE REQUEST /favicon.ico
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:16 -0700 2008 FILES OPEN BEFORE REQUEST /source/contrib/prototype.js
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:18 -0700 2008 FILES OPEN BEFORE REQUEST /source/contrib/effects.js
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:19 -0700 2008 FILES OPEN BEFORE REQUEST /source/contrib/dragdrop.js
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:21 -0700 2008 FILES OPEN BEFORE REQUEST /source/shiny.js
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:21 -0700 2008 FILES OPEN BEFORE REQUEST /images/checkbox-active.png
+Fri Jul 04 16:21:21 -0700 2008 FILES OPEN BEFORE REQUEST /images/radio-active.png
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:21 -0700 2008 FILES OPEN BEFORE REQUEST /images/arrow-open.png
+Fri Jul 04 16:21:21 -0700 2008 FILES OPEN BEFORE REQUEST /images/arrow-open-red.png
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:25 -0700 2008 FILES OPEN BEFORE REQUEST /images/button-right.png
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:26 -0700 2008 FILES OPEN BEFORE REQUEST /images/blank.png
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:26 -0700 2008 FILES OPEN BEFORE REQUEST /images/arrow-closed.png
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:26 -0700 2008 FILES OPEN BEFORE REQUEST /images/arrow-down.png
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:28 -0700 2008 FILES OPEN BEFORE REQUEST /images/arrow-to-large.png
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:29 -0700 2008 FILES OPEN BEFORE REQUEST /shiny
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:30 -0700 2008 FILES OPEN BEFORE REQUEST /styles/shiny.css
+Fri Jul 04 16:21:30 -0700 2008 FILES OPEN BEFORE REQUEST /source/contrib/prototype.js
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:30 -0700 2008 FILES OPEN BEFORE REQUEST /favicon.ico
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:34 -0700 2008 FILES OPEN BEFORE REQUEST /source/contrib/effects.js
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:35 -0700 2008 FILES OPEN BEFORE REQUEST /source/contrib/dragdrop.js
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:36 -0700 2008 FILES OPEN BEFORE REQUEST /source/shiny.js
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:38 -0700 2008 FILES OPEN BEFORE REQUEST /images/arrow-up-blue.png
+Fri Jul 04 16:21:38 -0700 2008 FILES OPEN BEFORE REQUEST /images/radio.png
+Fri Jul 04 16:21:38 -0700 2008 FILES OPEN BEFORE REQUEST /images/dot-blue.png
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:38 -0700 2008 FILES OPEN BEFORE REQUEST /images/arrow-up.png
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:41 -0700 2008 FILES OPEN BEFORE REQUEST /images/blank.png
+Fri Jul 04 16:21:41 -0700 2008 FILES OPEN BEFORE REQUEST /images/arrow-closed-red.png
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:43 -0700 2008 FILES OPEN BEFORE REQUEST /shiny
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:43 -0700 2008 FILES OPEN BEFORE REQUEST /styles/shiny.css
+Fri Jul 04 16:21:43 -0700 2008 FILES OPEN BEFORE REQUEST /favicon.ico
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:43 -0700 2008 FILES OPEN BEFORE REQUEST /source/contrib/prototype.js
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:45 -0700 2008 FILES OPEN BEFORE REQUEST /shiny
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:48 -0700 2008 FILES OPEN BEFORE REQUEST /favicon.ico
+Fri Jul 04 16:21:48 -0700 2008 FILES OPEN BEFORE REQUEST /styles/shiny.css
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+Fri Jul 04 16:21:48 -0700 2008 FILES OPEN BEFORE REQUEST /source/contrib/prototype.js
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+
+FILES OPEN AT EXIT
+--- 
+log/mongrel_debug/objects.log: 2
+/Users/dave/Projects/Shiny/rails/log/development.log: 1
+log/mongrel_debug/rails.log: 1
+log/mongrel_debug/files.log: 1
+log/mongrel_debug/threads.log: 1
+log/mongrel_debug/access.log: 1
+

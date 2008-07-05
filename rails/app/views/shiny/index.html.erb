@@ -1,0 +1,351 @@
+<?xml version="1.0" ?>
+
+<shiny
+  xmlns="http://xml.spoonguard.org/shiny"
+  xmlns:xi="http://www.w3.org/2003/XInclude"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://xml.spoonguard.org/shiny/shiny.xsd">
+
+  <library>
+    <xhtml id="before-transition">
+      For every <em>item</em> selected <b>above</b>,<br /> display 
+    </xhtml>
+    <select id="transition-select">
+      <option value="0">
+        nothing at all
+      </option>
+      <option value="1">
+        all related extracts
+      </option>
+      <option value="2">
+        all related analysis results
+      </option>
+    </select>
+    <select id="test-select">
+      <option value="0">
+        Nothing Selected
+      </option>
+      <option value="1">
+        Test Item One
+      </option>
+      <option value="2">
+        Test Item Two
+      </option>
+      <option value="3">
+        Test Item Three
+      </option>
+    </select> 
+    <xhtml id="after-transition">
+      <b>below</b>.
+    </xhtml>
+    <input id="test-input" size="50" type="text" />
+    <input id="checkbox" type="checkbox" />
+  </library>
+
+  <dialog>
+    <status>
+      <library ref="checkbox" label="Don't show this screen again" />
+    </status>
+    <panels id="dialog_panels" sort="false">
+      <panel size="large" open="false" title="Welcome to Shiny v0.8.0">
+      </panel>
+    </panels>
+  </dialog>
+
+  <page title="Shiny" action="post/env">
+    <sidebar>
+      <panels id="ps1" title="Toolbox"
+        size="small" reorderable="true" scroll="true">
+        <status>
+          <xhtml>
+            <a class="button control">
+              <span class="interior">
+                <label>Configure...</label>
+              </span>
+            </a>
+          </xhtml>
+        </status>
+        <panel open="true" id="p2" title="My Collections">
+          <collection id="c2" accept="c1 c3" checkboxes="none">
+            <tuple><elt>Users</elt></tuple>
+            <tuple><elt>Groups</elt></tuple>
+            <tuple><elt>Roles</elt></tuple>
+          </collection>
+        </panel>
+        <panel open="true" title="All Collections">
+          <collection id="c3" accept="c1 c2" extent="3" checkboxes="none">
+            <tuple><elt>Genes</elt></tuple>
+            <tuple><elt>Exons</elt></tuple>
+            <tuple><elt>Patients</elt></tuple>
+            <tuple><elt>Requests</elt></tuple>
+            <tuple><elt>Assays</elt></tuple>
+            <tuple><elt>Samples</elt></tuple>
+          </collection>
+        </panel>
+        <panel open="true" title="Important Collections">
+          <collection id="c1" select="single" accept="c2 c3">
+            <tuple>
+              <elt>Contains Empty Items</elt>
+              <collection id="empty">
+                <tuple><elt>    </elt></tuple>
+                <tuple><elt></elt></tuple>
+                <tuple><elt> </elt></tuple>
+              </collection>
+            </tuple>
+            <tuple><elt>Test Collection</elt></tuple>
+            <tuple><elt>Another Test Collection</elt></tuple>
+          </collection>
+        </panel>
+      </panels>
+    </sidebar>
+
+    <body>
+      <panels id="ps2" title="Current Workspace - Unsaved" accept="c3"
+        size="large" scroll="true" ajax="ajax/panels-ps2.html">
+        <status>
+          <xhtml>
+            <a class="button control">
+              <span class="interior">
+                <label>Save</label>
+              </span>
+            </a>
+            <a class="button control">
+              <span class="interior">
+                <label>Save As...</label>
+              </span>
+            </a>
+            <a class="button control">
+              <span class="interior">
+                <label>New...</label>
+              </span>
+            </a>
+          </xhtml>
+        </status>
+        <panel title="Users" selector="users_selector" open="true">
+          <collection id="c4" ajax-scope="self" select="single" extent="2" ajax="ajax/c4/collection/panel">
+            <schema id="h1">
+              <elt type="numeric">User ID</elt>
+              <elt type="string">Full Name</elt>
+              <elt>Groups/Roles</elt>
+              <elt type="date">Created</elt>
+              <elt type="auto">Expires</elt>
+            </schema>
+            <tuple id="1000">
+              <elt>browndav</elt>
+              <elt>David Brown</elt>
+              <elt>Administrators, Plebians</elt>
+              <elt color="#888">1/1/1982 5:44am</elt>
+              <elt color="#aaa">1/1/2100 12:00am</elt>
+              <collection id="c7" ajax="ajax/c7/collection">
+                <tuple>
+                  <elt>browndav</elt>
+                  <elt>David Brown</elt>
+                  <elt>Administrators, Plebians</elt>
+                  <elt>1/1/1982 5:44am</elt>
+                  <elt>1/1/2100 12:00am</elt>
+                </tuple>
+                <tuple>
+                  <elt>browndav</elt>
+                  <elt>David Brown</elt>
+                  <elt>Administrators, Plebians</elt>
+                  <elt>1/1/1982 5:44am</elt>
+                  <elt>1/1/2100 12:00am</elt>
+                  <collection select="multiple" id="cc7">
+                   <tuple>
+                      <elt>browndav</elt>
+                      <elt>David Brown</elt>
+                      <elt>Administrators, Plebians</elt>
+                      <elt>1/1/1982 5:44am</elt>
+                      <elt>1/1/2100 12:00am</elt>
+                    </tuple>
+                  </collection>
+                </tuple>
+              </collection>
+            </tuple>
+            <tuple>
+              <elt>browndav</elt>
+              <elt>David Brown</elt>
+              <elt>Administrators, Plebians</elt>
+              <elt>1/1/1982 5:44am</elt>
+              <elt>1/1/2100 12:00am</elt>
+            </tuple>
+            <tuple>
+              <elt>browndav</elt>
+              <elt>David Brown</elt>
+              <elt>Administrators, Plebians</elt>
+              <elt>1/1/1982 5:44am</elt>
+              <elt>1/1/2100 12:00am</elt>
+            </tuple>
+            <tuple>
+              <elt>browndav</elt>
+              <elt>David Brown</elt>
+              <elt>Administrators, Plebians</elt>
+              <elt>1/1/1982 5:44am</elt>
+              <elt>1/1/2100 12:00am</elt>
+            </tuple>
+            <tuple>
+              <elt>browndav</elt>
+              <elt>David Brown</elt>
+              <elt>Administrators, Plebians</elt>
+              <elt>1/1/1982 5:44am</elt>
+              <elt>1/1/2100 12:00am</elt>
+            </tuple>
+            <tuple>
+              <elt>browndav</elt>
+              <elt>David Brown</elt>
+              <elt>Administrators, Plebians</elt>
+              <elt>1/1/1982 5:44am</elt>
+              <elt>1/1/2100 12:00am</elt>
+              <collection id="c8" select="multiple">
+                <tuple>
+                  <elt>browndav</elt>
+                  <elt>David Brown</elt>
+                  <elt>Administrators, Plebians</elt>
+                  <elt>1/1/1982 5:44am</elt>
+                  <elt>1/1/2100 12:00am</elt>
+                </tuple>
+                <tuple>
+                  <elt>browndav</elt>
+                  <elt>David Brown</elt>
+                  <elt>Administrators, Plebians</elt>
+                  <elt>1/1/1982 5:44am</elt>
+                  <elt>1/1/2100 12:00am</elt>
+                </tuple>
+              </collection>
+            </tuple>
+            <tuple>
+              <elt>browndav</elt>
+              <elt>David Brown</elt>
+              <elt>Administrators, Plebians</elt>
+              <elt>1/1/1982 5:44am</elt>
+              <elt>1/1/2100 12:00am</elt>
+            </tuple>
+          </collection>
+          <panels id="detail1" size="small">
+            <panel title="Selection Details" open="true">
+              <collection id="dc1" type="form" appearance="normal" edit-mode="batch">
+                <tuple>
+                  <elt id="elt3">
+                    <library ref="test-input"
+                      label="Description" value="This is a Textual Description" />
+                  </elt>
+                </tuple>
+                <tuple id="Boxes">
+                  <elt id="Testing">
+                    <library ref="test-select" selected="1" />
+                  </elt>
+                  <elt>
+                    <library ref="test-select" selected="3" />
+                  </elt>
+                  <elt>
+                    <library ref="test-select" selected="2" />
+                  </elt>
+                </tuple>
+                <tuple id="tuple1">
+                  <elt>
+                    <library ref="test-select"
+                      label="Test" selected="1" />
+                  </elt>
+                  <elt id="elt1">
+                    <library ref="test-select"
+                      label="Another Test" selected="0" />
+                  </elt>
+                  <elt>
+                    <library id="Test" ref="test-select" selected="3" />
+                  </elt>
+                  <elt>
+                    <library id="Box" ref="test-select" selected="2" />
+                  </elt>
+                </tuple>
+              </collection>
+            </panel>
+            <panel title="Visualization Options">
+              <collection id="dc2" type="form" edit-mode="batch">
+                <tuple>
+                  <elt id="elt6">
+                    <library ref="test-input"
+                      label="Description" value="This is a Textual Description" />
+                  </elt>
+                </tuple>
+                <tuple>
+                  <elt id="elt5"><library ref="test-select" selected="1" /></elt>
+                  <elt><library ref="test-select" selected="3" /></elt>
+                  <elt><library ref="test-select" selected="2" /></elt>
+                </tuple>
+                <tuple id="tuple2">
+                  <elt>
+                    <library ref="test-select"
+                      label="Test" selected="1" edit-enabled="true" />
+                  </elt>
+                  <elt id="elt4">
+                    <library ref="test-select"
+                      label="Another Test" selected="0" edit-enabled="true" />
+                  </elt>
+                  <elt><library ref="test-select" selected="3" /></elt>
+                  <elt>
+                    <library ref="test-select" selected="2" />
+                  </elt>
+                </tuple>
+              </collection>
+            </panel>
+            <panel title="Related Images">
+              <collection id="dcx" type="form" appearance="dark">
+              </collection>
+            </panel>
+          </panels>
+          <transition>
+            <library ref="before-transition" />
+            <library ref="transition-select" selected="2" />
+            <library ref="after-transition" />
+          </transition>
+        </panel>
+        <panel title="Groups">
+          <collection id="c6" select="multiple" checkboxes="none">
+            <schema id="h3">
+              <elt>Group ID</elt>
+              <elt type="numeric">Group Name</elt>
+              <elt>Group Members</elt>
+            </schema>
+            <tuple>
+              <elt>admins</elt>
+              <elt>Administrators</elt>
+              <elt>browndav</elt>
+            </tuple>
+            <tuple>
+              <elt>plebes</elt>
+              <elt>Plebians</elt>
+              <elt>browndav</elt>
+            </tuple>
+            <tuple>
+              <elt>programmers</elt>
+              <elt>Software Engineers</elt>
+              <elt>browndav</elt>
+            </tuple>
+            <tuple>
+              <elt>people</elt>
+              <elt>Human Race</elt>
+              <elt>browndav</elt>
+            </tuple>
+          </collection>
+          <panels id="detail2" size="small">
+            <panel title="Selection Details">
+              <collection id="detail2_1" type="form">
+              </collection>
+            </panel>
+            <panel title="Visualization Options">
+              <collection id="detail2_2" type="form">
+              </collection>
+            </panel>
+          </panels>
+          <transition>
+            <library ref="before-transition" />
+            <library ref="transition-select" />
+            <library ref="after-transition" />
+          </transition>
+        </panel>
+      </panels>
+    </body>
+  </page>
+
+</shiny>
+
