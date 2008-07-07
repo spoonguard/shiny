@@ -14,10 +14,21 @@ class Shiny::Controller < ApplicationController
 
   before_filter :shiny_setup!
 
+  public
+
+    def render(options = nil, extra_options = {})
+      if options != nil and options[:shiny] then
+        super(options, extra_options)
+      else
+        shiny_render(options, extra_options)
+      end
+    end
+
   protected
 
-    def shiny_render(options = nil, extra_options = {}, &block)
-      @@shiny_xslt.xml = render_to_string(options)
+    def shiny_render(options = nil, extra_options = {})
+      options = {} unless (options)
+      @@shiny_xslt.xml = render_to_string(options.merge(:shiny => true))
       render :text => @@shiny_xslt.serve, :shiny => true
     end
 

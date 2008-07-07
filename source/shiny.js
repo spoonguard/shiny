@@ -46,6 +46,19 @@ function $Hash(x, default_key)
   return rv;
 }
 
+function $Index(a)
+{
+  var rv = {};
+  
+  a = $A(a);
+
+  for (var i = 0, len = a.length; i < len; ++i)
+    rv[a[i]] = a[i];
+
+  return $H(rv);
+}
+
+
 
 
 /**
@@ -436,6 +449,7 @@ Shiny.Container = Class.create(Shiny.Object,
 
     this._container = null;
     this._container_id = null;
+    this._bound_forms = $H({});
     this._progress_container = null;
     this._options = $H(options || {});
     this._progress_images = Shiny.Assets.Images.get('spinner');
@@ -466,6 +480,7 @@ Shiny.Container = Class.create(Shiny.Object,
     if (!this.is_resetting())
       this._setup_container_children();
 
+    this.bind('form');
     return this;
   },
 
@@ -484,7 +499,37 @@ Shiny.Container = Class.create(Shiny.Object,
     return this;
   },
 
-  update: function(id, url, options)
+  bind: function(ids)
+  {
+    ids = $Array(ids);
+
+    for (var i = 0, len = ids.length; i < len; ++i) {
+      var form = $(ids[i]);
+
+      if (form && (form.tagName || '').toLowerCase() == 'form')
+        this._bound_forms.set(ids[i], form);
+    }
+
+    return this;
+  },
+
+  unbind: function(ids)
+  {
+    ids = $Array(ids);
+
+    for (var i = 0, len = ids.length; i < len; ++i)
+      this._bound_forms.unset(ids[i]);
+
+    return this;
+  },
+  
+  unbind_all: function()
+  {
+    this._bound_forms = $H({});
+    return this;
+  },
+
+  update: function(id, base_url, options)
   {
     options = $H(options || {});
 
@@ -498,8 +543,10 @@ Shiny.Container = Class.create(Shiny.Object,
     this.start_progress(options.get('message'));
     
     Shiny.Log.debug(
-      'Shiny.Container', 'Updating', this.get_container_id(), url
+      'Shiny.Container', 'Updating', this.get_container_id(), base_url
     );
+
+    var url = base_url + '?' + this._serialize_bound_forms();
 
     setTimeout(function() {
       this._updater = new Ajax.Updater(
@@ -658,6 +705,17 @@ Shiny.Container = Class.create(Shiny.Object,
     return Shiny.Recursion.extensible(
       child, this._install_container_child.bind(this)
     );
+  },
+
+  _serialize_bound_forms: function()
+  {
+    var rv = '';
+    var forms = this._bound_forms.values();
+
+    for (var i = 0, len = forms.length; i < len; ++i)
+      rv += Form.serialize(forms[i]);
+
+    return rv;
   }
 
 });
@@ -3457,8 +3515,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
         onReorder: function(elt, elts, indicies) {
           this._handle_update(elt, elts, indicies);
           this.trigger_event('reorder', elts, indicies);
-          Shiny.Log.debug('Shiny.Panels', 'Reordered', c_id, indicies);
-          return this.sync();
+          Shiny.Log.debug('Shiny.Panels', 'Reordered', elt, elts, indicies);
         }.bind(this),
         starteffect: (
           this._options.get('opacity') && Shiny.Browser.Features.fast_opacity
@@ -3559,6 +3616,8 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
 
     if (!this._ajax_uri)
       return this;
+
+    this.sync();
 
     var i_current = Element.getComputedIndex(elt);
     var i_original = Element.getOriginalIndex(elt);

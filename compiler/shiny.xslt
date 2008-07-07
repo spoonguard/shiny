@@ -26,8 +26,8 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:exsl="http://exslt.org/common"
   xmlns:str="http://exslt.org/strings"
-  extension-element-prefixes="str sml exsl"
-  exclude-result-prefixes="str sml exsl">
+  extension-element-prefixes="str exsl"
+  exclude-result-prefixes="sml">
 
   <xsl:output method="xml"
     encoding="utf-8" indent="no" omit-xml-declaration="yes"
@@ -615,6 +615,7 @@
     </xsl:call-template>
   </xsl:template>
 
+
   <xsl:template match="/sml:shiny/sml:update">
     <xsl:call-template name="default-output">
       <xsl:with-param name="update" select="true()" />
@@ -664,7 +665,7 @@
       </script>
     </head>
     <body onresize="Shiny.Browser.Emulation.Css(this, 'height', ['sidebar', 'body']);">
-      <form action="{@action}" method="post">
+      <form id="form" name="form" action="{@action}" method="post">
         <div id="shiny" class="shiny">
           <xsl:call-template name="generate-dialog" />
           <div class="fill-x">
@@ -694,6 +695,11 @@
               });
             </script>
           </div>
+          <xsl:for-each select="sml:xhtml">
+            <xsl:call-template name="output-using-library">
+              <xsl:with-param name="content" select="." />
+            </xsl:call-template>
+          </xsl:for-each>
           <xsl:for-each select="sml:sidebar">
             <xsl:call-template name="generate-sidebar" />
           </xsl:for-each>
@@ -1390,6 +1396,9 @@
         </xsl:variable>
         <div id="{$elt-id}">
           <xsl:call-template name="generate-tuple-elt-class" />
+          <xsl:if test="not(following-sibling::sml:elt)">
+            <div class="progress"></div>
+          </xsl:if>
           <xsl:if test="normalize-space(text()) != ''">
             <label>
               <xsl:if test="@color">
@@ -1405,9 +1414,6 @@
             <xsl:with-param name="update" select="$update" />
             <xsl:with-param name="content" select="*" />
           </xsl:call-template>
-          <xsl:if test="not(following-sibling::sml:elt)">
-            <div class="progress"></div>
-          </xsl:if>
         </div>
       </xsl:for-each>
       <xsl:for-each select="sml:collection">

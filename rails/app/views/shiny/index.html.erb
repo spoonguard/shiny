@@ -41,7 +41,7 @@
     <input id="test-input" size="50" type="text" />
     <input id="checkbox" type="checkbox" />
   </library>
-
+  <!--
   <dialog>
     <status>
       <library ref="checkbox" label="Don't show this screen again" />
@@ -51,8 +51,11 @@
       </panel>
     </panels>
   </dialog>
-
+  -->
   <page title="Shiny" action="post/env">
+    <xhtml>
+      <%= token_tag %>
+    </xhtml>
     <sidebar>
       <panels id="ps1" title="Toolbox"
         size="small" reorderable="true" scroll="true">

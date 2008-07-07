@@ -804,7 +804,7 @@ var Sortable = {
       Element.setComputedIndex(e, index++);
       options.droppables.push(e);      
     });
-    
+
     if(options.tree) {
       (Sortable.findTreeElements(element, options) || []).each( function(e) {
         Droppables.add(e, options_for_tree);
@@ -846,20 +846,24 @@ var Sortable = {
     var root = Sortable._findRootElement(elt);
     var options = Sortable.options(root);
     
-    var eltsOrder = (
+    var elts = (
       options.elements || Sortable.findElements(root, options) || []
     ).reject(function(e) {
       return (e.getStyle('visibility') == 'hidden');
     });
 
-    var indexOrder = eltsOrder.map(function(e) {
-      return Element.getOriginalIndex(e);
-    });
+    var indicies = [];
 
-    var idOrder = eltsOrder.map(function(e) { return e.id; });
+    for (var i = 0, len = elts.length; i < len; ++i)
+      indicies.push(Element.getComputedIndex(elts[i]));
+
+    var eltsOrder = [];
+
+    for (var i = 0, len = elts.length; i < len; ++i)
+      eltsOrder[indicies[i]] = elts[i];
 
     if (options)
-      options.onReorder(draggable.element, eltsOrder, idOrder, indexOrder);
+      options.onReorder(elt, eltsOrder, indicies);
 
     return;
   },
@@ -887,22 +891,19 @@ var Sortable = {
 
       if (dropon.previousSibling != insertElement) {
         element.style.visibility = 'hidden';
-        Element.swapComputedIndices(element, dropon);
 
         if (droponOptions && droponOptions.animate)
-          Sortable._animate(element, dropon, true, insertElement);
+          Sortable._animate(element, dropon, direction, insertElement);
         else
           dropon.parentNode.insertBefore(insertElement, dropon);
       }
     } else {
       Sortable.mark(dropon, 'after');
-
       if (dropon.nextSibling != insertElement) {
         element.style.visibility = 'hidden';
-        Element.swapComputedIndices(insertElement, dropon);
 
         if (droponOptions && droponOptions.animate)
-          Sortable._animate(element, dropon, false, insertElement);
+          Sortable._animate(element, dropon, direction, insertElement);
         else
           dropon.parentNode.insertBefore(insertElement, dropon.nextSibling);
       }
@@ -1327,31 +1328,6 @@ Element.setComputedIndex = function (element, i) {
 
   element['_computedIndex'] = i;
   return element;
-}
-
-Element.swapComputedIndices = function (e1, e2) {
-  if (!e1 || !e2) return;
-
-  var i = Element.getComputedIndex(e1);
-  var j = Element.getComputedIndex(e2);
-
-  var min = [i, j].min();
-  var max = [i, j].max();
-
-  var left = (i == min ? e1 : e2);
-  var right = (j == max ? e2 : e1);
-
-  /* Non-adjacent case:
-      This is worst-case linear in the number of Sortable
-      elements, but the worst-case (first-to-last) is unlikely. */
-
-  for (var e = left.nextSibling, n = min; e && e != right; e = e.nextSibling)
-    Element.setComputedIndex(e, n++);
-
-  Element.setComputedIndex(left, max);
-  Element.setComputedIndex(right, min);
-
-  return;
 }
 
 Element.offsetSize = function (element, type) {
