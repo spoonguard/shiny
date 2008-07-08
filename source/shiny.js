@@ -46,19 +46,6 @@ function $Hash(x, default_key)
   return rv;
 }
 
-function $Index(a)
-{
-  var rv = {};
-  
-  a = $A(a);
-
-  for (var i = 0, len = a.length; i < len; ++i)
-    rv[a[i]] = a[i];
-
-  return $H(rv);
-}
-
-
 
 
 /**
@@ -3173,7 +3160,7 @@ Shiny.Collection.Header = Class.create(Shiny.Container,
         this._options.get('opacity') && Shiny.Browser.Features.fast_opacity
           ? null : Prototype.emptyFunction
       ),
-      elements: elts.slice(1),
+      elements: elts.slice(1), format: /^(.*)$/,
       onChange: this._handle_header_change.bind(this)
     });
 
@@ -3425,6 +3412,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     this._ajax_uri = null;
     this._accept_elts = null;
     this._mirror_inputs = null;
+    this._id_to_panel_map = null;
     /* */
 
     $super(id, options);
@@ -3457,6 +3445,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
 
     this._panels = [ ];
     this._mirror_inputs = [ ];
+    this._id_to_panel_map = $H({ });
 
     if (this._options.get('duration') == null)
       this._options.set('duration', 0.5);
@@ -3469,7 +3458,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
       this._install_panels_child(children[i]);
 
     /* Find initial order */
-    this._elts_order = this._panels.invoke('get_container');
+    this.set_id_sequence(this._panels.invoke('get_container_id'));
 
     if (this._options.get('sortable')) {
 
@@ -3507,21 +3496,24 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
           See below for Sortable instansiation. */
 
       var sortable_options = {
-        scroll: this._options.get('scroll'),
         reparent: this._reparent.get(c_id),
+        scroll: this._options.get('scroll'), format: /^(.*)$/,
         animate: Shiny.Browser.Preferences.use_animations, tag: 'div',
         constraint: false, handle: 'handle', containment: containment,
         duration: this._options.get('duration'), dropOnEmpty: true,
-        onReorder: function(elt, elts, indicies) {
-          this._handle_update(elt, elts, indicies);
-          this.trigger_event('reorder', elts, indicies);
-          Shiny.Log.debug('Shiny.Panels', 'Reordered', elt, elts, indicies);
-        }.bind(this),
+        elements: this._panels.map(function(p) { return p.get_container(); }),
+
         starteffect: (
           this._options.get('opacity') && Shiny.Browser.Features.fast_opacity
             ? null : Prototype.emptyFunction
         ),
-        elements: this._panels.map(function(p) { return p.get_container(); }),
+
+        onReorder: function(elt, id_sequence) {
+          this._handle_update(elt, id_sequence);
+          this.trigger_event('reorder', elt, id_sequence);
+          Shiny.Log.debug('Shiny.Panels', 'Reordered', elt, id_sequence);
+        }.bind(this),
+
         canInsert: function(root, elt, drop) {
           return (
             this._accept_elts.include(root)
@@ -3556,8 +3548,10 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     if (!$super())
       return false;
 
-    Sortable.destroy(this.get_container());
+    this._id_to_panel_map = null;
     this.teardown_all(this._panels);
+
+    Sortable.destroy(this.get_container());
 
     this.trigger_event('teardown', this);
     return this;
@@ -3578,7 +3572,33 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
 
   serialize: function()
   {
-    return this._elts_order.pluck('id').join(',');
+    return this.get_id_sequence().join(',');
+  },
+
+  find_panel_by_id: function(id)
+  {
+    return this._id_to_panel_map.get(id);
+  },
+
+  get_id_sequence: function(previous)
+  {
+    return (previous ? this._prev_id_sequence : this._id_sequence);
+  },
+
+  set_id_sequence: function(id_sequence)
+  {
+    /* Ignore empty element identifiers */
+    id_sequence = $A(id_sequence).reject(function(i) {
+      return (!i);
+    });
+
+    if (this._id_sequence)
+      this._prev_id_sequence = this._id_sequence;
+    else
+      this._prev_id_sequence = id_sequence;
+
+    this._id_sequence = id_sequence;
+    return this;
   },
 
   /* private: */
@@ -3587,6 +3607,10 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     var tag = (child.tagName || '').toLowerCase();
 
     if (Element.hasClassName(child, 'panel')) {
+
+      if (!child.id)
+        Shiny.Log.warn('Element in Shiny.Panels is missing id', child);
+
       var panel = new Shiny.Panel(child, this.merge_hooks(this._options, {
         before_setup: function(p) {
           p.observe('before-open', this.sync.bind(this));
@@ -3596,6 +3620,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
       }));
       
       this._panels.push(panel);
+      this._id_to_panel_map.set(child.id, panel);
 
     } else if (Element.hasClassName(child, 'persist')
                 && Element.hasClassName(child, 'order') && tag == 'input') {
@@ -3610,24 +3635,19 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     return this;
   },
 
-  _handle_update: function(elt, elts, indicies)
+  _handle_update: function(elt, id_sequence)
   {
-    this._elts_order = elts;
-
     if (!this._ajax_uri)
       return this;
 
+    /* Order matters:
+        The sync method uses the id sequence to determine order. */
+
+    this.set_id_sequence(id_sequence);
     this.sync();
 
-    var i_current = Element.getComputedIndex(elt);
-    var i_original = Element.getOriginalIndex(elt);
-    var i_previous = Element.getComputedIndex(elt, true);
-
-    if (i_current == i_original)
-      return this; /* No movement - skip */
-
     var panels = this.get_all();
-    var i_original = Element.getOriginalIndex(elt);
+    var prev_id_sequence = this.get_id_sequence(true);
 
     var options = {
       message: '', delay: 350 /* ms */
@@ -3636,37 +3656,22 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     if (this._ajax_scope == 'successors') {
 
       /* All panels originally following dropped panel */
-      for (var i = 0, len = panels.length; i < len; ++i) {
-        if (i >= i_original)
-          panels[i].update(null, this._ajax_uri, options);
-      }
 
     } else if (this._ajax_scope == 'predecessors') {
 
       /* All panels originally preceding dropped panel */
-      for (var i = 0, len = panels.length; i < len; ++i) {
-        panels[i].update(null, this._ajax_uri, options);
-        if (i >= i_original) break;
-      }
 
     } else if (this._ajax_scope == 'stack') {
 
       var updated = $H({});
 
       /* All panels following dropped panel, before or after drag */
-      [ i_current, i_original ].each(function(limit) {
-        for (var i = 0, len = panels.length; i < len; ++i) {
-          if (i >= limit && !updated.get(i)) {
-            panels[i].update(null, this._ajax_uri, options);
-            updated.set(i, true);
-          }
-        }
-      }.bind(this));
 
     } else if (this._ajax_scope == 'self') {
 
       /* Dropped panel only */
-      panels[i_original].update(null, this._ajax_uri, options);
+      var panel = this.find_panel_by_id(elt.id);
+      panel.update(null, this._ajax_uri, options);
 
     } else if (this._ajax_scope == 'each') {
 

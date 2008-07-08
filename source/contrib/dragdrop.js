@@ -386,7 +386,6 @@ var Draggable = Class.create({
         [this.options.scroll.scrollWidth, this.options.scroll.scrollHeight];
     }
 
-    Element.shiftComputedIndex(this.element);
     Draggables.notify('onStart', this, event);
 
     if(this.options.reparent) this._reparentElement(this.element);
@@ -801,7 +800,7 @@ var Sortable = {
         new Draggable(e, Object.extend(options_for_draggable, { handle: handle })));
       Droppables.add(e, options_for_droppable);
       if(options.tree) e.treeNode = element;
-      Element.setComputedIndex(e, index++);
+      Element.setOriginalIndex(e, index++);
       options.droppables.push(e);      
     });
 
@@ -846,24 +845,10 @@ var Sortable = {
     var root = Sortable._findRootElement(elt);
     var options = Sortable.options(root);
     
-    var elts = (
-      options.elements || Sortable.findElements(root, options) || []
-    ).reject(function(e) {
-      return (e.getStyle('visibility') == 'hidden');
-    });
-
-    var indicies = [];
-
-    for (var i = 0, len = elts.length; i < len; ++i)
-      indicies.push(Element.getComputedIndex(elts[i]));
-
-    var eltsOrder = [];
-
-    for (var i = 0, len = elts.length; i < len; ++i)
-      eltsOrder[indicies[i]] = elts[i];
+    var ids = Sortable.sequence(root);
 
     if (options)
-      options.onReorder(elt, eltsOrder, indicies);
+      options.onReorder(elt, ids);
 
     return;
   },
@@ -984,6 +969,7 @@ var Sortable = {
     var eltUp = element.cloneNode(false);
     var extents = element.getDimensions();
 
+    eltUp.id = null;
     eltUp.style.width = extents.width + 'px';
     eltUp.style.height = extents.height + 'px';
 
@@ -1228,7 +1214,6 @@ var Sortable = {
   sequence: function(element) {
     element = $(element);
     var options = Object.extend(this.options(element), arguments[1] || { });
-    
     return $(this.findElements(element, options) || []).map( function(item) {
       return item.id.match(options.format) ? item.id.match(options.format)[1] : '';
     });
@@ -1309,25 +1294,13 @@ Element.setDroppableIndex = function (element, i) {
   return element;
 }
 
+Element.setOriginalIndex = function (element, i) {
+  element['_originalIndex'] = i;
+  return element;
+}
+
 Element.getOriginalIndex = function (element) {
   return element['_originalIndex'];
-}
-
-Element.getComputedIndex = function (element, previous) {
-  return element[(previous ? '_previousIndex' : '_computedIndex')];
-}
-
-Element.shiftComputedIndex = function (element) {
-  element['_previousIndex'] = Element.getComputedIndex(element);
-  return element;
-}
-
-Element.setComputedIndex = function (element, i) {
-  if (element['_originalIndex'] == null)
-    element['_originalIndex'] = i;
-
-  element['_computedIndex'] = i;
-  return element;
 }
 
 Element.offsetSize = function (element, type) {
