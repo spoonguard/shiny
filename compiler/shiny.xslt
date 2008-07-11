@@ -845,8 +845,7 @@
             new Shiny.Collection(
               '<xsl:value-of select="$collection_id" />'
               <xsl:if test="ancestor::sml:panels[1]/@id">, {
-                panels:
-                  _shiny.<xsl:value-of select="ancestor::sml:panels[1]/@id" />
+                panels: _shiny.<xsl:value-of select="ancestor::sml:panels[1]/@id" />
               }
               </xsl:if>
             );
@@ -865,126 +864,129 @@
         document.observe('dom:loaded', function() {
       </xsl:if>
 
+      var options = {
+        progress_containers: {
+          shiny: 'shiny'
+          <xsl:for-each select=".//sml:panels | sml:panel | .//sml:collection | .">,
+            <xsl:call-template name="generate-panel-or-collection-id" />:
+              '<xsl:for-each select="ancestor-or-self::sml:panel[1]">
+                <xsl:call-template name="generate-id" />
+              </xsl:for-each>'
+          </xsl:for-each>
+        },
+        no_reorder: {
+          shiny: 'shiny'
+          <xsl:for-each select=".//sml:panels | .//sml:collection | .">
+            <xsl:if test="@no-reorder = true()">,
+              <xsl:call-template name="generate-panel-or-collection-id" />
+                : true
+            </xsl:if>
+          </xsl:for-each>
+        },
+        ajax: {
+          shiny: 'shiny'
+          <xsl:for-each select=".//sml:panels | .//sml:collection | .">
+            <xsl:if test="@ajax != ''">,
+              <xsl:call-template name="generate-panel-or-collection-id" />:[
+              <xsl:choose>
+                <xsl:when test="@ajax = 'inherit'">
+                  '<xsl:value-of select="ancestor::*[@ajax != ''][1]/@ajax" />'
+                </xsl:when>
+                <xsl:otherwise>
+                  '<xsl:value-of select="@ajax" />'
+                </xsl:otherwise>
+              </xsl:choose>
+              <xsl:if test="@ajax-scope != ''">
+                , '<xsl:value-of select="@ajax-scope" />'
+              </xsl:if>
+              ]
+            </xsl:if>
+          </xsl:for-each>
+        },
+        accept: {
+          shiny: 'shiny'
+          <xsl:for-each select=".//sml:panels | .//sml:collection | .">,
+            <xsl:call-template name="generate-panel-or-collection-id" />
+            : [ '<xsl:value-of select="@id" />'
+            <xsl:for-each select="str:tokenize(@accept, ' ')">
+              <xsl:variable name="panels_id">
+                <xsl:call-template name="generate-id">
+                  <xsl:with-param name="id" select="." />
+                  <xsl:with-param name="suffix">ps</xsl:with-param>
+                </xsl:call-template>
+              </xsl:variable>
+              , '<xsl:value-of select="$panels_id" />'
+            </xsl:for-each>
+            ]
+          </xsl:for-each>
+        },
+        reparent: {
+          shiny: 'shiny'
+          <xsl:for-each select=".//sml:panels | .//sml:collection | .">
+            <xsl:variable name="collection_id">
+              <xsl:value-of select="@id" />
+            </xsl:variable>
+            <xsl:if test="//sml:panels[contains(attribute::accept, $collection_id)]
+                          | //sml:collection[contains(attribute::accept, $collection_id)]">
+              ,<xsl:call-template name="generate-id">
+                <xsl:with-param name="id" select="$collection_id" />
+                <xsl:with-param name="suffix">ps</xsl:with-param>
+              </xsl:call-template>: 'shiny'
+            </xsl:if>
+          </xsl:for-each>
+        },
+        sortable: <xsl:choose>
+          <xsl:when test="@sort = 'false'">false</xsl:when>
+          <xsl:otherwise>true</xsl:otherwise>
+        </xsl:choose>,
+        scroll: true, recursive: true,
+        resize_css_selector: 'collection', opacity: true,
+        recursive_options: function(elt) {
+          return { scroll: elt.parentNode.id };
+        }
+      };
+      
       <xsl:if test="$update != true()">
-        _shiny.<xsl:value-of select="@id" /> = 
-          new Shiny.Panels('<xsl:value-of select="@id" />', {
-            progress_containers: {
-              shiny: 'shiny'
-              <xsl:for-each select=".//sml:panels | sml:panel | .//sml:collection | .">,
-                <xsl:call-template name="generate-panel-or-collection-id" />:
-                  '<xsl:for-each select="ancestor-or-self::sml:panel[1]">
-                    <xsl:call-template name="generate-id" />
-                  </xsl:for-each>'
-              </xsl:for-each>
-            },
-            no_reorder: {
-              shiny: 'shiny'
-              <xsl:for-each select=".//sml:panels | .//sml:collection | .">
-                <xsl:if test="@no-reorder = true()">,
-                  <xsl:call-template name="generate-panel-or-collection-id" />
-                    : true
-                </xsl:if>
-              </xsl:for-each>
-            },
-            ajax: {
-              shiny: 'shiny'
-              <xsl:for-each select=".//sml:panels | .//sml:collection | .">
-                <xsl:if test="@ajax != ''">,
-                  <xsl:call-template name="generate-panel-or-collection-id" />:[
-                  <xsl:choose>
-                    <xsl:when test="@ajax = 'inherit'">
-                      '<xsl:value-of select="ancestor::*[@ajax != ''][1]/@ajax" />'
-                    </xsl:when>
-                    <xsl:otherwise>
-                      '<xsl:value-of select="@ajax" />'
-                    </xsl:otherwise>
-                  </xsl:choose>
-                  <xsl:if test="@ajax-scope != ''">
-                    , '<xsl:value-of select="@ajax-scope" />'
-                  </xsl:if>
-                  ]
-                </xsl:if>
-              </xsl:for-each>
-            },
-            accept: {
-              shiny: 'shiny'
-              <xsl:for-each select=".//sml:panels | .//sml:collection | .">,
-                <xsl:call-template name="generate-panel-or-collection-id" />
-                : [ '<xsl:value-of select="@id" />'
-                <xsl:for-each select="str:tokenize(@accept, ' ')">
-                  <xsl:variable name="panels_id">
-                    <xsl:call-template name="generate-id">
-                      <xsl:with-param name="id" select="." />
-                      <xsl:with-param name="suffix">ps</xsl:with-param>
-                    </xsl:call-template>
-                  </xsl:variable>
-                  , '<xsl:value-of select="$panels_id" />'
-                </xsl:for-each>
-                ]
-              </xsl:for-each>
-            },
-            reparent: {
-              shiny: 'shiny'
-              <xsl:for-each select=".//sml:panels | .//sml:collection | .">
-                <xsl:variable name="collection_id">
-                  <xsl:value-of select="@id" />
-                </xsl:variable>
-                <xsl:if test="//sml:panels[contains(attribute::accept, $collection_id)]
-                              | //sml:collection[contains(attribute::accept, $collection_id)]">
-                  ,<xsl:call-template name="generate-id">
-                    <xsl:with-param name="id" select="$collection_id" />
-                    <xsl:with-param name="suffix">ps</xsl:with-param>
-                  </xsl:call-template>: 'shiny'
-                </xsl:if>
-              </xsl:for-each>
-            },
-            sortable: <xsl:choose>
-              <xsl:when test="@sort = 'false'">false</xsl:when>
-              <xsl:otherwise>true</xsl:otherwise>
-            </xsl:choose>,
-            scroll: true, recursive: true,
-            resize_css_selector: 'collection', opacity: true,
-            recursive_options: function(elt) {
-              return { scroll: elt.parentNode.id };
-            },
-            before_setup: function() {
-              <xsl:call-template name="generate-collection-script-fragment" />
-            }
-          }, true /* Delay setup */);
-          _shiny.<xsl:value-of select="@id" />.invoke_setup();
-        </xsl:if>
+        _shiny.<xsl:value-of select="@id" /> = new Shiny.Panels(
+          '<xsl:value-of select="@id" />', options, true /* Delay setup */
+        );
 
-        <!-- Collections -->
-        <xsl:if test="$update = true()">
-          <xsl:call-template name="generate-collection-script-fragment" />
-        </xsl:if>
+        <xsl:call-template name="generate-collection-script-fragment" />
 
-        <!-- Collection headers, each computed from schema -->
-        <xsl:for-each select="sml:panels/sml:panel/sml:collection |
-                              sml:panel/sml:collection | sml:collection">
-          <xsl:variable name="collection_id">
-            <xsl:call-template name="generate-id">
-              <xsl:with-param name="id" select="@id" />
-              <xsl:with-param name="suffix">ps</xsl:with-param>
-            </xsl:call-template>
-          </xsl:variable>
-          <xsl:variable name="schema_id">
-            <xsl:call-template name="generate-id">
-              <xsl:with-param name="id" select="@id" />
-              <xsl:with-param name="suffix">hdr</xsl:with-param>
-            </xsl:call-template>
-          </xsl:variable>
-          if ($('<xsl:value-of select="$schema_id" />')) {
-            if (_shiny.<xsl:value-of select="$schema_id" /> != null) {
-              _shiny.<xsl:value-of select="$schema_id" />.reset();
-            } else {
-              _shiny.<xsl:value-of select="$schema_id" /> = new Shiny.Collection.Header(
-                '<xsl:value-of select="$schema_id" />',
-                _shiny.<xsl:value-of select="$collection_id" />
-              );
-            }
+        _shiny.<xsl:value-of select="@id" />.invoke_setup();
+      </xsl:if>
+
+      <!-- Collections -->
+      <xsl:if test="$update = true()">
+        <xsl:call-template name="generate-collection-script-fragment" />
+      </xsl:if>
+
+      <!-- Collection headers, each computed from schema -->
+      <xsl:for-each select="sml:panels/sml:panel/sml:collection |
+                            sml:panel/sml:collection | sml:collection">
+        <xsl:variable name="collection_id">
+          <xsl:call-template name="generate-id">
+            <xsl:with-param name="id" select="@id" />
+            <xsl:with-param name="suffix">ps</xsl:with-param>
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:variable name="schema_id">
+          <xsl:call-template name="generate-id">
+            <xsl:with-param name="id" select="@id" />
+            <xsl:with-param name="suffix">hdr</xsl:with-param>
+          </xsl:call-template>
+        </xsl:variable>
+        if ($('<xsl:value-of select="$schema_id" />')) {
+          if (_shiny.<xsl:value-of select="$schema_id" /> != null) {
+            _shiny.<xsl:value-of select="$schema_id" />.reset();
+          } else {
+            _shiny.<xsl:value-of select="$schema_id" /> = new Shiny.Collection.Header(
+              '<xsl:value-of select="$schema_id" />',
+              _shiny.<xsl:value-of select="$collection_id" />
+            );
           }
-        </xsl:for-each>
+        }
+      </xsl:for-each>
 
       <xsl:if test="$update != true()">
         });

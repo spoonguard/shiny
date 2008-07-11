@@ -791,8 +791,6 @@ var Sortable = {
       options.droppables.push(element);
     }
 
-    var index = 0;
-
     (options.elements || this.findElements(element, options) || []).each( function(e,i) {
       var handle = options.handles ? $(options.handles[i]) :
         (options.handle ? $(e).select('.' + options.handle)[0] : e); 
@@ -800,7 +798,6 @@ var Sortable = {
         new Draggable(e, Object.extend(options_for_draggable, { handle: handle })));
       Droppables.add(e, options_for_droppable);
       if(options.tree) e.treeNode = element;
-      Element.setOriginalIndex(e, index++);
       options.droppables.push(e);      
     });
 
@@ -1292,15 +1289,6 @@ Element.getDroppableIndex = function (element) {
 Element.setDroppableIndex = function (element, i) {
   element['_droppableIndex'] = i;
   return element;
-}
-
-Element.setOriginalIndex = function (element, i) {
-  element['_originalIndex'] = i;
-  return element;
-}
-
-Element.getOriginalIndex = function (element) {
-  return element['_originalIndex'];
 }
 
 Element.offsetSize = function (element, type) {
