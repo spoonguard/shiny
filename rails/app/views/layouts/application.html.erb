@@ -1,0 +1,46 @@
+<?xml version="1.0" ?>
+
+<shiny
+  xmlns="http://xml.spoonguard.org/shiny"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://xml.spoonguard.org/shiny/shiny.xsd">
+
+  <library>
+    <xhtml id="before-transition">
+      For every <em>item</em> selected <b>above</b>,<br /> display 
+    </xhtml>
+    <select id="transition-select">
+      <option value="0">
+        nothing at all
+      </option>
+      <option value="1">
+        all related extracts
+      </option>
+      <option value="2">
+        all related analysis results
+      </option>
+    </select>
+    <select id="test-select">
+      <option value="0">
+        Nothing Selected
+      </option>
+      <option value="1">
+        Test Item One
+      </option>
+      <option value="2">
+        Test Item Two
+      </option>
+      <option value="3">
+        Test Item Three
+      </option>
+    </select> 
+    <xhtml id="after-transition">
+      <b>below</b>.
+    </xhtml>
+    <input id="test-input" size="50" type="text" />
+    <input id="checkbox" type="checkbox" />
+  </library>
+
+  <%= yield %>
+
+</shiny>

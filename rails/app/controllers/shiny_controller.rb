@@ -3,9 +3,7 @@ require 'shiny.rb'
 
 class ShinyController < Shiny::Controller
 
-  def index
-    
-  end
+  layout 'application'
 
 end
 

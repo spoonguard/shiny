@@ -1324,7 +1324,7 @@
   <xsl:template name="generate-tuple-input-name">
     <xsl:attribute name="name"><xsl:call-template name="pluralize-name">
       <xsl:with-param name="content"
-        select="ancestor::sml:collection[1]/@id" />
+        select="(ancestor::sml:collection | ancestor::sml:update)[1]/@id" />
       <xsl:with-param name="if"
         select="ancestor::sml:collection[@select][1]/@select = 'multiple'" />
     </xsl:call-template></xsl:attribute>
@@ -1363,12 +1363,7 @@
                 <xsl:with-param name="suffix">ck</xsl:with-param>
               </xsl:call-template>
               <xsl:attribute name="value">
-                <xsl:choose>
-                  <xsl:when test="../@id"><xsl:value-of select="../@id" /></xsl:when>
-                  <xsl:otherwise>x<xsl:value-of
-                    select="count(../preceding-sibling::*) - count(../sml:schema)"
-                  /></xsl:otherwise>
-                </xsl:choose>
+                <xsl:value-of select="$tuple-id" />
               </xsl:attribute>
             </input>
             <xsl:choose>

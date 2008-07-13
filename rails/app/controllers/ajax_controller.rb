@@ -3,40 +3,54 @@ require 'shiny.rb'
 
 class AjaxController < Shiny::Controller
 
+  layout 'application'
+
   public
 
-  def collection
-    action = params[:action]; container = params[:container]
-    logger.info "Shiny: Updating Collection (container = #{container}, action = #{action})"
-    debug_selected
-  end
+    def collection
+      fetch
+      logger.info "Shiny: Updating Collection (container = #{@container}, action = #{@action})"
+      debug
+    end
 
+    def panels
+      fetch
+      logger.info "Shiny: Updating Panels (container = #{@container}, action = #{@action})"
+    end
 
-  def panels
-    action = params[:action]; container = params[:container]
-    logger.info "Shiny: Updating Panels (container = #{container}, action = #{action})"
-  end
+    def panel
+      fetch
+      logger.info "Shiny: Updating Panel (container = #{@container}, action = #{@action})"
+      debug
+    end
 
+    def tuple
+      fetch
+      logger.info "Shiny: Updating Tuple (container = #{@container}, action = #{@action})"
+      debug
+    end
 
-  def panel
-    action = params[:action]; container = params[:container]
-    logger.info "Shiny: Updating Panel (container = #{container}, action = #{action})"
-  end
+  protected
 
+    def param(name)
+      return params[name.to_s.intern]
+    end
 
-  def tuple
-    action = params[:action]; container = params[:container]
-    logger.info "Shiny: Updating Tuple (container = #{container}, action = #{action})"
-    debug_selected
-  end
+    def fetch
+      @tuples = { }
+      @action = params[:action]
+      @container = params[:container]
+      @tuples[:selected] = (param(@container) || []).to_a
+      @tuples[:moved] = (param(@container + '_drag') || '').split(',')
+    end
 
-  private
+    def debug
+      logger.info "Shiny: Moved Tuple(s) - #{@tuples[:moved].join(', ')}" \
+        if (@tuples[:moved].length > 0)
 
-  def debug_selected
-    container = params[:container];
-    selected = (params[container.to_s.intern] || []).to_a
-    logger.info "Shiny: Selected Elements (selected = '#{selected.join(', ')}')"
-  end
+      logger.info "Shiny: Selected Tuple(s) - #{@tuples[:selected].join(', ')}" \
+        if (@tuples[:selected].length > 0)
+    end
 
 end
 

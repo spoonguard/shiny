@@ -3018,7 +3018,9 @@ Shiny.Collection.Tuple = Class.create(Shiny.Control,
       c, this._install_recursive_elt.bind(this)
     );
 
+    Element.addClassName(c, this._input.type);
     Shiny.Collection.Tuple.track_container(this);
+
     return this.sync(true);
   },
 
@@ -3082,7 +3084,7 @@ Shiny.Collection.Tuple = Class.create(Shiny.Control,
     var c = this.get_container();
 
     if (this._input.type == 'radio')
-      Shiny.Radio.unselect_all_except(this, c, this._input);
+      Shiny.Radio.unselect_all_except(this, c, this._input, true);
 
     if (this._input.checked)
       this._select_element(c, skip_animation);
@@ -4045,7 +4047,7 @@ Shiny.Radio = Class.create(Shiny.Control,
   {
     var c = this.get_container();
 
-    Shiny.Radio.unselect_all_except(this, c, this._radio);
+    Shiny.Radio.unselect_all_except(this, c, this._radio, true);
     this._select_element(c);
 
     return $super(ev);
@@ -4069,9 +4071,10 @@ Shiny.Radio = Class.create(Shiny.Control,
 
 
 /* static: */
-Shiny.Radio.unselect_all_except = function(control, elt, radio)
+Shiny.Radio.unselect_all_except = function(control, elt, input, restrict)
 {
-  var name = radio.name;
+  var name = input.name;
+  var type = input.type;
 
   if (name) {
 
@@ -4082,7 +4085,9 @@ Shiny.Radio.unselect_all_except = function(control, elt, radio)
 
     /* Unselect every radio button except ours */
     for (var i = 0, len = elts.length; i < len; ++i) {
-      if (elts[i] != elt) 
+      if (restrict && !Element.hasClassName(elts[i], type))
+        continue;
+      if (elts[i] != elt)
         control._unselect_element(elts[i], true);
     }
   }

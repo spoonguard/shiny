@@ -1,11 +1,5 @@
-<?xml version="1.0" ?>
 
-<shiny
-  xmlns="http://xml.spoonguard.org/shiny"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://xml.spoonguard.org/shiny/shiny.xsd">
-
-<update id="update">
+<update id="<%= @container %>">
   <tuple id="c4_t4">
     <elt>updated</elt>
     <elt>Updated Record</elt>
@@ -14,6 +8,4 @@
     <elt><%= Time.now.localtime.strftime("%m/%d/%Y %I:%M:%S%p").downcase %></elt>
   </tuple>
 </update>
-
-</shiny>
 
