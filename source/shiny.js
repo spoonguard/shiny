@@ -3764,37 +3764,30 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
       }.bind(this),
     };
 
-    if (this._ajax_scope == 'successors') {
+    if (/cessors?$/.test(this._ajax_scope)) {
 
-      var start = prev_id_sequence.indexOf(elt.id);
+      var reverse = /^prede/.test(this._ajax_scope);
+      var start = (reverse ? 0 : prev_id_sequence.indexOf(elt.id));
 
       /* All panels originally preceding dropped panel */
       for (var i = start, len = prev_id_sequence.length; i < len; ++i) {
 
         var panel = Shiny.Panel.find_container(prev_id_sequence[i]);
         panel.update(null, this._ajax_uri, options);
-      }
-
-    } else if (this._ajax_scope == 'predecessors') {
-
-      /* All panels originally preceding dropped panel */
-      for (var i = 0, len = prev_id_sequence.length; i < len; ++i) {
-
-        var panel = Shiny.Panel.find_container(prev_id_sequence[i]);
-        panel.update(null, this._ajax_uri, options);
-
-        if (prev_id_sequence[i] == elt.id)
+        
+        if (reverse && prev_id_sequence[i] == elt.id)
           break;
       }
 
-    } else if (this._ajax_scope == 'stack') {
+    } else if (/^stack/.test(this._ajax_scope)) {
 
       var updated = $H({});
+      var reverse = /reverse$/.test(this._ajax_scope);
 
       /* All panels following dropped panel, before or after drag */
       [ id_sequence, prev_id_sequence ].each(function(sequence) {
 
-        var start = sequence.indexOf(elt.id);
+        var start = (reverse ? 0 : sequence.indexOf(elt.id));
 
         for (var i = start, len = sequence.length; i < len; ++i) {
 
@@ -3807,6 +3800,9 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
             panel.update(null, this._ajax_uri, options);
 
           updated.set(sequence[i]);
+          
+          if (reverse && sequence[i] == elt.id)
+            break;
         }
       }.bind(this));
 
