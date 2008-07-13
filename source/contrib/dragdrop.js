@@ -727,6 +727,8 @@ var Sortable = {
       onChange:    Prototype.emptyFunction,
       onUpdate:    Prototype.emptyFunction,
       onReorder:   Prototype.emptyFunction,
+      onStart:     Prototype.emptyFunction,
+      onEnd:       Prototype.emptyFunction,
       canInsert:   function() { return true; }
     }, arguments[1] || { });
 
@@ -833,7 +835,15 @@ var Sortable = {
   },
 
   onStart: function(draggable, ev) {
+    var elt = draggable.element;
+    var root = Sortable._findRootElement(elt);
+    var options = Sortable.options(root);
+
     Sortable.lastDraggable = draggable;
+
+    if (options)
+      options.onStart(draggable.element);
+
     return;
   },
 
@@ -846,6 +856,9 @@ var Sortable = {
 
     if (options)
       options.onReorder(elt, ids);
+
+    if (options)
+      options.onEnd(draggable.element);
 
     return;
   },

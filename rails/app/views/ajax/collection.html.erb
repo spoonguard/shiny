@@ -5,4 +5,18 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://xml.spoonguard.org/shiny/shiny.xsd">
 
+<update id="update">
+  <collection id="update">
+    <% (1..3).each { |i| %>
+    <tuple id="c4_t4_<%= i %>">
+      <elt>updated</elt>
+      <elt>Updated Record</elt>
+      <elt>Administrators, Plebians</elt>
+      <elt><%= Time.now.localtime.strftime("%m/%d/%Y %I:%M:%S%p").downcase %></elt>
+      <elt><%= Time.now.localtime.strftime("%m/%d/%Y %I:%M:%S%p").downcase %></elt>
+    </tuple>
+    <% } %>
+  </collection>
+</update>
+
 </shiny>

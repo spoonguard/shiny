@@ -192,6 +192,13 @@
   </xsl:template>
 
 
+  <xsl:template name="pluralize-name">
+    <xsl:param name="content" select="''" />
+    <xsl:param name="if" type="xs:boolean" select="true()" />
+    <xsl:value-of select="$content" /><xsl:if test="$if" >[]</xsl:if>
+  </xsl:template>
+
+
   <xsl:template
     name="copy-without-namespaces" mode="copy-without-namespaces" match="*">
     <xsl:element name="{local-name(.)}">
@@ -782,6 +789,11 @@
         <xsl:with-param name="suffix">order</xsl:with-param>
       </xsl:call-template>
     </input>
+    <input class="persist drag" type="hidden">
+      <xsl:call-template name="generate-id-and-name-attributes">
+        <xsl:with-param name="suffix">drag</xsl:with-param>
+      </xsl:call-template>
+    </input>
     <xsl:if test="$recursive != true()">
       <div class="status no-drop">
         <xsl:if test="sml:status">
@@ -1123,18 +1135,16 @@
 
   <xsl:template name="generate-collection-content">
     <xsl:param name="update" type="xs:boolean" select="false()" />
-    <xsl:if test="$update = true()">
-      <!--
-        Input element persists sort order:
-          This is necessary only on update; the markup generated
-          by 'generate-panels-content' tracks this otherwise.
-      <-->
-      <input class="persist order" type="hidden">
-        <xsl:call-template name="generate-id-and-name-attributes">
-          <xsl:with-param name="suffix">order</xsl:with-param>
-        </xsl:call-template>
-      </input>
-    </xsl:if>
+    <input class="persist order" type="hidden">
+      <xsl:call-template name="generate-id-and-name-attributes">
+        <xsl:with-param name="suffix">order</xsl:with-param>
+      </xsl:call-template>
+    </input>
+    <input class="persist drag" type="hidden">
+      <xsl:call-template name="generate-id-and-name-attributes">
+        <xsl:with-param name="suffix">drag</xsl:with-param>
+      </xsl:call-template>
+    </input>
     <xsl:choose>
       <xsl:when test="@type = 'form'">
         <div class="xr interior">
@@ -1169,11 +1179,6 @@
           <xsl:with-param name="suffix">ps</xsl:with-param>
         </xsl:call-template>
         <xsl:call-template name="generate-collection-panels-class" />
-        <input type="hidden" class="persist order">
-          <xsl:call-template name="generate-id-and-name-attributes">
-            <xsl:with-param name="suffix">order</xsl:with-param>
-          </xsl:call-template>
-        </input>
         <xsl:call-template name="generate-collection-content" />
       </div>
     </div>
@@ -1316,6 +1321,16 @@
   </xsl:template>
 
 
+  <xsl:template name="generate-tuple-input-name">
+    <xsl:attribute name="name"><xsl:call-template name="pluralize-name">
+      <xsl:with-param name="content"
+        select="ancestor::sml:collection[1]/@id" />
+      <xsl:with-param name="if"
+        select="ancestor::sml:collection[@select][1]/@select = 'multiple'" />
+    </xsl:call-template></xsl:attribute>
+  </xsl:template>
+
+
   <xsl:template name="generate-tuple-content">
     <xsl:param name="update" type="xs:boolean" select="false()" />
     <xsl:variable name="tuple-id">
@@ -1339,8 +1354,9 @@
             test="not(ancestor::sml:collection[1]/@type = 'form')"> handle
           </xsl:if></xsl:attribute>
           <xsl:if test="not(ancestor::sml:collection[1]/@type = 'form')">
-            <!-- Attribute 'id' is required on sml:collection -->
-            <input name="{ancestor::sml:collection[1]/@id}">
+            <!-- Attribute 'id' is required on an sml:collection -->
+            <input>
+              <xsl:call-template name="generate-tuple-input-name" />
               <xsl:call-template name="generate-tuple-input-class" />
               <xsl:call-template name="generate-id-attribute">
                 <xsl:with-param name="id" select="$tuple-id" />

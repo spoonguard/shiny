@@ -133,7 +133,7 @@ Shiny.Log = {
 
   message: function()
   {
-    return;
+    return false;
   },
 
   debug: function(type, message)
@@ -145,6 +145,8 @@ Shiny.Log = {
           return (x && x.inspect ? x.inspect() : x);
         }).join(', ') + ')'
     );
+
+    return false;
   },
 
   warning: function(message)
@@ -160,16 +162,18 @@ Shiny.Log = {
         }) : 'no-stack', message, $A(arguments).slice(1)
       ]);
     }
+    
+    return false;
   },
-  
+
   error: function(message)
   {
-    return;
+    return false;
   },
-  
+
   fatal: function(message)
   {
-    return;
+    return false;
   }
 
 };
@@ -252,10 +256,8 @@ Shiny.Object = Class.create(
 
   setup: function()
   {
-    if (this._setup_invoked) {
-      Shiny.Log.warning('Setup method invoked multiple times for this instance');
-      return false;
-    }
+    if (this._setup_invoked)
+      return Shiny.Log.warning('Setup method invoked multiple times for this instance');
 
     this._setup_invoked = true;
     return this;
@@ -263,10 +265,8 @@ Shiny.Object = Class.create(
 
   teardown: function()
   {
-    if (!this._setup_invoked) {
-      Shiny.Log.warning('Teardown method invoked multiple times for this instance');
-      return false;
-    }
+    if (!this._setup_invoked)
+      return Shiny.Log.warning('Teardown method invoked multiple times for this instance');
 
     this._setup_invoked = false;
     return this;
@@ -541,12 +541,12 @@ Shiny.Container = Class.create(Shiny.Object,
         onComplete: function() {
           this.set_reset_status(true);
           this.teardown_self();
-          this.finish_progress();
           this.setup_self();
           this._teardown_container_children();
           this._setup_container_children();
-          this.set_reset_status(false);
           this.trigger_callback(options, 'onComplete');
+          this.finish_progress();
+          this.set_reset_status(false);
         }.bind(this)
       })
     }.bind(this), options.get('delay') || 0 /* ms */);
@@ -557,7 +557,6 @@ Shiny.Container = Class.create(Shiny.Object,
   reset: function($super, options)
   {
     options = $H(options || {});
-    this.start_progress(options.get('message'));
 
     Shiny.Log.debug(
       'Shiny.Container', 'Resetting', this.get_container_id()
@@ -566,7 +565,6 @@ Shiny.Container = Class.create(Shiny.Object,
     this.set_reset_status(true);
     this.teardown_self();
     this.setup_self();
-    this.finish_progress();
     this._teardown_container_children();
     this._setup_container_children();
     this.set_reset_status(false);
@@ -2723,11 +2721,6 @@ Shiny.Panel = Class.create(Shiny.Control,
         this._options, child
       );
 
-      /* Maintain reference to top-most Shiny.Panels instance */
-      options = options.merge({
-        root_panels: this._options.get('root_panels')
-      });
-
       var panels = new Shiny.Panels(child, this.merge_hooks(options, {
         before_setup: function(p) {
           p.observe('setup', this.trigger_event.bind(this, 'setup'));
@@ -2865,11 +2858,11 @@ Shiny.Collection = Class.create(Shiny.Container, Shiny.Events.prototype,
     this._panels = this._options.get('panels');
 
     if (this._panels) {
-      this._panels.observe('update', this._handle_update.bind(this));
       this._panels.observe('setup', this._install_recursive.bind(this));
       this._panels.observe('teardown', this._handle_teardown.bind(this));
     }
 
+    Shiny.Collection.track_container(this);
     return this;
   },
 
@@ -2904,6 +2897,7 @@ Shiny.Collection = Class.create(Shiny.Container, Shiny.Events.prototype,
     this.trigger_event('teardown', this);
     this.teardown_all(this._recursive_collections);
 
+    Shiny.Collection.forget_container(this);
     return this;
   },
 
@@ -2916,17 +2910,6 @@ Shiny.Collection = Class.create(Shiny.Container, Shiny.Events.prototype,
 
     return this;
   },
-
-  /* private: */
-  _handle_update: function(panels, elt, id_sequence)
-  {
-    /* Only operate on current instance */
-    if (panels.get_container() == this.get_container())
-      return this.reset();
-
-    return this;
-  },
-
 
   /* protected: */
   _install_recursive: function(panels)
@@ -2984,6 +2967,8 @@ Shiny.Collection = Class.create(Shiny.Container, Shiny.Events.prototype,
 
 });
 
+Shiny.Collection = Object.extend(Shiny.Collection, Shiny.Container.Registry);
+
 
 
 /**
@@ -3033,7 +3018,8 @@ Shiny.Collection.Tuple = Class.create(Shiny.Control,
       c, this._install_recursive_elt.bind(this)
     );
 
-    return this.sync();
+    Shiny.Collection.Tuple.track_container(this);
+    return this.sync(true);
   },
 
   teardown: function($super)
@@ -3051,6 +3037,7 @@ Shiny.Collection.Tuple = Class.create(Shiny.Control,
     this._mouse_observer = null;
     this._unselect_element(c, true);
 
+    Shiny.Collection.Tuple.forget_container(this);
     return this;
   },
 
@@ -3090,18 +3077,17 @@ Shiny.Collection.Tuple = Class.create(Shiny.Control,
   },
 
   /* public: */
-  sync: function()
+  sync: function(skip_animation)
   {
     var c = this.get_container();
 
-    if (this._input.checked) {
-      this._select_element(c);
-    
-      if (this._input.type == 'radio')
-        Shiny.Radio.unselect_all_except(this, c, this._input);
-    } else {
-      this._unselect_element(c);
-    }
+    if (this._input.type == 'radio')
+      Shiny.Radio.unselect_all_except(this, c, this._input);
+
+    if (this._input.checked)
+      this._select_element(c, skip_animation);
+    else
+      this._unselect_element(c, skip_animation);
 
     return this;
   },
@@ -3167,6 +3153,8 @@ Shiny.Collection.Tuple = Class.create(Shiny.Control,
   }
 
 });
+
+Shiny.Collection.Tuple = Object.extend(Shiny.Collection.Tuple, Shiny.Container.Registry);
 
 
 
@@ -3472,7 +3460,11 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     this._reparent = null;
     this._ajax_uri = null;
     this._accept_elts = null;
-    this._mirror_inputs = null;
+    this._drag_elts = null;
+    this._drag_mirror_inputs = null;
+    this._order_mirror_inputs = null;
+    this._sortable_elt = null;
+    this._sortable_options = null;
     /* */
 
     $super(id, options);
@@ -3504,14 +3496,12 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     var c_id = this.get_container_id();
 
     this._panels = [ ];
-    this._mirror_inputs = [ ];
+    this._drag_elts = [ ];
+    this._drag_mirror_inputs = [ ];
+    this._order_mirror_inputs = [ ];
 
     if (this._options.get('duration') == null)
       this._options.set('duration', 0.5);
-
-    /* Maintain reference to top-most Shiny.Panels instance */
-    if (this._options.get('root_panels') == null)
-      this._options.set('root_panels', this);
 
     Shiny.Options.Processor.scroll(this._options, c);
     var children = c.childElements();
@@ -3531,74 +3521,90 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
       /* Skip rules for Sortable - indexed by container id */
       this._no_reorder = $Hash(this._options.get('no_reorder'), c_id);
 
-      /* Compute containment restrictions:
-          These influence where a particular element can be dropped. */
+      if (!this._no_reorder.get(c_id)) {
 
-      this._accept_elts = [ 'shiny', c ];
-      var containment = this._accept_elts;
-      var accept = this._options.get('accept');
+        /* Compute containment restrictions:
+            These influence where a particular element can be dropped. */
 
-      if (accept && (accept = $H(accept).get(c_id)) != null) {
-        this._accept_elts = this._accept_elts.concat(accept).map(
-          function(e) { return $(e); }
-        );
-      }
+        this._accept_elts = [ 'shiny', c ];
+        var containment = this._accept_elts;
+        var accept = this._options.get('accept');
 
-      /* Automatic AJAX support:
-          Automatically update in response to reorder/drag/drop. */
-
-      var ajax = this._options.get('ajax');
-
-      if (ajax && (ajax = $H(ajax).get(c_id)) != null) {
-        ajax = $Array(ajax);
-        this._ajax_uri = ajax[0];
-        this._ajax_scope = ajax[1];
-      }
-
-      /* Options for Sortable's constructor:
-          See below for Sortable instansiation. */
-
-      var sortable_options = {
-        reparent: this._reparent.get(c_id),
-        scroll: this._options.get('scroll'), format: /^(.*)$/,
-        animate: Shiny.Browser.Preferences.use_animations, tag: 'div',
-        constraint: false, handle: 'handle', containment: containment,
-        duration: this._options.get('duration'), dropOnEmpty: true,
-        elements: this._panels.map(function(p) { return p.get_container(); }),
-
-        starteffect: (
-          this._options.get('opacity') && Shiny.Browser.Features.fast_opacity
-            ? null : Prototype.emptyFunction
-        ),
-
-        onReorder: function(elt, id_sequence) {
-          this._handle_update(elt, id_sequence);
-          Shiny.Log.debug('Shiny.Panels', 'Reordered', elt, id_sequence);
-        }.bind(this),
-
-        canInsert: function(root, elt, drop) {
-          return (
-            this._accept_elts.include(root)
-              && Element.hasClassName(elt, 'panel')
-              && !Element.hasClassName(drop, 'no-drop')
+        if (accept && (accept = $H(accept).get(c_id)) != null) {
+          this._accept_elts = this._accept_elts.concat(accept).map(
+            function(e) { return $(e); }
           );
-        }.bind(this)
-      };
+        }
 
-      /* Panels may be in any descendant node:
-          We use the container of the first panel, or our
-          own container if the first panel is unavailable. */
+        /* Automatic AJAX support:
+            Automatically update in response to reorder/drag/drop. */
 
-      var p = { };
+        var ajax = this._options.get('ajax');
 
-      if (this._panels.length > 0)
-        p = this._panels[0].get_container();
+        if (ajax && (ajax = $H(ajax).get(c_id)) != null) {
+          ajax = $Array(ajax);
+          this._ajax_uri = ajax[0];
+          this._ajax_scope = ajax[1];
+        }
 
-      /* Create sortable:
-          Use an appropriate parent node, or our container otherwise.  */
+        /* Options for Sortable's constructor:
+            See below for Sortable instansiation. */
 
-      if (!this._no_reorder.get(c_id))
-        Sortable.create(p.parentNode || c, sortable_options);
+        this._sortable_options = {
+          reparent: this._reparent.get(c_id),
+          scroll: this._options.get('scroll'), format: /^(.*)$/,
+          animate: Shiny.Browser.Preferences.use_animations, tag: 'div',
+          constraint: false, handle: 'handle', containment: containment,
+          duration: this._options.get('duration'), dropOnEmpty: true,
+          elements: this._panels.map(function(p) { return p.get_container(); }),
+
+          starteffect: (
+            this._options.get('opacity') && Shiny.Browser.Features.fast_opacity
+              ? null : Prototype.emptyFunction
+          ),
+
+          onEnd: function(elt) {
+            this._drag_elts = [ ];
+            return this.sync_inputs();
+          }.bind(this),
+
+          onStart: function(elt) {
+            this._drag_elts = [ elt ];
+            return this.sync_inputs();
+          }.bind(this),
+
+          onReorder: function(elt, id_sequence) {
+            Shiny.Log.debug('Shiny.Panels', 'Reordering', elt);
+            this._handle_update(elt, id_sequence);
+            Shiny.Log.debug('Shiny.Panels', 'Complete', id_sequence);
+          }.bind(this),
+
+          canInsert: function(root, elt, drop) {
+            return (
+              this._accept_elts.include(root)
+                && Element.hasClassName(elt, 'panel')
+                && !Element.hasClassName(drop, 'no-drop')
+            );
+          }.bind(this)
+        };
+
+        /* Panels may be in any descendant node:
+            We use the container of the first panel, or our
+            own container if the first panel is unavailable. */
+
+        var p = { };
+
+        if (this._panels.length > 0)
+          p = this._panels[0].get_container();
+
+        this._sortable_elt = (p.parentNode || c);
+
+
+        /* Create sortable:
+            Use an appropriate parent node, or our container otherwise.  */
+
+        Sortable.create(this._sortable_elt, this._sortable_options);
+      }
     }
 
     this.trigger_event('setup', this);
@@ -3612,12 +3618,15 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     if (!$super())
       return false;
 
+    this._sortable_elt = null;
+    this._sortable_options = null;
+
     this.teardown_all(this._panels);
     Sortable.destroy(this.get_container());
 
     this.trigger_event('teardown', this);
-
     Shiny.Panels.forget_container(this);
+
     return this;
   },
 
@@ -3626,11 +3635,24 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     for (var i = 0, len = this._panels.length; i < len; ++i)
       this._panels[i].sync();
 
-    for (var i = 0, len = this._mirror_inputs.length; i < len; ++i) {
-      if (this._mirror_inputs[i])
-        this._mirror_inputs[i].value = this.serialize();
+    return this.sync_inputs();
+  },
+
+  sync_inputs: function()
+  {
+    var order_value = this.serialize();
+
+    for (var i = 0, len = this._order_mirror_inputs.length; i < len; ++i) {
+      if (this._order_mirror_inputs[i])
+        this._order_mirror_inputs[i].value = order_value;
     }
 
+    var drag_value = this._drag_elts.pluck('id').join(',');
+
+    for (var i = 0, len = this._drag_mirror_inputs.length; i < len; ++i) {
+      if (this._drag_mirror_inputs[i])
+        this._drag_mirror_inputs[i].value = drag_value;
+    }
     return this;
   },
 
@@ -3674,11 +3696,6 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
         this._options, child
       );
 
-      /* Maintain reference to top-most Shiny.Panels instance */
-      options = options.merge({
-        root_panels: this._options.get('root_panels')
-      });
-
       var panel = new Shiny.Panel(child, this.merge_hooks(this._options, {
         before_setup: function(p) {
           p.observe('before-open', this.sync.bind(this));
@@ -3690,14 +3707,33 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
       this._panels.push(panel);
 
     } else if (Element.hasClassName(child, 'persist')
-                && Element.hasClassName(child, 'order') && tag == 'input') {
+                && tag == 'input' && Element.hasClassName(child, 'drag')) {
 
-      this._mirror_inputs.push(child);
+      this._drag_mirror_inputs.push(child);
+
+    } else if (Element.hasClassName(child, 'persist')
+                && tag == 'input' && Element.hasClassName(child, 'order')) {
+
+      this._order_mirror_inputs.push(child);
     }
 
     Shiny.Recursion.extensible(
       child, this._install_panels_child.bind(this)
     );
+
+    return this;
+  },
+
+  _reset_sortable: function()
+  {
+    if (this._sortable_elt) {
+
+      this._sortable_options.elements =
+        this._panels.map(function(p) { return p.get_container(); }),
+
+      Sortable.destroy(this._sortable_elt);
+      Sortable.create(this._sortable_elt, this._sortable_options);
+    }
 
     return this;
   },
@@ -3719,12 +3755,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     var options = {
       message: '', delay: 350 /* ms */,
       onComplete: function() {
-        var panel = Shiny.Panel.find_container(elt.id);
-        var root_panels = this._options.get('root_panels');
-
-        panel.reset();
-        root_panels.trigger_event('update', this);
-
+        this._reset_sortable();
         this.trigger_event('update', this, elt, id_sequence);
         this.trigger_callback(this._options, 'onUpdate', this, elt, id_sequence);
       }.bind(this),
@@ -3878,11 +3909,6 @@ Shiny.Select = Class.create(Shiny.Control,
   is_selected: function()
   {
     return (this._select.selectedIndex != -1);
-  },
-
-  set_selected: function($super, v)
-  {
-    return $super(v);
   },
 
   sync: function()

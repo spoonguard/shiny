@@ -1505,7 +1505,7 @@ function $(element) {
       elements.push($(arguments[i]));
     return elements;
   }
-  if (Object.isString(element))
+  if (Object.isString(element) && element != '')
     element = document.getElementById(element);
   return Element.extend(element);
 }
