@@ -1326,7 +1326,7 @@
       <xsl:with-param name="content"
         select="(ancestor::sml:collection | ancestor::sml:update)[1]/@id" />
       <xsl:with-param name="if"
-        select="ancestor::sml:collection[@select][1]/@select = 'multiple'" />
+        select="(ancestor::sml:collection | ancestor::sml:update)[@select][1]/@select = 'multiple'" />
     </xsl:call-template></xsl:attribute>
   </xsl:template>
 

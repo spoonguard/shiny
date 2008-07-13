@@ -3740,6 +3740,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     return this;
   },
 
+
   _handle_update: function(elt, id_sequence)
   {
     if (!this._ajax_uri)
@@ -3755,7 +3756,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     var prev_id_sequence = this.get_id_sequence(true);
 
     var options = {
-      message: '', delay: 350 /* ms */,
+      message: '', delay: 250 /* ms */,
       onComplete: function() {
         this._reset_sortable();
         this.trigger_event('update', this, elt, id_sequence);
@@ -3765,17 +3766,49 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
 
     if (this._ajax_scope == 'successors') {
 
-      /* All panels originally following dropped panel */
+      var start = prev_id_sequence.indexOf(elt.id);
+
+      /* All panels originally preceding dropped panel */
+      for (var i = start, len = prev_id_sequence.length; i < len; ++i) {
+
+        var panel = Shiny.Panel.find_container(prev_id_sequence[i]);
+        panel.update(null, this._ajax_uri, options);
+      }
 
     } else if (this._ajax_scope == 'predecessors') {
 
       /* All panels originally preceding dropped panel */
+      for (var i = 0, len = prev_id_sequence.length; i < len; ++i) {
+
+        var panel = Shiny.Panel.find_container(prev_id_sequence[i]);
+        panel.update(null, this._ajax_uri, options);
+
+        if (prev_id_sequence[i] == elt.id)
+          break;
+      }
 
     } else if (this._ajax_scope == 'stack') {
 
       var updated = $H({});
 
       /* All panels following dropped panel, before or after drag */
+      [ id_sequence, prev_id_sequence ].each(function(sequence) {
+
+        var start = sequence.indexOf(elt.id);
+
+        for (var i = start, len = sequence.length; i < len; ++i) {
+
+          if (updated.get(sequence[i]))
+            continue;
+
+          var panel = Shiny.Panel.find_container(sequence[i]);
+          
+          if (panel)
+            panel.update(null, this._ajax_uri, options);
+
+          updated.set(sequence[i]);
+        }
+      }.bind(this));
 
     } else if (this._ajax_scope == 'self') {
 
