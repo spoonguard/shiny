@@ -40,16 +40,12 @@ class AjaxController < Shiny::Controller
       @tuples = { }
       @action = params[:action]
       @container = params[:container]
-      @tuples[:selected] = (param(@container) || []).to_a
-      @tuples[:moved] = (param(@container + '_drag') || '').split(',')
+      @collection = param(@container)
     end
 
     def debug
-      logger.info "Shiny: Moved Tuple(s) - #{@tuples[:moved].join(', ')}" \
-        if (@tuples[:moved].length > 0)
-
-      logger.info "Shiny: Selected Tuple(s) - #{@tuples[:selected].join(', ')}" \
-        if (@tuples[:selected].length > 0)
+      logger.info "Shiny: Collection Modified - #{@collection.inspect}" \
+        if (@collection)
     end
 
 end

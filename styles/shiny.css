@@ -573,6 +573,12 @@ input.shiny, img.shiny {
   margin: 0 0 0 0.8em;
 }
 
+.shiny .tuple .elt .progress {
+  float: none;
+  position: absolute;
+  right: 0;
+}
+
 .shiny .panel .handle {
   width: auto;
   display: block;
