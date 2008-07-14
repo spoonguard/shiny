@@ -220,16 +220,16 @@
     <xsl:param name="ref-node" />
     <xsl:param name="attribute-map" />
     <xsl:variable name="prev-id" select="@id" />
-    <xsl:variable name="at" select="exsl:node-set($attribute-map)" />
+    <xsl:variable name="map" select="exsl:node-set($attribute-map)" />
     <xsl:copy-of select="@*" />
     <xsl:copy-of
       select="$ref-node/@*[not(local-name() = 'ref' or local-name() = 'label')]" />
     <xsl:call-template name="generate-id-attribute">
       <xsl:with-param name="id" select="$id" />
     </xsl:call-template>
-    <xsl:if test="$at/*[@ref = $prev-id]">
+    <xsl:if test="$map/*[@ref = $prev-id]">
       <xsl:copy-of
-        select="$at/*[@ref = $prev-id]/@*[not(local-name() = 'ref' or local-name = 'id')]" />
+        select="$map/*[@ref = $prev-id]/@*[not(local-name() = 'ref' or local-name = 'id')]" />
     </xsl:if>
   </xsl:template>
 
@@ -874,6 +874,14 @@
   </xsl:template>
 
 
+  <xsl:template name="fetch-library-action">
+    <xsl:param name="node" select="." />
+    <xsl:param name="id" select="$node/@id" />
+    <xsl:copy-of
+      select="/sml:shiny/sml:library/sml:action[@id = $id][1]" />
+  </xsl:template>
+
+
   <xsl:template name="generate-panels-script">
     <xsl:param name="update" type="xs:boolean" select="false()" />
     <!-- Script output: Process whole subtree -->
@@ -905,19 +913,19 @@
         ajax: {
           shiny: 'shiny'
           <xsl:for-each select=".//sml:panels | .//sml:collection | .">
-            <xsl:if test="@ajax != ''">,
-              <xsl:call-template name="generate-panel-or-collection-id" />:[
-              <xsl:choose>
-                <xsl:when test="@ajax = 'inherit'">
-                  '<xsl:value-of select="ancestor::*[@ajax != ''][1]/@ajax" />'
-                </xsl:when>
-                <xsl:otherwise>
-                  '<xsl:value-of select="@ajax" />'
-                </xsl:otherwise>
-              </xsl:choose>
-              <xsl:if test="@ajax-scope != ''">
-                , '<xsl:value-of select="@ajax-scope" />'
-              </xsl:if>
+            <xsl:variable name="id">
+              <xsl:call-template name="generate-panel-or-collection-id" />
+            </xsl:variable>
+            <xsl:variable name="fetched">
+              <xsl:call-template name="fetch-library-action" />
+            </xsl:variable>
+            <xsl:variable name="action" select="exsl:node-set($fetched)" />
+            <xsl:if test="$action//@href != '' and $action//@target = @id">,
+              <xsl:value-of select="$id" />: [
+                '<xsl:value-of select="$action//@href" />'
+                <xsl:if test="$action//@scope != ''">,
+                  '<xsl:value-of select="$action//@scope" />'
+                </xsl:if>
               ]
             </xsl:if>
           </xsl:for-each>
