@@ -1,0 +1,34 @@
+<!--
+<dialog>
+  <status>
+    <library ref="checkbox" label="Don't show this screen again" />
+  </status>
+  <panels id="dialog_panels" sort="false">
+    <panel size="large" open="false" title="Welcome to Shiny v0.8.0">
+    </panel>
+  </panels>
+</dialog>
+-->
+
+<library>
+  <action id="reorder_workspace" target="workspace" type="update" href="ajax/workspace/panel" scope="stack" />
+</library>
+
+<page title="Shiny" action="post/env">
+  <xhtml>
+    <%= token_tag %>
+  </xhtml>
+  <sidebar>
+    <%= render :partial => 'partials/sidebar' %>
+  </sidebar>
+  <body>
+    <panels id="workspace" title="Current Workspace - Unsaved" onreorder="reorder_workspace" size="large" scroll="true">
+      <status>
+        <%= render :partial => 'partials/status' %>
+      </status>
+      <% @render[:panels].each { |p| %>
+        <%= render :partial => "partials/#{File.basename(p)}" %>
+      <% } %>
+    </panels>
+  </body>
+</page>

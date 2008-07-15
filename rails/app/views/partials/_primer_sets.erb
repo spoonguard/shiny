@@ -1,0 +1,71 @@
+<library>
+  <action id="reorder_primer_sets" target="primer_sets" type="update" href="ajax/primer_sets/tuple" scope="self" />
+  <select id="primer_sets_transition">
+    <option value="0">
+      nothing at all
+    </option>
+  </select>
+</library>
+<panel id="primer_sets_panel" title="Primer Sets" open="false">
+  <collection id="primer_sets" onreorder="reorder_primer_sets" select="single" extent="2">
+    <schema id="primer_sets_schema">
+      <elt type="string">Gene Name</elt>
+      <elt type="timestamp">Forward</elt>
+      <elt type="timestamp">Reverse</elt>
+      <elt type="timestamp">Created</elt>
+      <elt type="string">Owner</elt>
+    </schema>
+    <tuple>
+      <elt>Example</elt>
+      <elt>0.0</elt>
+      <elt>0.0</elt>
+      <elt>Yesterday</elt>
+      <elt>browndav</elt>
+    </tuple>
+    <tuple>
+      <elt>Another Example</elt>
+      <elt>0.0</elt>
+      <elt>0.0</elt>
+      <elt>Yesterday</elt>
+      <elt>browndav</elt>
+    </tuple>
+    <tuple>
+      <elt>Third Example</elt>
+      <elt>0.0</elt>
+      <elt>0.0</elt>
+      <elt>Two Days Ago</elt>
+      <elt>browndav</elt>
+    </tuple>
+  </collection>
+  <panels id="primer_sets_detail" size="small">
+    <panel title="Selection Details" open="true">
+      <collection id="primer_sets_detail" type="form" appearance="normal">
+        <tuple>
+          <elt>
+            <import id="primer_sets[primr_nm]" ref="test_input" label="Primer Name" value="" />
+          </elt>
+          <elt>
+            <import id="primer_sets[primr_src_comment]" ref="test_input" label="Primer Source" value="" />
+          </elt>
+        </tuple>
+        <tuple>
+          <elt>
+            <import id="primer_sets[forwrd_val]" ref="test_input" label="Forward Value" value="" />
+          </elt>
+          <elt>
+            <import id="primer_sets[revrse_val]" ref="test_input" label="Reverse Value" value="" />
+          </elt>
+          <elt>
+            <import id="primer_sets[cut_distance]" ref="test_input" label="Cut Distance" value="" />
+          </elt>
+        </tuple>
+      </collection>
+    </panel>
+  </panels>
+  <transition>
+    <import ref="before_transition" />
+    <import ref="primer_sets_transition" key="transition" selected="0" />
+    <import ref="after_transition" />
+  </transition>
+</panel>
+

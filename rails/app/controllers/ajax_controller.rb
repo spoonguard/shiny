@@ -1,5 +1,5 @@
 
-require 'shiny.rb'
+require 'shiny'
 
 class AjaxController < Shiny::Controller
 
@@ -22,6 +22,9 @@ class AjaxController < Shiny::Controller
       fetch
       logger.info "Shiny: Updating Panel (container = #{@container}, action = #{@action})"
       debug
+
+      @render = {};
+      @render[:panels] = [ @id.gsub(/_panel$/, '') ]
     end
 
     def tuple
@@ -38,6 +41,7 @@ class AjaxController < Shiny::Controller
 
     def fetch
       @tuples = { }
+      @id = params[:id]
       @action = params[:action]
       @container = params[:container]
       @collection = param(@container)

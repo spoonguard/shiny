@@ -281,6 +281,11 @@ Shiny.Object = Class.create(
     return this;
   },
 
+  is_setup: function()
+  {
+    return this._setup_invoked;
+  },
+
   /* protected: */
   invoke_with_hooks: function(key, method) /* ..., options */
   {
@@ -400,7 +405,7 @@ Shiny.Container = Class.create(Shiny.Object,
     /* private: */
     this._id = id;
     this._options = options;
-    this._in_reset = null;
+    this._resetting = null;
     this._container = null;
     this._container_id = null;
     this._progress_images = null;
@@ -519,6 +524,7 @@ Shiny.Container = Class.create(Shiny.Object,
   {
     options = $H(options || {});
 
+    var c_id = this.get_container_id();
     var container = this.get_container();
 
     if (id) {
@@ -529,24 +535,25 @@ Shiny.Container = Class.create(Shiny.Object,
     this.start_progress(options.get('message'));
     
     Shiny.Log.debug(
-      'Shiny.Container', 'Updating', this.get_container_id(), base_url
+      'Shiny.Container', 'Updating', c_id, base_url
     );
 
-    var url = base_url + '?' + this._serialize_bound_forms();
+    var qs = '?' + Object.toQueryString({ id: c_id }) + '&';
+    var url = base_url + qs + this._serialize_bound_forms();
 
     setTimeout(function() {
       this._updater = new Ajax.Updater(
         { success: container }, url, {
         evalScripts: true,
         onComplete: function() {
-          this.set_reset_status(true);
+          this.set_resetting(true);
           this.teardown_self();
           this.setup_self();
           this._teardown_container_children();
           this._setup_container_children();
           this.trigger_callback(options, 'onComplete');
           this.finish_progress();
-          this.set_reset_status(false);
+          this.set_resetting(false);
         }.bind(this)
       })
     }.bind(this), options.get('delay') || 0 /* ms */);
@@ -562,12 +569,12 @@ Shiny.Container = Class.create(Shiny.Object,
       'Shiny.Container', 'Resetting', this.get_container_id()
     );
 
-    this.set_reset_status(true);
+    this.set_resetting(true);
     this.teardown_self();
     this.setup_self();
     this._teardown_container_children();
     this._setup_container_children();
-    this.set_reset_status(false);
+    this.set_resetting(false);
 
     return this;
   },
@@ -607,7 +614,7 @@ Shiny.Container = Class.create(Shiny.Object,
   {
     return this._options;
   },
- 
+
   start_progress: function(message)
   {
     var indicators = this._indicators;
@@ -629,17 +636,27 @@ Shiny.Container = Class.create(Shiny.Object,
     return this;
   },
 
-  set_reset_status: function(s)
+  set_resetting: function(s)
   {
-    this._reset_status = s;
+    this._resettting = s;
   },
 
   is_resetting: function()
   {
-    return this._reset_status;
+    return this._resetting;
   },
 
-  /* static: */
+  is_affected_by_update: function(container)
+  {
+    var c_id = this.get_container_id();
+    var pc_id = container.get_container_id();
+    var c = $(c_id), pc = $(pc_id);
+
+    return c && pc && (
+      Element.descendantOf(c, pc) || Element.descendantOf(pc, c)
+    );
+  },
+
   setup_all: function(containers)
   {
     var rv = $H({});
@@ -2154,6 +2171,11 @@ Shiny.Resizer = Class.create(Shiny.Control,
         ); break;
     }
 
+    if (!this._element) {
+      Shiny.Log.warn('Shiny.Resizer', 'Unable to locate element');
+      return this;
+    }
+
     if (this._direction == 'horizontal')
       { this._offset_key = 0; this._extent_key = 'width'; }
     else
@@ -2618,7 +2640,9 @@ Shiny.Panel = Class.create(Shiny.Control,
     this._elts.clear();
     this._input = null;
 
+    this.trigger_event('teardown', this);
     Shiny.Panel.forget_container(this);
+
     return this;
   },
 
@@ -2761,7 +2785,7 @@ Shiny.Panel = Class.create(Shiny.Control,
 
       Effect.BlindDown(elt, {
         duration: duration,
-        afterFinish: this._finish.bind(this, event)
+        afterFinish: this._finish_toggle.bind(this, event)
       });
 
       if (Shiny.Browser.Preferences.use_transparency) {
@@ -2771,7 +2795,7 @@ Shiny.Panel = Class.create(Shiny.Control,
     } else {
 
       Element.show(elt);
-      this._finish(event);
+      this._finish_toggle(event);
     } 
 
     return this;
@@ -2789,12 +2813,12 @@ Shiny.Panel = Class.create(Shiny.Control,
 
       Effect.BlindUp(elt, {
         duration: duration,
-        afterFinish: this._finish.bind(this, event)
+        afterFinish: this._finish_toggle.bind(this, event)
       });
 
     } else {
       Element.hide(elt);
-      this._finish(event);
+      this._finish_toggle(event);
     }
 
     return this;
@@ -2815,7 +2839,7 @@ Shiny.Panel = Class.create(Shiny.Control,
     return this;
   },
 
-  _finish: function(event_name)
+  _finish_toggle: function(event_name)
   {
     this._set_in_progress(false);
     this.trigger_event(event_name);
@@ -2858,7 +2882,7 @@ Shiny.Collection = Class.create(Shiny.Container, Shiny.Events.prototype,
     this._panels = this._options.get('panels');
 
     if (this._panels) {
-      this._panels.observe('setup', this._install_recursive.bind(this));
+      this._panels.observe('setup', this._handle_setup.bind(this));
       this._panels.observe('teardown', this._handle_teardown.bind(this));
     }
 
@@ -2904,31 +2928,15 @@ Shiny.Collection = Class.create(Shiny.Container, Shiny.Events.prototype,
   /* private: */
   _handle_teardown: function(panels)
   {
-    /* Only operate on current instance */
-    if (panels.get_container() == this.get_container())
-      return this.teardown();
-
-    return this;
+    if (this.is_affected_by_update(panels))
+      return this.teardown_self();
   },
 
   /* protected: */
-  _install_recursive: function(panels)
+  _handle_setup: function(panels)
   {
-    var c = this.get_container();
-    var pc = panels.get_container();
-
-    if (pc == c)
+    if (this.is_affected_by_update(panels))
       return this.setup_self();
-
-    if (Element.descendantOf(pc, c)) {
-      this._recursive_collections.push(
-        new Shiny.Collection(
-          panels.get_container(), this._options.merge({ panels: panels })
-        )
-      );
-    }
-
-    return this;
   },
 
   _install_child: function(child)

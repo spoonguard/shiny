@@ -94,7 +94,7 @@
           </xhtml>
         </status>
         <panel title="Users" selector="users_selector" open="true">
-          <collection id="c4" select="single" onchange="c4" extent="2">
+          <collection id="c4" select="single" onreorder="c4" extent="2">
             <schema id="h1">
               <elt type="numeric">User ID</elt>
               <elt type="string">Full Name</elt>

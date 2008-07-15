@@ -1,0 +1,7 @@
+
+<update id="update">
+  <% @render[:panels].first.each { |p| %>
+    <%= render :partial => "partials/#{p}" %>
+  <% } %>
+</update>
+

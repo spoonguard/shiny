@@ -229,7 +229,7 @@
     </xsl:call-template>
     <xsl:if test="$map/*[@ref = $prev-id]">
       <xsl:copy-of
-        select="$map/*[@ref = $prev-id]/@*[not(local-name() = 'ref' or local-name = 'id')]" />
+        select="$map/*[@ref = $prev-id]/@*[not(local-name() = 'ref')]" />
     </xsl:if>
   </xsl:template>
 
@@ -309,10 +309,10 @@
         </xsl:call-template>
       </xsl:variable>
       <xsl:choose>
-        <xsl:when test="local-name(.) = 'library'">
+        <xsl:when test="local-name(.) = 'import'">
           <xsl:variable name="ref" select="@ref" />
           <xsl:variable name="node" select="." />
-          <xsl:for-each select="/sml:shiny/sml:library/*[@id = $ref]">
+          <xsl:for-each select="//sml:library/*[@id = $ref]">
             <xsl:if test="not(@type = 'checkbox' or @type = 'radio')">
               <xsl:call-template name="generate-automatic-elements">
                 <xsl:with-param name="id" select="$new-id" />
@@ -526,7 +526,7 @@
 
   <xsl:template name="generate-panel-input-attributes">
     <xsl:attribute name="class">shiny title arrow checkbox</xsl:attribute>
-    <xsl:if test="@open != '' and @open != false()">
+    <xsl:if test="@open != '' and @open != 'false'">
       <xsl:attribute name="checked">checked</xsl:attribute>
     </xsl:if>
   </xsl:template>
@@ -624,7 +624,7 @@
       </xsl:call-template>
     </xsl:for-each>
     <xsl:call-template name="output-using-library">
-      <xsl:with-param name="content" select="sml:xhtml | sml:library" />
+      <xsl:with-param name="content" select="sml:xhtml | sml:import" />
       <xsl:with-param name="update" select="$update" />
     </xsl:call-template>
   </xsl:template>
@@ -727,7 +727,7 @@
   </xsl:template>
 
 
-  <xsl:template match="sml:library">
+  <xsl:template match="//sml:library">
     <!-- Hide from output -->
   </xsl:template>
 
@@ -875,10 +875,9 @@
 
 
   <xsl:template name="fetch-library-action">
-    <xsl:param name="node" select="." />
-    <xsl:param name="id" select="$node/@id" />
+    <xsl:param name="ref" select="@ref" />
     <xsl:copy-of
-      select="/sml:shiny/sml:library/sml:action[@id = $id][1]" />
+      select="//sml:library/sml:action[@id = $ref]" />
   </xsl:template>
 
 
@@ -917,14 +916,17 @@
               <xsl:call-template name="generate-panel-or-collection-id" />
             </xsl:variable>
             <xsl:variable name="fetched">
-              <xsl:call-template name="fetch-library-action" />
+              <xsl:call-template name="fetch-library-action">
+                <xsl:with-param name="ref" select="@onreorder" />
+              </xsl:call-template>
             </xsl:variable>
-            <xsl:variable name="action" select="exsl:node-set($fetched)" />
-            <xsl:if test="$action//@href != '' and $action//@target = @id">,
+            <xsl:variable name="action"
+              select="exsl:node-set($fetched)/sml:action[1]" />
+            <xsl:if test="$action/@href != '' and $action/@target = @id">,
               <xsl:value-of select="$id" />: [
-                '<xsl:value-of select="$action//@href" />'
-                <xsl:if test="$action//@scope != ''">,
-                  '<xsl:value-of select="$action//@scope" />'
+                '<xsl:value-of select="$action/@href" />'
+                <xsl:if test="$action/@scope != ''">,
+                  '<xsl:value-of select="$action/@scope" />'
                 </xsl:if>
               ]
             </xsl:if>
@@ -1086,6 +1088,8 @@
           <xsl:with-param name="suffix">trsel</xsl:with-param>
         </xsl:call-template>
       </xsl:variable>
+      <xsl:variable name="transition-import"
+        select="sml:transition//sml:import[@key = 'transition'][1]" />
       <div class="xr transition">
         <img alt="&gt;&gt;"
           class="left png" src="../images/arrow-from-large.png" />
@@ -1097,31 +1101,37 @@
             <xsl:with-param name="update" select="$update" />
             <xsl:with-param name="content" select="sml:transition/*" />
             <xsl:with-param name="attribute-map">
-              <map ref="transition-select" id="{$transition-select-id}" />
+              <map id="{$transition-select-id}">
+                <xsl:attribute name="ref"
+                  ><xsl:value-of select="$transition-import//@ref"
+                /></xsl:attribute>
+              </map>
             </xsl:with-param>
           </xsl:call-template>
         </div>
         </div>
       </div>
-      <script type="text/javascript">
-        <xsl:if test="$update != true()">
-          document.observe('dom:loaded', function() {
-        </xsl:if>
-          if (_shiny.<xsl:value-of select="$transition-select-id" /> != null) {
-            _shiny.<xsl:value-of select="$transition-select-id" />.reset();
-          } else {
-            _shiny.<xsl:value-of select="$transition-select-id" /> =
-              new Shiny.Facade(
-                '<xsl:value-of select="$transition-select-id" />', {
-                  element: '<xsl:value-of select="$transition-id" />',
-                  images: Shiny.Assets.Images.get('transition')
-                }
-              );
-          }
-        <xsl:if test="$update != true()">
-          });
-        </xsl:if>
-      </script>
+      <xsl:if test="$transition-import">
+        <script type="text/javascript">
+          <xsl:if test="$update != true()">
+            document.observe('dom:loaded', function() {
+          </xsl:if>
+            if (_shiny.<xsl:value-of select="$transition-select-id" /> != null) {
+              _shiny.<xsl:value-of select="$transition-select-id" />.reset();
+            } else {
+              _shiny.<xsl:value-of select="$transition-select-id" /> =
+                new Shiny.Facade(
+                  '<xsl:value-of select="$transition-select-id" />', {
+                    element: '<xsl:value-of select="$transition-id" />',
+                    images: Shiny.Assets.Images.get('transition')
+                  }
+                );
+            }
+          <xsl:if test="$update != true()">
+            });
+          </xsl:if>
+        </script>
+      </xsl:if>
     </xsl:if>
   </xsl:template>
 

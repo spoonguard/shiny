@@ -1,0 +1,50 @@
+<library>
+  <action id="reorder_groups" target="groups" type="update" href="ajax/groups/collection" />
+</library>
+<panel title="Groups" open="false">
+  <collection id="groups" select="multiple" onreorder="reorder_groups">
+    <schema id="h3">
+      <elt>Group ID</elt>
+      <elt type="numeric">Group Name</elt>
+      <elt>Group Members</elt>
+      <elt>Created</elt>
+      <elt>Updated</elt>
+    </schema>
+    <tuple>
+      <elt>admins</elt>
+      <elt>Administrators</elt>
+      <elt>browndav</elt>
+    </tuple>
+    <tuple>
+      <elt>plebes</elt>
+      <elt>Plebians</elt>
+      <elt>browndav</elt>
+    </tuple>
+    <tuple>
+      <elt>programmers</elt>
+      <elt>Software Engineers</elt>
+      <elt>browndav</elt>
+    </tuple>
+    <tuple>
+      <elt>people</elt>
+      <elt>Human Race</elt>
+      <elt>browndav</elt>
+    </tuple>
+  </collection>
+  <panels id="detail2" size="small">
+    <panel title="Selection Details">
+      <collection id="detail2_1" type="form">
+      </collection>
+    </panel>
+    <panel title="Visualization Options">
+      <collection id="detail2_2" type="form">
+      </collection>
+    </panel>
+  </panels>
+  <transition>
+    <import ref="before_transition" />
+    <import ref="transition_select" key="transition" />
+    <import ref="after_transition" />
+  </transition>
+</panel>
+

@@ -1,0 +1,49 @@
+<library>
+  <action id="reorder_mutation_types" target="mutation_types" type="update" href="ajax/mutation_types/tuple" scope="self" />
+  <select id="mutation_types_transition">
+    <option value="0">
+      nothing at all
+    </option>
+  </select>
+</library>
+<panel id="mutation_types_panel" title="Mutation Types" open="false">
+  <collection id="mutation_types" onreorder="reorder_mutation_types" select="single" extent="2">
+    <schema id="mutation_types_schema">
+      <elt type="string">Mutation Name</elt>
+      <elt type="timestamp">Created</elt>
+      <elt type="string">Owner</elt>
+    </schema>
+    <tuple>
+      <elt>Example Mutation Type</elt>
+      <elt>Yesterday</elt>
+      <elt>browndav</elt>
+    </tuple>
+    <tuple>
+      <elt>Another Example Mutation Type</elt>
+      <elt>Yesterday</elt>
+      <elt>browndav</elt>
+    </tuple>
+    <tuple>
+      <elt>Yet a Third Example Mutation Type</elt>
+      <elt>Two Days Ago</elt>
+      <elt>browndav</elt>
+    </tuple>
+  </collection>
+  <panels id="mutation_types_detail" size="small">
+    <panel title="Selection Details" open="true">
+      <collection id="mutation_types_detail_collection" type="form" appearance="normal">
+        <tuple>
+          <elt>
+            <import id="mutation_types[mutatn_typ_nm]" ref="test_input" label="Mutation Name" value="" />
+          </elt>
+        </tuple>
+      </collection>
+    </panel>
+  </panels>
+  <transition>
+    <import ref="before_transition" />
+    <import ref="mutation_types_transition" key="transition" selected="0" />
+    <import ref="after_transition" />
+  </transition>
+</panel>
+
