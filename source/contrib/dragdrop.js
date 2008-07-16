@@ -1040,14 +1040,15 @@ var Sortable = {
     if (!dropon)
       return false;
 
-    var options = Sortable.options(dropon);
     var savedParent = Draggables.reparentCache[element.id];
-    var root = Sortable._findRootElement(savedParent || element);
+    var dropon_root = Sortable._findRootElement(dropon);
+    var elt_root = Sortable._findRootElement(savedParent);
+    var options = Sortable.options(dropon_root);
 
     if (!options)
       return false;
 
-    if (!options.canInsert(root, element, dropon, direction))
+    if (!options.canInsert(elt_root, element, dropon, direction))
       return false;
 
     return true;

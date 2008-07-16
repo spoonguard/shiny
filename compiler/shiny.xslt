@@ -507,8 +507,8 @@
 
 
   <xsl:template name="generate-tuple-input-class">
-    <xsl:attribute name="class">shiny selector checkbox<xsl:if
-      test="ancestor::sml:collection[@checkboxes][1]/@checkboxes = 'none'"> hidden</xsl:if>
+    <xsl:attribute name="class">shiny selector <xsl:if
+      test="ancestor::sml:collection[@selectors][1]/@selectors = 'none'"> hidden</xsl:if>
     </xsl:attribute>
     <xsl:attribute name="type"><xsl:choose>
       <xsl:when test="ancestor::sml:collection[@select][1]/@select = 'single'"
@@ -1094,7 +1094,7 @@
         <img alt="&gt;&gt;"
           class="left png" src="../images/arrow-from-large.png" />
         <img id="{$transition-id}" alt="&gt;&gt;" style="padding-top: 8px;"
-          class="right png" src="../images/arrow-to-large.png" />
+          class="right png" src="../images/blank.png" />
         <div class="xr interior">
         <div class="gray round">
           <xsl:call-template name="output-using-library">
@@ -1391,7 +1391,7 @@
               <xsl:call-template name="generate-tuple-input-class" />
               <xsl:call-template name="generate-id-attribute">
                 <xsl:with-param name="id" select="$tuple-id" />
-                <xsl:with-param name="suffix">sel</xsl:with-param>
+                <xsl:with-param name="suffix" select="'sel'" />
               </xsl:call-template>
               <xsl:attribute name="value">
                 <xsl:value-of select="$tuple-id" />
@@ -1413,11 +1413,22 @@
             </xsl:choose>
             <xsl:if test="normalize-space(text()) != ''">
               <label class="title">
-                <xsl:call-template name="generate-id-attribute">
-                  <xsl:with-param name="id" select="$tuple-id" />
-                  <xsl:with-param name="suffix" select="'arrow'" />
-                  <xsl:with-param name="attribute" select="'for'" />
-                </xsl:call-template>
+                <xsl:choose>
+                  <xsl:when test="../sml:collection">
+                    <xsl:call-template name="generate-id-attribute">
+                      <xsl:with-param name="attribute" select="'for'" />
+                      <xsl:with-param name="id" select="$tuple-id" />
+                      <xsl:with-param name="suffix" select="'arrow'" />
+                    </xsl:call-template>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:call-template name="generate-id-attribute">
+                      <xsl:with-param name="attribute" select="'for'" />
+                      <xsl:with-param name="id" select="$tuple-id" />
+                      <xsl:with-param name="suffix" select="'sel'" />
+                    </xsl:call-template>
+                  </xsl:otherwise>
+                </xsl:choose>
                 <xsl:value-of select="text()" />
               </label>
             </xsl:if>

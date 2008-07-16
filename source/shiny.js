@@ -1655,7 +1655,6 @@ Shiny.Facade = Class.create(Shiny.Container,
     }
 
     rv.className = input.className + ' ' + rv.className;
-    Element.removeClassName(rv, 'hidden');
     Element.removeClassName(rv, 'shiny');
     Element.addClassName(rv, 'shiny-js');
 
@@ -3542,7 +3541,12 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
 
         if (accept && (accept = $H(accept).get(c_id)) != null) {
           this._accept_elts = this._accept_elts.concat(accept).map(
-            function(e) { return $(e); }
+            function(id) {
+              var rv = $(id);
+              if (!rv)
+                Shiny.Log.warning('Shiny.Panels', 'Unable to locate', id);
+              return rv;
+            }
           );
         }
 
