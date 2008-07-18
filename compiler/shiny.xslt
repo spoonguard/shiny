@@ -239,16 +239,17 @@
     <xsl:param name="update" type="xs:boolean" select="false()" />
     <xsl:param name="id" type="xs:ID" select="$root/@id" />
     <xsl:param name="suffix" type="xs:string" select="':'" />
-
-    <xsl:variable name="edit-batch"
-      select="$root/ancestor::sml:collection[1]/@edit-mode = 'batch'" />
+    <xsl:variable name="collection"
+      select="$root/ancestor::sml:collection[1]" />
+    <xsl:variable name="decorate"
+      select="str:tokenize($collection/@decorate, ' ')" />
     <xsl:variable name="checkbox-id">
       <xsl:call-template name="generate-id">
         <xsl:with-param name="id" select="$id" />
         <xsl:with-param name="suffix" select="'guard'" />
       </xsl:call-template>
     </xsl:variable>
-    <xsl:if test="$edit-batch">
+    <xsl:if test="$collection/@edit-mode = 'batch'">
       <input id="{$checkbox-id}" type="checkbox" class="shiny checkbox guard">
         <xsl:if test="$root/@edit-enabled = true()">
           <xsl:attribute name="checked">checked</xsl:attribute>
@@ -268,11 +269,11 @@
         </xsl:if>
       </script>
     </xsl:if>
-    <xsl:if test="$root/@label or $root/ancestor::sml:collection[1][@type = 'form']">
+    <xsl:if test="$root/@label or $decorate[text() = 'form']">
       <label>
         <xsl:attribute name="for">
           <xsl:choose>
-            <xsl:when test="$edit-batch">
+            <xsl:when test="$collection/@edit-mode = 'batch'">
               <xsl:value-of select="$checkbox-id" />
             </xsl:when>
             <xsl:otherwise>
@@ -540,10 +541,11 @@
 
   <xsl:template name="generate-collection-class">
     <xsl:param name="scrollable" type="xs:boolean" select="true()" />
+    <xsl:variable name="decorate" select="str:tokenize(@decorate, ' ')" />
     <xsl:choose>
-      <xsl:when test="@type = 'form'">
+      <xsl:when test="$decorate[text() = 'form']">
         <xsl:attribute name="class">scrollable resizable form xr<xsl:if
-          test="@appearance = 'dark'"> dark</xsl:if></xsl:attribute>
+          test="$decorate[text() = 'dark']"> dark</xsl:if></xsl:attribute>
       </xsl:when>
       <xsl:otherwise>
         <xsl:attribute name="class">x-blue xr<xsl:if
@@ -589,7 +591,6 @@
 
   <xsl:template name="default-output">
     <xsl:param name="update" select="false()" />
-    <xsl:param name="round-panels" select="false()" />
     <xsl:for-each select="sml:panels">
       <xsl:choose>
         <xsl:when test="$update = true()">
@@ -600,7 +601,6 @@
         <xsl:otherwise>
           <xsl:call-template name="generate-panels">
             <xsl:with-param name="update" select="$update" />
-            <xsl:with-param name="round" select="$round-panels" />
           </xsl:call-template>
         </xsl:otherwise>
       </xsl:choose>
@@ -788,7 +788,6 @@
   <-->
 
   <xsl:template name="generate-panels-content">
-    <xsl:param name="round" type="xs:boolean" select="true()" />
     <xsl:param name="update" type="xs:boolean" select="false()" />
     <xsl:param name="recursive" type="xs:boolean" select="false()" />
     <input class="persist order" type="hidden">
@@ -801,16 +800,14 @@
         <xsl:with-param name="suffix">drag</xsl:with-param>
       </xsl:call-template>
     </input>
-    <xsl:if test="$recursive != true()">
+    <xsl:if test="sml:status">
       <div class="status no-drop">
-        <xsl:if test="sml:status">
-          <div class="right pad">
-            <xsl:call-template name="output-using-library">
-              <xsl:with-param name="content" select="sml:status/*" />
-              <xsl:with-param name="update" select="$update" />
-            </xsl:call-template>
-          </div>
-        </xsl:if>
+        <div class="right pad">
+          <xsl:call-template name="output-using-library">
+            <xsl:with-param name="content" select="sml:status/*" />
+            <xsl:with-param name="update" select="$update" />
+          </xsl:call-template>
+        </div>
         <xsl:if test="@title">
           <h3><xsl:value-of select="@title" /></h3>
         </xsl:if>
@@ -819,7 +816,6 @@
     </xsl:if>
     <xsl:for-each select="sml:panel">
       <xsl:call-template name="generate-panel">
-        <xsl:with-param name="round" select="$round" />
         <xsl:with-param name="update" select="$update" />
         <xsl:with-param name="recursive" select="$recursive" />
       </xsl:call-template>
@@ -828,7 +824,6 @@
 
 
   <xsl:template name="generate-panels" match="sml:panels">
-    <xsl:param name="round" type="xs:boolean" select="true()" />
     <xsl:param name="scroll" type="xs:boolean" select="true()" />
     <xsl:param name="update" type="xs:boolean" select="false()" />
     <xsl:param name="recursive" type="xs:boolean" select="false()" />
@@ -839,7 +834,6 @@
         <xsl:with-param name="recursive" select="$recursive" />
       </xsl:call-template>
       <xsl:call-template name="generate-panels-content">
-        <xsl:with-param name="round" select="$round" />
         <xsl:with-param name="update" select="$update" />
         <xsl:with-param name="recursive" select="$recursive" />
       </xsl:call-template>
@@ -1056,13 +1050,13 @@
   <-->
 
   <xsl:template name="generate-panel-content">
-    <xsl:param name="round" type="xs:boolean" select="true()" />
     <xsl:param name="update" type="xs:boolean" select="false()" />
     <xsl:param name="recursive" type="xs:boolean" select="false()" />
+    <xsl:variable name="decorate"
+      select="str:tokenize(ancestor::sml:panels[1]/@decorate, ' ')" />
     <div>
       <xsl:attribute name="class">xr<xsl:if
-        test="$recursive = false()"> pad</xsl:if><xsl:if
-        test="$round = true()"> round</xsl:if>
+        test="not($decorate) or $decorate[text() = 'round']"> round pad</xsl:if>
       </xsl:attribute>
       <div class="progress"></div>
       <div class="handle xr">
@@ -1093,7 +1087,6 @@
           </xsl:for-each>
           <xsl:for-each select="sml:panels">
             <xsl:call-template name="generate-panels">
-              <xsl:with-param name="round" select="false()" />
               <xsl:with-param name="scroll" select="false()" />
               <xsl:with-param name="recursive" select="true()" />
             </xsl:call-template>
@@ -1164,7 +1157,6 @@
 
 
   <xsl:template name="generate-panel" match="sml:panel">
-    <xsl:param name="round" type="xs:boolean" select="true()" />
     <xsl:param name="update" type="xs:boolean" select="false()" />
     <xsl:param name="recursive" type="xs:boolean" select="false()" />
     <div class="center xr">
@@ -1173,7 +1165,6 @@
         <xsl:with-param name="recursive" select="$recursive" />
       </xsl:call-template>
       <xsl:call-template name="generate-panel-content">
-        <xsl:with-param name="round" select="$round" />
         <xsl:with-param name="update" select="$update" />
         <xsl:with-param name="recursive" select="$recursive" />
       </xsl:call-template>
@@ -1197,8 +1188,10 @@
         <xsl:with-param name="suffix" select="'drag'" />
       </xsl:call-template>
     </input>
+    <xsl:variable name="decorate"
+      select="str:tokenize(@decorate, ' ')" />
     <xsl:choose>
-      <xsl:when test="@type = 'form'">
+      <xsl:when test="$decorate[text() = 'form']">
         <div class="xr interior">
           <xsl:call-template name="generate-id-attribute">
             <xsl:with-param name="suffix">i</xsl:with-param>
@@ -1231,7 +1224,8 @@
           <xsl:with-param name="suffix">ps</xsl:with-param>
         </xsl:call-template>
         <xsl:call-template name="generate-collection-panels-class" />
-        <xsl:call-template name="generate-collection-content" />
+        <xsl:call-template name="generate-collection-content">
+        </xsl:call-template>
       </div>
     </div>
     <xsl:if test="$recursive = false() or local-name(..) = 'panel'">
@@ -1407,9 +1401,15 @@
           </xsl:call-template>
         </xsl:variable>
         <div id="{$elt-id}">
+          <xsl:variable name="collection"
+            select="ancestor-or-self::sml:collection[1]" />
+          <xsl:variable name="decorate"
+            select="str:tokenize($collection/@decorate, ' ')" />
+          <xsl:variable name="has-form-decoration"
+            select="$decorate[text() = 'form']" />
           <xsl:attribute name="class">elt i0 xr<xsl:if
-            test="not(ancestor::sml:collection[1]/@type = 'form')"> handle</xsl:if></xsl:attribute>
-          <xsl:if test="not(ancestor::sml:collection[1]/@type = 'form')">
+            test="not($has-form-decoration)"> handle</xsl:if></xsl:attribute>
+          <xsl:if test="not($has-form-decoration)">
             <!-- Attribute 'id' is required on an sml:collection -->
             <input>
               <xsl:attribute name="name">

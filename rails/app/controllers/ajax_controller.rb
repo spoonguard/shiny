@@ -27,7 +27,7 @@ class AjaxController < Shiny::Controller
       debug
 
       @render = {};
-      @render[:panels] = [ @id.gsub(/_panel$/, '') ]
+      @render[:panel] = [ @id.gsub(/_panel$/, '') ]
     end
 
     def tuple

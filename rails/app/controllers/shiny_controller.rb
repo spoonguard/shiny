@@ -7,7 +7,7 @@ class ShinyController < Shiny::Controller
 
   def index
     @render = {};
-    @render[:panels] = [
+    @render[:panel] = [
       #'tissue_types', 'tumor_sites', 'tumor_types', 'publications',
       #'extract_types', 'healthcare_locations', 'specimen_types',
       #'exon_groups', 'primer_sets', 'primer_set_groups', 'mutation_types',

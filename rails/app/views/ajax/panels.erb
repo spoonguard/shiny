@@ -1,4 +1,7 @@
 
 <update id="update">
+  <% @render[:panels].each { |p| %>
+    <%= render :partial => "partials/#{File.basename(p)}" %>
+  <% } %>
 </update>
 

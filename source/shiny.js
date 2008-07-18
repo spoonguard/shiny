@@ -2556,7 +2556,7 @@ Shiny.Resizer = Class.create(Shiny.Control,
 Shiny.Panel = Class.create(Shiny.Control,
 {
   /* public: */
-  initialize: function($super, id, options)
+  initialize: function($super, id, options, delay_setup)
   {
     /* private: */
     this._input = null;
@@ -2570,8 +2570,13 @@ Shiny.Panel = Class.create(Shiny.Control,
     this._recursion_trigger = null;
     /* */
     
+    $super(id, options);
     this.$initialize_control(id, null, options);
-    return this.invoke_with_hooks('setup', this.setup, id, options);
+
+    if (!delay_setup)
+      return this.invoke_setup();
+
+    return this;
   },
  
   open: function()
