@@ -670,7 +670,7 @@
           </xsl:otherwise>
         </xsl:choose>
       </title>
-      <!-- Namespace for library-gnerated script objects -->
+      <!-- Namespace for library-generated script objects -->
       <script type="text/javascript">
         _shiny = {};
         document.observe('dom:loaded', function() {
