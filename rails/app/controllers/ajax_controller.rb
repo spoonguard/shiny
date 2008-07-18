@@ -16,6 +16,9 @@ class AjaxController < Shiny::Controller
     def panels
       fetch
       logger.info "Shiny: Updating Panels (container = #{@container}, action = #{@action})"
+
+      @render = {};
+      @render[:panels] = [ @container ]
     end
 
     def panel

@@ -727,7 +727,7 @@
   </xsl:template>
 
 
-  <xsl:template match="//sml:library">
+  <xsl:template match="sml:library">
     <!-- Hide from output -->
   </xsl:template>
 
@@ -846,6 +846,28 @@
     </div>
   </xsl:template>
 
+  
+  <xsl:template name="generate-event-callback">
+    <xsl:param name="name" select="'onChange'" />
+    <xsl:param name="attribute" select="@onchange" />
+    <xsl:variable name="fetched">
+      <xsl:call-template name="fetch-library-action">
+        <xsl:with-param name="ref" select="$attribute" />
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="action"
+      select="exsl:node-set($fetched)/sml:action[1]" />
+    <xsl:if test="$action/@type = 'update'">
+      , <xsl:value-of select="$name" />: function() {
+        Shiny.Panels.find_container(
+          '<xsl:value-of select="$action/@target" />'
+        ).update(
+          null, '<xsl:value-of select="$action/@href" />'
+        );
+      }
+    </xsl:if>
+  </xsl:template>
+
 
   <xsl:template name="generate-collection-script-fragment">
     <xsl:param name="update" select="false()" />
@@ -857,16 +879,22 @@
         </xsl:call-template>
       </xsl:variable>
       if ($('<xsl:value-of select="@id" />')) {
+        var options = {
+          shiny: 'shiny'
+          <xsl:if test="ancestor::sml:panels[1]/@id">
+            , panels: _shiny.<xsl:value-of select="ancestor::sml:panels[1]/@id" />
+          </xsl:if>
+          <xsl:call-template name="generate-event-callback">
+            <xsl:with-param name="name" select="'onChange'" />
+            <xsl:with-param name="attribute" select="@onchange" />
+          </xsl:call-template>
+        };
         if (_shiny.<xsl:value-of select="$collection_id" /> != null) {
           _shiny.<xsl:value-of select="$collection_id" />.reset();
         } else {
           _shiny.<xsl:value-of select="$collection_id" /> =
             new Shiny.Collection(
-              '<xsl:value-of select="$collection_id" />'
-              <xsl:if test="ancestor::sml:panels[1]/@id">, {
-                panels: _shiny.<xsl:value-of select="ancestor::sml:panels[1]/@id" />
-              }
-              </xsl:if>
+              '<xsl:value-of select="$collection_id" />', options
             );
         }
       }
@@ -925,8 +953,8 @@
             <xsl:if test="$action/@href != '' and $action/@target = @id">,
               <xsl:value-of select="$id" />: [
                 '<xsl:value-of select="$action/@href" />'
-                <xsl:if test="$action/@scope != ''">,
-                  '<xsl:value-of select="$action/@scope" />'
+                <xsl:if test="$action/@scope != ''">
+                  , '<xsl:value-of select="$action/@scope" />'
                 </xsl:if>
               ]
             </xsl:if>
@@ -965,7 +993,7 @@
           </xsl:for-each>
         },
         sortable: <xsl:choose>
-          <xsl:when test="@sort = 'false'">false</xsl:when>
+          <xsl:when test="@sort = 'false' or @sort = ''">false</xsl:when>
           <xsl:otherwise>true</xsl:otherwise>
         </xsl:choose>,
         scroll: true, recursive: true,
@@ -1016,7 +1044,6 @@
           }
         }
       </xsl:for-each>
-
       <xsl:if test="$update != true()">
         });
       </xsl:if>
@@ -1249,10 +1276,13 @@
   <xsl:template name="generate-header-tuple-elt">
     <xsl:param name="update" type="xs:boolean" select="false()" />
     <div>
-      <xsl:call-template name="generate-id-attribute" />
+      <xsl:call-template name="generate-id-attribute">
+        <xsl:with-param name="prefix" select="'col'" />
+      </xsl:call-template>
       <xsl:call-template name="generate-schema-elt-class" />
       <input type="hidden" class="persist resize">
         <xsl:call-template name="generate-id-and-name-attributes">
+          <xsl:with-param name="prefix" select="'col'" />
           <xsl:with-param name="suffix" select="'size'" />
         </xsl:call-template>
       </input>
@@ -1267,12 +1297,9 @@
         <xsl:attribute name="class">sort<xsl:if
           test="$update = true()"> hidden</xsl:if>
         </xsl:attribute>
-        <xsl:call-template name="generate-id-attribute">
-          <xsl:with-param name="prefix">sort</xsl:with-param>
-        </xsl:call-template>
-        <xsl:call-template name="generate-id-attribute">
-          <xsl:with-param name="prefix">sort</xsl:with-param>
-          <xsl:with-param name="attribute">name</xsl:with-param>
+        <xsl:call-template name="generate-id-and-name-attributes">
+          <xsl:with-param name="prefix" select="'col'" />
+          <xsl:with-param name="suffix" select="'sort'" />
         </xsl:call-template>
         <option value="2">
           <xsl:if test="@sort = 'asc' or @sort = 'ascending'">

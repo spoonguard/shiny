@@ -136,7 +136,7 @@ Shiny.Log = {
     return false;
   },
 
-  debug: function(type, message)
+  debug: function(domain, type, message)
   {
     /* Draft - Fix me */
     Shiny.Log.message(
@@ -149,7 +149,7 @@ Shiny.Log = {
     return false;
   },
 
-  warning: function(message)
+  warning: function(domain, type, message)
   {
     try {
       /* Capture backtrace */
@@ -166,12 +166,12 @@ Shiny.Log = {
     return false;
   },
 
-  error: function(message)
+  error: function(domain, type, message)
   {
     return false;
   },
 
-  fatal: function(message)
+  fatal: function(domain, type, message)
   {
     return false;
   }
@@ -256,8 +256,11 @@ Shiny.Object = Class.create(
 
   setup: function()
   {
-    if (this._setup_invoked)
-      return Shiny.Log.warning('Setup method invoked multiple times for this instance');
+    if (this._setup_invoked) {
+      return Shiny.Log.warning(
+        'Shiny.Object', 'setup', 'Invoked multiple times'
+      );
+    }
 
     this._setup_invoked = true;
     return this;
@@ -265,8 +268,11 @@ Shiny.Object = Class.create(
 
   teardown: function()
   {
-    if (!this._setup_invoked)
-      return Shiny.Log.warning('Teardown method invoked multiple times for this instance');
+    if (!this._setup_invoked) {
+      return Shiny.Log.warning(
+        'Shiny.Object', 'teardown', 'Invoked multiple times'
+      );
+    }
 
     this._setup_invoked = false;
     return this;
@@ -427,7 +433,7 @@ Shiny.Container = Class.create(Shiny.Object,
       return false;
 
     Shiny.Log.debug(
-      'Shiny.Container', 'Setup', id, options
+      'Shiny.Container', 'setup', id, options
     );
 
     return this.$setup_container(id, options);
@@ -481,7 +487,7 @@ Shiny.Container = Class.create(Shiny.Object,
       return false;
 
     Shiny.Log.debug(
-      'Shiny.Container', 'Teardown', this.get_container_id()
+      'Shiny.Container', 'teardown', this.get_container_id()
     );
 
     if (!this.is_resetting())
@@ -535,13 +541,13 @@ Shiny.Container = Class.create(Shiny.Object,
     this.start_progress(options.get('message'));
     
     Shiny.Log.debug(
-      'Shiny.Container', 'Updating', c_id, base_url
+      'Shiny.Container', 'update', c_id, base_url
     );
 
     var qs = '?' + Object.toQueryString({ id: c_id }) + '&';
     var url = base_url + qs + this._serialize_bound_forms();
 
-    setTimeout(function() {
+    (function() {
       this._updater = new Ajax.Updater(
         { success: container }, url, {
         evalScripts: true,
@@ -551,12 +557,12 @@ Shiny.Container = Class.create(Shiny.Object,
           this.setup_self();
           this._teardown_container_children();
           this._setup_container_children();
-          this.trigger_callback(options, 'onComplete');
+          this.trigger_callback('onComplete', options);
           this.finish_progress();
           this.set_resetting(false);
         }.bind(this)
       })
-    }.bind(this), options.get('delay') || 0 /* ms */);
+    }).bind(this).defer(options.get('delay') || 0 /* ms */);
 
     return this;
   },
@@ -566,7 +572,7 @@ Shiny.Container = Class.create(Shiny.Object,
     options = $H(options || {});
 
     Shiny.Log.debug(
-      'Shiny.Container', 'Resetting', this.get_container_id()
+      'Shiny.Container', 'reset', this.get_container_id()
     );
 
     this.set_resetting(true);
@@ -734,18 +740,34 @@ Shiny.Container.Registry = {
 
   track_container: function(c)
   {
-    this._container_registry.set(c.get_container_id(), c);
+    var c_id = c.get_container_id();
+
+    Shiny.Log.debug(
+      'Shiny.Container.Registry', 'track_container', c_id
+    );
+
+    this._container_registry.set(c_id, c);
     return this;
   },
 
   forget_container: function(c)
   {
-    this._container_registry.unset(c.get_container_id());
+    var c_id = c.get_container_id();
+
+    Shiny.Log.debug(
+      'Shiny.Container.Registry', 'forget_container', c_id
+    );
+
+    this._container_registry.unset(c_id);
     return this;
   },
 
   find_container: function(id)
   {
+    Shiny.Log.debug(
+      'Shiny.Container.Registry', 'find_container', id
+    );
+
     return this._container_registry.get(id);
   }
 };
@@ -832,7 +854,7 @@ Shiny.Events = Class.create(
       return rv;
 
     this._handlers.unset(type);
-    Shiny.Log.debug('Shiny.Events', 'Event', type, this);
+    Shiny.Log.debug('Shiny.Events', 'event', type, this);
 
     for (var i = 0, len = fns.length; i < len; ++i) {
       if (!fns[i].apply(this, args))
@@ -843,14 +865,14 @@ Shiny.Events = Class.create(
     return rv;
   },
 
-  trigger_callback: function(hash, type /* , ... */)
+  trigger_callback: function(type, options /* , ... */)
   {
-    var fn = hash.get(type);
+    var fn = $H(options).get(type);
 
     if (fn)
       fn.apply(this, $A(arguments).slice(2));
 
-    Shiny.Log.debug('Shiny.Events', 'Callback', type, this);
+    Shiny.Log.debug('Shiny.Events', 'callback', type, this);
     return this;
   },
 
@@ -1442,12 +1464,8 @@ Shiny.Mirror = Class.create(Shiny.Object, Shiny.Events.prototype,
       var event_name = this._event_map.get(keys[i]);
 
       for (var j = 0, len2 = this._elts.length; j < len2; ++j) {
-        var fn = this._mirror_event.bindAsEventListener(
-          this, keys[i], j, this._elts[j]
-        );
-        this._observers.push({
-          index: j, event_name: event_name, fn: fn
-        });
+        var fn = this._mirror_event.bindAsEventListener(this, keys[i], j);
+        this._observers.push({ index: j, event_name: event_name, fn: fn });
         this._elts[j].observe(event_name, fn, false);
       }
     }
@@ -1470,7 +1488,7 @@ Shiny.Mirror = Class.create(Shiny.Object, Shiny.Events.prototype,
   },
 
   /* private: */
-  _mirror_event: function(ev, method, idx, elt)
+  _mirror_event: function(ev, method, idx)
   {
     var k1 = this._mirror_unique_id + '.' + idx + '.' + method;
 
@@ -1478,21 +1496,23 @@ Shiny.Mirror = Class.create(Shiny.Object, Shiny.Events.prototype,
       Event.extend(ev);
 
     if (Shiny._mirror_cycle_guard.get(k1)) {
-      if (ev) ev.stopPropagation(); return true;
+      if (ev && ev.stopPropagation) {
+        ev.stopPropagation(); return true;
+      }
     }
 
     Shiny._mirror_cycle_guard.set(k1, true);
 
     for (var i = 0, len = this._elts.length; i < len; ++i) {
       if (!this._send_event(this._elts[i], ev, method, i))
-        if (ev) ev.stopPropagation();
+        if (ev && ev.stopPropagation) ev.stopPropagation();
     }
 
     /* Escape current call stack:
         This will allow any outstanding events to be delivered,
         prior to resetting the "cycle guard" associative array. */
 
-    setTimeout(this._clear_cycle_guard.bind(this), 0);
+    this._clear_cycle_guard.bind(this).defer();
     return true;
   },
 
@@ -1503,7 +1523,9 @@ Shiny.Mirror = Class.create(Shiny.Object, Shiny.Events.prototype,
     var k2 = this._mirror_unique_id + '.' + i + '.' + method;
 
     if (Shiny._mirror_cycle_guard.get(k2)) {
-      if (ev) ev.stopPropagation(); return true;
+      if (ev && ev.stopPropagation) {
+        ev.stopPropagation(); return true;
+      }
     }
 
     /* Fix for Internet Explorer 6.x infinite loop:
@@ -1655,7 +1677,10 @@ Shiny.Facade = Class.create(Shiny.Container,
     }
 
     rv.className = input.className + ' ' + rv.className;
-    Element.removeClassName(rv, 'shiny');
+
+    if (!Element.hasClassName(rv, 'shiny'))
+      Element.removeClassName(rv, 'hidden');
+
     Element.addClassName(rv, 'shiny-js');
 
     return rv;
@@ -2171,7 +2196,9 @@ Shiny.Resizer = Class.create(Shiny.Control,
     }
 
     if (!this._element) {
-      Shiny.Log.warn('Shiny.Resizer', 'Unable to locate element');
+      Shiny.Log.warning(
+        'Shiny.Resizer', 'setup', 'Unable to locate element'
+      );
       return this;
     }
 
@@ -2585,9 +2612,12 @@ Shiny.Panel = Class.create(Shiny.Control,
 
     this._elts = [ ];
     this._rounds = [ ];
-    this._input_observer = null;
     this._recursive_panels = [ ];
     this._recursion_trigger = this._options.get('recursive');
+
+    this._input_observer = this.sync.bind(this);
+    this._setup_observer = this.trigger_event.bind(this, 'setup');
+    this._teardown_observer = this.trigger_event.bind(this, 'teardown');
 
     if (this._resizers) {
       this._resizer_skip_hash = this.setup_all(this._resizers);
@@ -2631,7 +2661,7 @@ Shiny.Panel = Class.create(Shiny.Control,
     this.teardown_all(this._resizers);
     this.teardown_all(this._recursive_panels);
 
-    if (this._input_observer) {
+    if (this._input) {
       Event.stopObserving(this._input, 'click', this._input_observer);
       Event.stopObserving(this._input, 'change', this._input_observer);
     }
@@ -2709,7 +2739,6 @@ Shiny.Panel = Class.create(Shiny.Control,
 
       /* Panel title */
       this._input = child;
-      this._input_observer = this.sync.bind(this);
       Event.observe(child, 'click', this._input_observer);
       Event.observe(child, 'change', this._input_observer);
     }
@@ -2746,8 +2775,8 @@ Shiny.Panel = Class.create(Shiny.Control,
 
       var panels = new Shiny.Panels(child, this.merge_hooks(options, {
         before_setup: function(p) {
-          p.observe('setup', this.trigger_event.bind(this, 'setup'));
-          p.observe('teardown', this.trigger_event.bind(this, 'teardown'));
+          p.observe('setup', this._setup_observer);
+          p.observe('teardown', this._teardown_observer);
         }.bind(this)
       }));
 
@@ -2880,9 +2909,12 @@ Shiny.Collection = Class.create(Shiny.Container, Shiny.Events.prototype,
     this.setup(id, options);
     this._panels = this._options.get('panels');
 
+    this._setup_observer = this._handle_setup.bind(this);
+    this._teardown_observer = this._handle_teardown.bind(this);
+
     if (this._panels) {
-      this._panels.observe('setup', this._handle_setup.bind(this));
-      this._panels.observe('teardown', this._handle_teardown.bind(this));
+      this._panels.observe('setup', this._setup_observer);
+      this._panels.observe('teardown', this._teardown_observer);
     }
 
     Shiny.Collection.track_container(this);
@@ -2959,8 +2991,13 @@ Shiny.Collection = Class.create(Shiny.Container, Shiny.Events.prototype,
       this._facades.push(
         new Shiny.Facade(input, {
           element: child, control_factory: function(t, e, i) {
-            return new Shiny.Collection.Tuple(e, i);
-          }
+            return new Shiny.Collection.Tuple(e, i, {
+              onChange: function(input) {
+                this.trigger_event('change');
+                this.trigger_callback('onChange', this._options);
+              }.bind(this)
+            });
+          }.bind(this)
         })
       );
     } else {
@@ -3037,11 +3074,12 @@ Shiny.Collection.Tuple = Class.create(Shiny.Control,
       return false;
 
     var c = this.get_container();
-    Event.stopObserving(c, 'mouseover', this._mouse_observer);
 
     for (var i = 0, len = this._elts.length; i < len; ++i)
       this.remove_sink('click', this._elts[i]);
     
+    Event.stopObserving(c, 'mouseover', this._mouse_observer);
+
     this._elts = null;
     this._mouse_observer = null;
     this._unselect_element(c, true);
@@ -3055,7 +3093,7 @@ Shiny.Collection.Tuple = Class.create(Shiny.Control,
   {
     if (Prototype.Browser.WebKit) {
       if (this._input.type == 'radio')
-        return this.change();
+        return this.change(ev);
     }
 
     return true;
@@ -3065,7 +3103,7 @@ Shiny.Collection.Tuple = Class.create(Shiny.Control,
   {
     if (Prototype.Browser.WebKit) {
       if (this._input.type == 'radio')
-        return this.change();
+        return this.change(ev);
     }
 
     return true;
@@ -3075,6 +3113,11 @@ Shiny.Collection.Tuple = Class.create(Shiny.Control,
   {
     this.sync();
     this._input.focus();
+
+    if (ev && ['change', 'keydown'].include(ev.type)) {
+      this.trigger_event('change', this._input);
+      this.trigger_callback('onChange', this._options, this._input);
+    }
 
     return $super(ev);
   },
@@ -3193,6 +3236,9 @@ Shiny.Collection.Header = Class.create(Shiny.Container,
       new Shiny.Asset.Style.Reflected('selection-light');
     /* */
 
+    this._setup_observer = this.setup_self.bind(this);
+    this._teardown_observer = this.teardown_self.bind(this);
+
     $super(id, options);
     return this.setup(id, options);
   },
@@ -3223,8 +3269,8 @@ Shiny.Collection.Header = Class.create(Shiny.Container,
     });
 
     if (this._collection) {
-      this._collection.observe('setup', this.setup_self.bind(this));
-      this._collection.observe('teardown', this.teardown_self.bind(this));
+      this._collection.observe('setup', this._setup_observer);
+      this._collection.observe('teardown', this._teardown_observer);
     }
 
     this._install_resize(elts);
@@ -3273,7 +3319,7 @@ Shiny.Collection.Header = Class.create(Shiny.Container,
     /* Currently dragging:
         Reset resizers, but avoid teardown of (in-use) sortable. */
 
-    this.reset_all(this._resizers);
+    /* this.reset_all(this._resizers); */
   },
 
   _find_child_elements: function()
@@ -3362,14 +3408,17 @@ Shiny.Collection.Header = Class.create(Shiny.Container,
       this._sort_input_offset++;
       this._style_assets.push(style_asset);
 
-      var blur = this._handle_blur.bindAsEventListener(this, style_asset);
-      var focus = this._handle_focus.bindAsEventListener(this, style_asset);
+      var blur_observer =
+        this._handle_blur.bindAsEventListener(this, style_asset);
 
-      this._blur_observers.push(blur);
-      this._focus_observers.push(focus);
+      var focus_observer =
+        this._handle_focus.bindAsEventListener(this, style_asset);
 
-      Event.observe(elt, 'blur', blur);
-      Event.observe(elt, 'focus', focus);
+      this._blur_observers.push(blur_observer);
+      this._focus_observers.push(focus_observer);
+
+      Event.observe(elt, 'blur', blur_observer);
+      Event.observe(elt, 'focus', focus_observer);
 
       this._facades.push(
         new Shiny.Facade(elt, { images: Shiny.Assets.Images.get('sort') })
@@ -3509,6 +3558,10 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     this._drag_mirror_inputs = [ ];
     this._order_mirror_inputs = [ ];
 
+    this._before_open_observer = this.sync.bind(this);
+    this._setup_observer = this.trigger_event.bind(this, 'setup');
+    this._teardown_observer = this.trigger_event.bind(this, 'teardown');
+
     if (this._options.get('duration') == null)
       this._options.set('duration', 0.5);
 
@@ -3541,12 +3594,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
 
         if (accept && (accept = $H(accept).get(c_id)) != null) {
           this._accept_elts = this._accept_elts.concat(accept).map(
-            function(id) {
-              var rv = $(id);
-              if (!rv)
-                Shiny.Log.warning('Shiny.Panels', 'Unable to locate', id);
-              return rv;
-            }
+            function(id) { return $(id); }
           );
         }
 
@@ -3588,9 +3636,9 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
           }.bind(this),
 
           onReorder: function(elt, id_sequence) {
-            Shiny.Log.debug('Shiny.Panels', 'Reordering', elt);
+            Shiny.Log.debug('Shiny.Panels', 'before-reorder', elt);
             this._handle_update(elt, id_sequence);
-            Shiny.Log.debug('Shiny.Panels', 'Complete', id_sequence);
+            Shiny.Log.debug('Shiny.Panels', 'after-reorder', elt);
           }.bind(this),
 
           canInsert: function(root, elt, drop) {
@@ -3704,7 +3752,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     if (Element.hasClassName(child, 'panel')) {
 
       if (!child.id)
-        Shiny.Log.warn('Element in Shiny.Panels is missing id', child);
+        Shiny.Log.warning('Shiny.Panels', 'Element is missing id', child);
 
       var options = Shiny.Options.Processor.recursive_options(
         this._options, child
@@ -3712,9 +3760,9 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
 
       var panel = new Shiny.Panel(child, this.merge_hooks(this._options, {
         before_setup: function(p) {
-          p.observe('before-open', this.sync.bind(this));
-          p.observe('setup', this.trigger_event.bind(this, 'setup'));
-          p.observe('teardown', this.trigger_event.bind(this, 'teardown'));
+          p.observe('before-open', this._before_open_observer);
+          p.observe('setup', this._setup_observer);
+          p.observe('teardown', this._teardown_observer);
         }.bind(this)
       }));
       
@@ -3772,7 +3820,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
       onComplete: function() {
         this._reset_sortable();
         this.trigger_event('update', this, elt, id_sequence);
-        this.trigger_callback(this._options, 'onUpdate', this, elt, id_sequence);
+        this.trigger_callback('onUpdate', this._options, this, elt, id_sequence);
       }.bind(this),
     };
 
@@ -4081,7 +4129,7 @@ Shiny.Radio = Class.create(Shiny.Control,
         (reflected) change event or a browser-specific test, we just call
         change directly. Double invocations of change are harmless. */
 
-    setTimeout(this.change.bind(this), 0);
+    this.change.bind(this).defer();
   },
   
   change: function($super, ev)
@@ -4207,7 +4255,7 @@ Shiny.Checkbox = Class.create(Shiny.Control,
     /* Manually Trigger Redraw:
         See comment in Shiny.Radio.click() for explanation. */
 
-    setTimeout(this.change.bind(this), 0);
+    this.change.bind(this).defer();
     return true;
   },
 

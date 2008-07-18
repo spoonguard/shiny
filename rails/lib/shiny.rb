@@ -2,26 +2,23 @@
 require 'xml/xslt'
 
 class Shiny
-  
   def version
     return '0.8.0'
   end
-
 end
 
 
 class Shiny::Controller < ApplicationController
 
   before_filter :shiny_setup!
-  after_filter :shiny_send!
 
   public
 
     def render(options = nil, extra_options = {})
       if options != nil and options[:shiny] then
-        super(options, extra_options)
+        return super(options, extra_options)
       else
-        shiny_render(options, extra_options)
+        return shiny_render(options, extra_options)
       end
     end
 
@@ -29,7 +26,8 @@ class Shiny::Controller < ApplicationController
 
     def shiny_render(options = nil, extra_options = {})
       options = {} unless (options)
-      @shiny_xml += render_to_string(options.merge(:shiny => true))
+      @shiny_xml = render_to_string(options.merge(:shiny => true))
+      return shiny_send!
     end
 
   private
@@ -46,8 +44,18 @@ class Shiny::Controller < ApplicationController
 
     def shiny_send!
       @@shiny_xslt.xml = @shiny_xml
-      render :text => @@shiny_xslt.serve, :shiny => true
-      shiny_reset!
+      logger.debug 'Shiny: Compiling'
+      @xhtml = @@shiny_xslt.serve
+ 
+      unless @xhtml then
+        logger.warn 'Shiny: Compiler Generated No Output'
+        @xhtml = '<!-- No Output -->'
+      end
+
+      logger.debug 'Shiny: Sending XHTML'
+      render :text => @xhtml, :shiny => true
+
+      return shiny_reset!
     end
 
     def shiny_reset!

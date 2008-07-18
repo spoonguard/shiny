@@ -639,6 +639,7 @@ input.shiny, img.shiny {
   font-family: 'Lucida Grande', 'Verdana', 'Arial', 'Helvetica', sans-serif;
 }
 
+.shiny .tuple label,
 .shiny .panels .panel .small label,
 .shiny .panels .panel .normal label {
   font-size: 1em;
@@ -648,6 +649,10 @@ input.shiny, img.shiny {
 
 .shiny .panels .panel .tiny label {
   font-size: 0.89em;
+}
+
+.shiny .panel label {
+  padding-top: 1em;
 }
 
 .shiny .panels .large label {
@@ -765,6 +770,10 @@ input.shiny, img.shiny {
   text-align: center;
 }
 
+.shiny .tuple {
+  width: 20em;
+}
+
 .shiny .collection .tuple {
   display: block;
   position: relative;
@@ -834,8 +843,9 @@ input.shiny, img.shiny {
   left: 0;
   vertical-align: middle;
   position: relative;
-  margin: 0.3em 0.2em 0.2em 0;
+  margin: 0.4em 0.2em 0.2em 0;
   padding: 0 0 0 0.5em;
+  line-height: 1em;
 }
 
 .shiny .tuple .i0 label,
@@ -901,8 +911,8 @@ input.shiny, img.shiny {
   text-shadow: none !important;
 }
 
-.shiny .panel .handle .control,
-.shiny .collection .tuple .control {
+.shiny .tuple .control,
+.shiny .panel .handle .control {
   vertical-align: middle;
 }
 

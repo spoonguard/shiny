@@ -1040,10 +1040,10 @@ var Sortable = {
     if (!dropon)
       return false;
 
-    var savedParent = Draggables.reparentCache[element.id];
     var dropon_root = Sortable._findRootElement(dropon);
-    var elt_root = Sortable._findRootElement(savedParent);
     var options = Sortable.options(dropon_root);
+    var savedParent = Draggables.reparentCache[element.id];
+    var elt_root = Sortable._findRootElement(savedParent || element);
 
     if (!options)
       return false;
@@ -1123,7 +1123,7 @@ var Sortable = {
         }
       }
       
-      if (droponOptions && droponOptions.animate && children) {
+      if (child && droponOptions && droponOptions.animate) {
         if (!Sortable._animateEmpty(element, child, offset, droponOptions, children, insertElement))
           return;
       } else {
