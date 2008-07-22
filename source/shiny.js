@@ -223,18 +223,12 @@ Shiny.Options.Processor = {
     return scroll;
   },
 
-  recursive_options: function(options, element)
+  starteffect: function(options)
   {
-    var r_options = options.unset('recursive_options');
-
-    if (r_options) {
-      if (typeof r_options == 'function')
-        r_options = r_options(element);
-
-      return $H(options).merge(r_options);
-    }
-
-    return options;
+    return (
+      options.get('opacity') && Shiny.Browser.Features.fast_opacity
+        ? null : Prototype.emptyFunction
+    );
   }
 
 };
@@ -292,25 +286,6 @@ Shiny.Object = Class.create(
     return this._setup_invoked;
   },
 
-  /* protected: */
-  invoke_with_hooks: function(key, method) /* ..., options */
-  {
-    if (arguments.length <= 0)
-      return this.setup.apply(this);
-
-    var args = $A(arguments).slice(2);
-    var options = $H(arguments[arguments.length - 1]);
-
-    return this.call_with_hooks(key, function() {
-      return method.apply(this, args);
-    }.bind(this), [ this ], options);
-  },
-
-  merge_hooks: function(options, hooks)
-  {
-    return options.merge(hooks);
-  },
-
   /* static: */
   teardown_one: function(container)
   {
@@ -343,22 +318,6 @@ Shiny.Object = Class.create(
       objects[i].reset();
   
     return this;
-  },
-
-  call_with_hooks: function(key, fn, args, options)
-  {
-    var after_fn = options.get('after_' + key);
-    var before_fn = options.get('before_' + key);
-
-    if (before_fn)
-      before_fn.apply(this, args);
-
-    var rv = fn.apply(this, args);
-
-    if (after_fn)
-      after_fn.apply(this, args);
-
-    return rv;
   }
 
 });
@@ -422,9 +381,7 @@ Shiny.Container = Class.create(Shiny.Object,
 
   invoke_setup: function()
   {
-    return this.invoke_with_hooks(
-      'setup', this.setup, this._id, this._options
-    );
+    return this.setup(this._id, this._options);
   },
 
   setup: function($super, id, options)
@@ -2564,9 +2521,10 @@ Shiny.Panel = Class.create(Shiny.Control,
     this._shiny_form = null;
     this._elts = null;
     this._resizers = null;
-    this._skip_resizer_ids = null;
+    this._parent_panels = null;
     this._input_observer = null;
     this._recursive_panels = null;
+    this._skip_resizer_ids = null;
     this._recursion_trigger = null;
     /* */
     
@@ -2618,6 +2576,7 @@ Shiny.Panel = Class.create(Shiny.Control,
     this._elts = [ ];
     this._rounds = [ ];
     this._recursive_panels = [ ];
+    this._parent_panels = this._options.get('panels');
     this._recursion_trigger = this._options.get('recursive');
 
     this._input_observer = this.sync.bind(this);
@@ -2699,6 +2658,15 @@ Shiny.Panel = Class.create(Shiny.Control,
     return this;
   },
 
+  update: function($super, id, base_url, options, is_updating)
+  {
+    console.log(arguments);
+    if (this._parent_panels && !is_updating)
+      this._parent_panels.update_others(this, { });
+
+    return $super(id, base_url, options);
+  },
+
   /* protected: */
   _install_round_child: function(child)
   {
@@ -2735,7 +2703,7 @@ Shiny.Panel = Class.create(Shiny.Control,
       if (!this._resizer_skip_hash.get(id)) {
         this._resizers.push(new Shiny.Resizer(child, {
           scroll: this._options.get('scroll'),
-          containment: [ 'predecessor', 'scrollable' ]
+          containment: [ 'predecessor', 'region' ]
         }));
       }
     }
@@ -2774,16 +2742,13 @@ Shiny.Panel = Class.create(Shiny.Control,
   {
     if (child.hasClassName('panels')) {
 
-      var options = Shiny.Options.Processor.recursive_options(
-        this._options, child
-      );
+      var options = this._options;
 
-      var panels = new Shiny.Panels(child, this.merge_hooks(options, {
-        before_setup: function(p) {
-          p.observe('setup', this._setup_observer);
-          p.observe('teardown', this._teardown_observer);
-        }.bind(this)
-      }));
+      var panels = new Shiny.Panels(child, options, true /* Delay setup */);
+
+      panels.observe('setup', this._setup_observer);
+      panels.observe('teardown', this._teardown_observer);
+      panels.invoke_setup();
 
       this._recursive_panels.push(panels);
     }
@@ -3265,12 +3230,11 @@ Shiny.Collection.Header = Class.create(Shiny.Container,
 
     Sortable.create(this.get_container_id(), {
       overlap: 'horizontal', constraint: 'horizontal', animate: false,
-      starteffect: (
-        this._options.get('opacity') && Shiny.Browser.Features.fast_opacity
-          ? null : Prototype.emptyFunction
-      ),
       elements: elts.slice(1), format: /^(.*)$/,
-      onChange: this._handle_header_change.bind(this)
+      starteffect:
+        Shiny.Options.Processor.starteffect(this._options),
+      onChange:
+        this._handle_header_change.bind(this)
     });
 
     if (this._collection) {
@@ -3567,10 +3531,11 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     this._setup_observer = this.trigger_event.bind(this, 'setup');
     this._teardown_observer = this.trigger_event.bind(this, 'teardown');
 
+    Shiny.Options.Processor.scroll(this._options, c);
+
     if (this._options.get('duration') == null)
       this._options.set('duration', 0.5);
 
-    Shiny.Options.Processor.scroll(this._options, c);
     var children = c.childElements();
 
     /* Find each panel's enclosing <div> */
@@ -3623,12 +3588,13 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
           animate: Shiny.Browser.Preferences.use_animations, tag: 'div',
           constraint: false, handle: 'handle', containment: containment,
           duration: this._options.get('duration'), dropOnEmpty: true,
-          elements: this._panels.map(function(p) { return p.get_container(); }),
 
-          starteffect: (
-            this._options.get('opacity') && Shiny.Browser.Features.fast_opacity
-              ? null : Prototype.emptyFunction
-          ),
+          elements: this._panels.map(function(p) {
+            return p.get_container();
+          }),
+
+          starteffect:
+            Shiny.Options.Processor.starteffect(this._options),
 
           onEnd: function(elt) {
             this._drag_elts = [ ];
@@ -3759,18 +3725,17 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
       if (!child.id)
         Shiny.Log.warning('Shiny.Panels', 'Element is missing id', child);
 
-      var options = Shiny.Options.Processor.recursive_options(
-        this._options, child
+      var options = this._options;
+
+      var panel = new Shiny.Panel(
+        child, options.merge({ panels: this }), true /* Delay setup */
       );
 
-      var panel = new Shiny.Panel(child, this.merge_hooks(this._options, {
-        before_setup: function(p) {
-          p.observe('before-open', this._before_open_observer);
-          p.observe('setup', this._setup_observer);
-          p.observe('teardown', this._teardown_observer);
-        }.bind(this)
-      }));
-      
+      panel.observe('before-open', this._before_open_observer);
+      panel.observe('setup', this._setup_observer);
+      panel.observe('teardown', this._teardown_observer);
+      panel.invoke_setup();
+
       this._panels.push(panel);
 
     } else if (Element.hasClassName(child, 'persist')
@@ -3805,43 +3770,33 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     return this;
   },
 
-
-  _handle_update: function(elt, id_sequence)
+  update_others: function(panel, options)
   {
-    if (!this._ajax_uri)
-      return this;
+    return this._update_others(
+      panel.get_container(), $H(options || {})
+    );
+  },
 
-    /* Order matters:
-        The sync method uses the id sequence to determine order. */
-
-    this.set_id_sequence(id_sequence);
-    this.sync();
-
+  /* protected: */
+  _update_others: function(elt, options)
+  {
     var panels = this.get_all();
+    var id_sequence = this.get_id_sequence();
     var prev_id_sequence = this.get_id_sequence(true);
-
-    var options = {
-      message: '', delay: 250 /* ms */,
-      onComplete: function() {
-        this._reset_sortable();
-        this.trigger_event('update', this, elt, id_sequence);
-        this.trigger_callback('onUpdate', this._options, this, elt, id_sequence);
-      }.bind(this),
-    };
 
     if (/cessors?$/.test(this._ajax_scope)) {
 
       var reverse = /^prede/.test(this._ajax_scope);
-      var start = (reverse ? 0 : prev_id_sequence.indexOf(elt.id));
+      var start = (reverse ? 0 : prev_id_sequence.indexOf(elt.id) + 1);
 
       /* All panels originally preceding dropped panel */
       for (var i = start, len = prev_id_sequence.length; i < len; ++i) {
 
-        var panel = Shiny.Panel.find_container(prev_id_sequence[i]);
-        panel.update(null, this._ajax_uri, options);
-        
         if (reverse && prev_id_sequence[i] == elt.id)
           break;
+
+        var panel = Shiny.Panel.find_container(prev_id_sequence[i]);
+        panel.update(null, this._ajax_uri, options, true);
       }
 
     } else if (/^stack/.test(this._ajax_scope)) {
@@ -3852,45 +3807,74 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
       /* All panels following dropped panel, before or after drag */
       [ id_sequence, prev_id_sequence ].each(function(sequence) {
 
-        var start = (reverse ? 0 : sequence.indexOf(elt.id));
+        var start = (reverse ? 0 : sequence.indexOf(elt.id) + 1);
 
         for (var i = start, len = sequence.length; i < len; ++i) {
 
           if (updated.get(sequence[i]))
             continue;
 
+          if (reverse && sequence[i] == elt.id)
+            break;
+
           var panel = Shiny.Panel.find_container(sequence[i]);
           
           if (panel)
-            panel.update(null, this._ajax_uri, options);
+            panel.update(null, this._ajax_uri, options, true);
 
           updated.set(sequence[i]);
-          
-          if (reverse && sequence[i] == elt.id)
-            break;
         }
       }.bind(this));
 
-    } else if (this._ajax_scope == 'self') {
-
-      /* Dropped panel only */
-      var panel = Shiny.Panel.find_container(elt.id);
-      panel.update(null, this._ajax_uri, options);
-
     } else if (this._ajax_scope == 'each') {
 
-      /* All panels (but not Shiny.Panels itself) */
+      /* All other panels (but not Shiny.Panels itself) */
       for (var i = 0, len = panels.length; i < len; ++i) {
-        panels[i].update(null, this._ajax_uri, options);
+        if (panels[i].get_container_id() == elt.id)
+          panels[i].update(null, this._ajax_uri, options, true);
       }
 
-    } else {
+    }
+
+    return this;
+  },
+
+  _handle_update: function(elt, id_sequence)
+  {
+    if (!this._ajax_uri)
+      return this;
+
+    /* Order matters:
+        The sync method uses the id sequence to determine order. */
+
+    this.set_id_sequence(id_sequence);
+    var prev_id_sequence = this.get_id_sequence(true);
+    
+    this.sync();
+
+    var options = {
+      message: '', delay: 250 /* ms */,
+      onComplete: function() {
+        this._reset_sortable();
+        this.trigger_event('update', this, elt, id_sequence);
+        this.trigger_callback('onUpdate', this._options, this, elt, id_sequence);
+      }.bind(this),
+    };
+
+    if (!this._ajax_scope || this._ajax_scope == 'whole') {
 
       /* Whole Shiny.Panels object */
       return this.update(null, this._ajax_uri, options);
 
+    } else {
+
+      /* This Shiny.Panel */
+      var panel = Shiny.Panel.find_container(elt.id);
+      panel.update(null, this._ajax_uri, options);
+
     }
 
+    this._update_others(elt, options);
     return this;
   }
 

@@ -269,8 +269,6 @@ input.shiny, img.shiny {
 
 .shiny .form {
   min-height: 4em;
-  background-color: #fcfbff;
-  border: solid 1px #c0c0c0;
 }
 
 .shiny .form .tuple .elt label,
@@ -282,6 +280,36 @@ input.shiny, img.shiny {
   font-size: 1em;
   padding-left: 0;
   padding-bottom: 0.25em;
+}
+
+.shiny .form,
+.shiny .region {
+  clear: both;
+  position: relative;
+  margin-right: 0.8em;
+  margin-left: 0.2em;
+  background-color: #fff;
+  border: solid 1px #c0c0c0;
+}
+
+.shiny .region {
+}
+
+.shiny .shaded {
+  background-color: #fcfcfc;
+}
+
+.shiny .divider {
+  visibility: hidden;
+  padding-bottom: 0.5em;
+}
+
+.shiny .clear {
+  clear: both !important;
+  height: 0.5em;
+}
+
+.shiny .x0 {
 }
 
 
@@ -1129,35 +1157,5 @@ input.shiny, img.shiny {
   border: solid 1px #ccc;
   border-width: 0 1px 0 0;
   overflow: hidden;
-}
-
-.shiny .form,
-.shiny .region {
-  clear: both;
-  position: relative;
-  margin-right: 0.8em;
-  margin-left: 0.2em;
-}
-
-.shiny .region {
-  background-color: #fff;
-  border: solid 1px #c0c0c0;
-}
-
-.shiny .shaded {
-  background-color: #fcfcfc;
-}
-
-.shiny .divider {
-  visibility: hidden;
-  padding-bottom: 0.5em;
-}
-
-.shiny .clear {
-  clear: both !important;
-  height: 0.5em;
-}
-
-.shiny .x0 {
 }
 
