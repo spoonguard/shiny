@@ -534,7 +534,7 @@
       test="$recursive = true()"> tiny</xsl:if>
       panels fill-y<xsl:choose>
       <xsl:when
-        test="@scroll = true() and $scroll != false()"> scrollable</xsl:when>
+        test="$scroll = true()"> scrollable</xsl:when>
       <xsl:otherwise></xsl:otherwise>
     </xsl:choose></xsl:attribute>
   </xsl:template>
@@ -814,7 +814,7 @@
   <-->
 
   <xsl:template name="generate-body" match="sml:body">
-    <div id="body">
+    <div id="body" class="scrollable">
       <input class="persist resize" type="hidden">
         <xsl:call-template name="generate-id-and-name-attributes">
           <xsl:with-param name="id">body</xsl:with-param>
@@ -823,7 +823,9 @@
       </input>
       <div id="body-resizer" class="right-abs resize-x"></div>
       <xsl:for-each select="sml:panels">
-        <xsl:call-template name="generate-panels" />
+        <xsl:call-template name="generate-panels">
+          <xsl:with-param name="scroll" select="false()" />
+        </xsl:call-template>
         <xsl:call-template name="generate-panels-script" />
       </xsl:for-each>
     </div>
@@ -1400,7 +1402,8 @@
           <xsl:with-param name="suffix" select="'selected'" />
           <xsl:with-param name="suffix-separator" select="'[]'" />
           <xsl:with-param name="id">
-            <xsl:value-of select="(ancestor::sml:collection | ancestor::sml:update)[1]/@id" />
+            <!-- Fix me: Handle sml:update parent -->
+            <xsl:value-of select="ancestor::sml:collection[1]/@id" />
           </xsl:with-param>
         </xsl:call-template>
       </xsl:with-param>

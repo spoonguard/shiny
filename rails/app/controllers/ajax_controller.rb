@@ -25,7 +25,7 @@ class AjaxController < Shiny::Controller
 
     def panel
       fetch
-      logger.info "Shiny: Updating Panel (container = #{@container}, action = #{@action})"
+      logger.info "Shiny: Updating Panel (#{@id}, container = #{@container}, action = #{@action})"
       debug
 
       @render = {};
@@ -48,7 +48,6 @@ class AjaxController < Shiny::Controller
     end
 
     def fetch
-      @tuples = { }
       @id = params[:id]
       @panel = param(@id) || {}
       @action = params[:action]

@@ -3855,15 +3855,15 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
 
   _handle_update: function(elt, id_sequence)
   {
-    if (!this._ajax_uri)
-      return this;
-
     /* Order matters:
         The sync method uses the id sequence to determine order. */
 
     this.set_id_sequence(id_sequence);
     var prev_id_sequence = this.get_id_sequence(true);
     
+    if (!this._ajax_uri)
+      return this;
+
     this.sync();
 
     var options = {

@@ -668,6 +668,7 @@ var Sortable = {
   SERIALIZE_RULE: /^[^_\-](?:[A-Za-z0-9\-\_]*)[_](.*)$/,
   
   sortables: { },
+  _activeAnimations: $H({ }),
   
   _findRootElement: function(element) {
     while (element && element.tagName.toUpperCase() != "BODY") {  
@@ -814,9 +815,6 @@ var Sortable = {
     // keep reference
     this.sortables[element.id] = options;
 
-    // for animation
-    this._activeAnimations = $H({});
-    
     // for onupdate
     Draggables.addObserver(new SortableObserver(element, options.onUpdate));
   },
@@ -1026,10 +1024,10 @@ var Sortable = {
       scaleX: true, scaleY: true,
       duration:
         droponOptions.duration,
-      afterFinish: function() {
-        if (eltUp.parentNode)
-          Element.remove(eltUp);
-      }
+      afterFinish: function(e) {
+        if (e.parentNode)
+          Element.remove(e);
+      }.bind(this, eltUp)
     });
 
     return this;
