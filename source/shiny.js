@@ -2660,9 +2660,13 @@ Shiny.Panel = Class.create(Shiny.Control,
 
   update: function($super, id, base_url, options, is_updating)
   {
-    console.log(arguments);
-    if (this._parent_panels && !is_updating)
-      this._parent_panels.update_others(this, { });
+    if (this._parent_panels && !is_updating) {
+      this._parent_panels.update_others(this, {
+        onComplete: function() {
+          this._parent_panels.reset_sortable();
+        }.bind(this)
+      });
+    }
 
     return $super(id, base_url, options);
   },
@@ -3756,7 +3760,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     return this;
   },
 
-  _reset_sortable: function()
+  reset_sortable: function()
   {
     if (this._sortable_elt) {
 
@@ -3830,9 +3834,19 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
 
       /* All other panels (but not Shiny.Panels itself) */
       for (var i = 0, len = panels.length; i < len; ++i) {
+
         if (panels[i].get_container_id() == elt.id)
           panels[i].update(null, this._ajax_uri, options, true);
+
       }
+
+    } else {
+
+      /* We did nothing:
+          Invoke the onComplete callback manually. */
+
+      if (options.onComplete)
+        options.onComplete();
 
     }
 
@@ -3853,9 +3867,9 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     this.sync();
 
     var options = {
-      message: '', delay: 250 /* ms */,
+      message: '', delay: 50 /* ms */,
       onComplete: function() {
-        this._reset_sortable();
+        this.reset_sortable();
         this.trigger_event('update', this, elt, id_sequence);
         this.trigger_callback('onUpdate', this._options, this, elt, id_sequence);
       }.bind(this),
@@ -3864,17 +3878,18 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     if (!this._ajax_scope || this._ajax_scope == 'whole') {
 
       /* Whole Shiny.Panels object */
-      return this.update(null, this._ajax_uri, options);
+      this.update(null, this._ajax_uri, options);
 
     } else {
+
+      /* Other Shiny.Panel instances */
+      this._update_others(elt, options);
 
       /* This Shiny.Panel */
       var panel = Shiny.Panel.find_container(elt.id);
       panel.update(null, this._ajax_uri, options);
-
     }
 
-    this._update_others(elt, options);
     return this;
   }
 

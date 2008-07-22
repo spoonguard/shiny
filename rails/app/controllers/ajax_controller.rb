@@ -19,6 +19,7 @@ class AjaxController < Shiny::Controller
 
       @render = {};
       @render[:panels] = [ @container ]
+      @render[:collection] = @parent_collection
       @render[:selected] = (@parent_collection[:selected] || [])
     end
 
@@ -29,6 +30,9 @@ class AjaxController < Shiny::Controller
 
       @render = {};
       @render[:panel] = [ @id.gsub(/_panel$/, '') ]
+      @render[:collection] = @collection
+      @render[:open] = !!(@panel[:open])
+      @render[:selected] = (@collection[:selected] || [])
     end
 
     def tuple
@@ -46,9 +50,10 @@ class AjaxController < Shiny::Controller
     def fetch
       @tuples = { }
       @id = params[:id]
+      @panel = param(@id) || {}
       @action = params[:action]
-      @container = params[:container] || ''
-      @collection = param(@container) || ''
+      @container = params[:container]
+      @collection = param(@container) || {}
       @parent_collection = param(@container.gsub(/_detail$/, ''))
     end
 

@@ -1088,13 +1088,13 @@
       <div class="handle xr">
         <input class="shiny arrow" type="checkbox">
           <xsl:call-template name="generate-id-and-name-attributes">
-            <xsl:with-param name="suffix">arrow</xsl:with-param>
+            <xsl:with-param name="suffix">open</xsl:with-param>
           </xsl:call-template>
           <xsl:call-template name="generate-panel-input-attributes" />
         </input>
         <label class="title">
           <xsl:call-template name="generate-id-attribute">
-            <xsl:with-param name="suffix">arrow</xsl:with-param>
+            <xsl:with-param name="suffix">open</xsl:with-param>
             <xsl:with-param name="attribute">for</xsl:with-param>
           </xsl:call-template>
           <xsl:value-of select="@title" />
@@ -1455,7 +1455,7 @@
                 <input type="checkbox" class="shiny arrow title checkbox">
                   <xsl:call-template name="generate-id-and-name-attributes">
                     <xsl:with-param name="id" select="$tuple-id" />
-                    <xsl:with-param name="suffix" select="'arrow'" />
+                    <xsl:with-param name="suffix" select="'open'" />
                   </xsl:call-template>
                 </input>
               </xsl:when>
@@ -1471,7 +1471,7 @@
                     <xsl:call-template name="generate-id-attribute">
                       <xsl:with-param name="attribute" select="'for'" />
                       <xsl:with-param name="id" select="$tuple-id" />
-                      <xsl:with-param name="suffix" select="'arrow'" />
+                      <xsl:with-param name="suffix" select="'open'" />
                     </xsl:call-template>
                   </xsl:when>
                   <xsl:otherwise>
