@@ -2660,13 +2660,17 @@ Shiny.Panel = Class.create(Shiny.Control,
 
   update: function($super, id, base_url, options, is_updating)
   {
-    if (this._parent_panels && !is_updating) {
-      this._parent_panels.update_others(this, {
-        onComplete: function() {
-          this._parent_panels.reset_sortable();
-        }.bind(this)
-      });
-    }
+    options = $H(options || {});
+    var onComplete = (options.get('onComplete') || Prototype.emptyFunction);
+
+    options.set(
+      'onComplete', onComplete.wrap(function(next) {
+        next(); this._parent_panels.reset_sortable();
+      }.bind(this))
+    );
+
+    if (this._parent_panels && !is_updating)
+      this._parent_panels.update_others(this, options)
 
     return $super(id, base_url, options);
   },
@@ -3776,14 +3780,14 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
 
   update_others: function(panel, options)
   {
-    return this._update_others(
-      panel.get_container(), $H(options || {})
-    );
+    return this._update_others(panel.get_container(), options);
   },
 
   /* protected: */
   _update_others: function(elt, options)
   {
+    options = $H(options || {});
+
     var panels = this.get_all();
     var id_sequence = this.get_id_sequence();
     var prev_id_sequence = this.get_id_sequence(true);
@@ -3826,7 +3830,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
           if (panel)
             panel.update(null, this._ajax_uri, options, true);
 
-          updated.set(sequence[i]);
+          updated.set(sequence[i], true);
         }
       }.bind(this));
 
@@ -3839,15 +3843,6 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
           panels[i].update(null, this._ajax_uri, options, true);
 
       }
-
-    } else {
-
-      /* We did nothing:
-          Invoke the onComplete callback manually. */
-
-      if (options.onComplete)
-        options.onComplete();
-
     }
 
     return this;
@@ -3869,9 +3864,9 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     var options = {
       message: '', delay: 50 /* ms */,
       onComplete: function() {
-        this.reset_sortable();
         this.trigger_event('update', this, elt, id_sequence);
         this.trigger_callback('onUpdate', this._options, this, elt, id_sequence);
+        this.reset_sortable();
       }.bind(this),
     };
 
@@ -3882,10 +3877,9 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
 
     } else {
 
-      /* Other Shiny.Panel instances */
-      this._update_others(elt, options);
+      /* This Shiny.Panel:
+          The panel instance handles update scoping using update_others. */
 
-      /* This Shiny.Panel */
       var panel = Shiny.Panel.find_container(elt.id);
       panel.update(null, this._ajax_uri, options);
     }

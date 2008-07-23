@@ -303,15 +303,15 @@
  
   <xsl:template name="generate-event-script-fragment">
     <xsl:param name="actions" />
-    <xsl:variable name="action"
-      select="exsl:node-set($actions)/sml:action[1]" />
-    <xsl:if test="$action/@type = 'update'">
-      Shiny.Panels.find_container(
-        '<xsl:value-of select="$action/@target" />'
-      ).update(
-        null, '<xsl:value-of select="$action/@href" />'
-      );
-    </xsl:if>
+    <xsl:for-each select="exsl:node-set($actions)//sml:action">
+      <xsl:if test="@type = 'update'">
+        Shiny.Panels.find_container(
+          '<xsl:value-of select="@target" />'
+        ).update(
+          null, '<xsl:value-of select="@href" />'
+        );
+      </xsl:if>
+    </xsl:for-each>
   </xsl:template>
 
  
@@ -319,7 +319,7 @@
     <xsl:param name="name" select="'onchange'" />
     <xsl:param name="attribute" select="@onchange" />
     <xsl:variable name="actions">
-      <xsl:call-template name="fetch-library-action">
+      <xsl:call-template name="fetch-library-actions">
         <xsl:with-param name="ref" select="$attribute" />
       </xsl:call-template>
     </xsl:variable>
@@ -335,7 +335,7 @@
     <xsl:param name="name" select="'onChange'" />
     <xsl:param name="attribute" select="@onchange" />
     <xsl:variable name="actions">
-      <xsl:call-template name="fetch-library-action">
+      <xsl:call-template name="fetch-library-actions">
         <xsl:with-param name="ref" select="$attribute" />
       </xsl:call-template>
     </xsl:variable>
@@ -923,10 +923,10 @@
   </xsl:template>
 
 
-  <xsl:template name="fetch-library-action">
+  <xsl:template name="fetch-library-actions">
     <xsl:param name="ref" select="@ref" />
     <xsl:copy-of
-      select="//sml:library/sml:action[@id = $ref]" />
+      select="(//sml:library/sml:actions | //sml:library/sml:action)[@id = $ref]" />
   </xsl:template>
 
 
@@ -965,18 +965,19 @@
         ajax: {
           shiny: 'shiny'
           <xsl:for-each select="$nodes">
-            <xsl:variable name="id">
+            <xsl:variable name="id" select="@id" />
+            <xsl:variable name="new-id">
               <xsl:call-template name="generate-panel-or-collection-id" />
             </xsl:variable>
             <xsl:variable name="fetched">
-              <xsl:call-template name="fetch-library-action">
+              <xsl:call-template name="fetch-library-actions">
                 <xsl:with-param name="ref" select="@onreorder" />
               </xsl:call-template>
             </xsl:variable>
             <xsl:variable name="action"
-              select="exsl:node-set($fetched)/sml:action[1]" />
-            <xsl:if test="$action/@href != '' and $action/@target = @id">,
-              <xsl:value-of select="$id" />: [
+              select="exsl:node-set($fetched)//sml:action[@target = $id][@href != ''][1]" />
+            <xsl:if test="$action">,
+              <xsl:value-of select="$new-id" />: [
                 '<xsl:value-of select="$action/@href" />'
                 <xsl:if test="$action/@scope != ''">
                   , '<xsl:value-of select="$action/@scope" />'
@@ -1402,8 +1403,14 @@
           <xsl:with-param name="suffix" select="'selected'" />
           <xsl:with-param name="suffix-separator" select="'[]'" />
           <xsl:with-param name="id">
-            <!-- Fix me: Handle sml:update parent -->
-            <xsl:value-of select="ancestor::sml:collection[1]/@id" />
+            <xsl:choose>
+              <xsl:when test="ancestor::sml:collection">
+                <xsl:value-of select="ancestor::sml:collection[1]/@id" />
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="ancestor::sml:update[1]/@id" />
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:with-param>
         </xsl:call-template>
       </xsl:with-param>
