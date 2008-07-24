@@ -2658,9 +2658,10 @@ Shiny.Panel = Class.create(Shiny.Control,
     return this;
   },
 
-  update: function($super, id, base_url, options, is_updating)
+  update: function($super, id, base_url, options, internal_options)
   {
     options = $H(options || {});
+    internal_options = $H(internal_options || {});
     var onComplete = (options.get('onComplete') || Prototype.emptyFunction);
 
     options.set(
@@ -2668,9 +2669,9 @@ Shiny.Panel = Class.create(Shiny.Control,
         next(); this._parent_panels.reset_sortable();
       }.bind(this))
     );
-
-    if (this._parent_panels && !is_updating)
-      this._parent_panels.update_others(this, options)
+ 
+    if (this._parent_panels && !internal_options.get('updating'))
+      this._parent_panels.update_others(this, options, internal_options);
 
     return $super(id, base_url, options);
   },
@@ -3778,15 +3779,24 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     return this;
   },
 
-  update_others: function(panel, options)
+  update_others: function(panel, options, internal_options)
   {
-    return this._update_others(panel.get_container(), options);
+    return this._update_others(
+      panel.get_container(), options, internal_options
+    );
   },
 
   /* protected: */
-  _update_others: function(elt, options)
+  _update_others: function(elt, options, internal_options)
   {
     options = $H(options || {});
+    internal_options = $H(internal_options || {});
+
+    /* Was the panel order updated externally?
+        If not, assume that the panels haven't moved. */
+
+    if (!internal_options.get('order_updated'))
+      this.set_id_sequence(this.get_id_sequence());
 
     var panels = this.get_all();
     var id_sequence = this.get_id_sequence();
@@ -3804,7 +3814,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
           break;
 
         var panel = Shiny.Panel.find_container(prev_id_sequence[i]);
-        panel.update(null, this._ajax_uri, options, true);
+        panel.update(null, this._ajax_uri, options, { updating: true });
       }
 
     } else if (/^stack/.test(this._ajax_scope)) {
@@ -3828,7 +3838,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
           var panel = Shiny.Panel.find_container(sequence[i]);
           
           if (panel)
-            panel.update(null, this._ajax_uri, options, true);
+            panel.update(null, this._ajax_uri, options, { updating: true });
 
           updated.set(sequence[i], true);
         }
@@ -3840,7 +3850,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
       for (var i = 0, len = panels.length; i < len; ++i) {
 
         if (panels[i].get_container_id() == elt.id)
-          panels[i].update(null, this._ajax_uri, options, true);
+          panels[i].update(null, this._ajax_uri, options, { updating: true });
 
       }
     }
@@ -3856,10 +3866,10 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     this.set_id_sequence(id_sequence);
     var prev_id_sequence = this.get_id_sequence(true);
     
+    this.sync();
+
     if (!this._ajax_uri)
       return this;
-
-    this.sync();
 
     var options = {
       message: '', delay: 50 /* ms */,
@@ -3881,7 +3891,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
           The panel instance handles update scoping using update_others. */
 
       var panel = Shiny.Panel.find_container(elt.id);
-      panel.update(null, this._ajax_uri, options);
+      panel.update(null, this._ajax_uri, options, { order_updated: true });
     }
 
     return this;
