@@ -3319,7 +3319,6 @@ Shiny.Collection.Header = Class.create(Shiny.Container, Shiny.Events.prototype,
 
   _handle_input_change: function(ev)
   {
-    console.log('here');
     this.trigger_callback('onChange', this._options);
     return true;
   },
