@@ -327,10 +327,12 @@
         <xsl:with-param name="ref" select="$attribute" />
       </xsl:call-template>
     </xsl:variable>
-    , <xsl:value-of select="$name" />: function() {
+    <xsl:if test="$actions">,
+      <xsl:value-of select="$name" />: function() {
       <xsl:call-template name="generate-event-script-fragment">
         <xsl:with-param name="actions" select="$actions" />
       </xsl:call-template>
+    </xsl:if>
     }
   </xsl:template>
 
@@ -891,10 +893,7 @@
           <xsl:if test="ancestor::sml:panels[1]/@id">
             , panels: _shiny.<xsl:value-of select="ancestor::sml:panels[1]/@id" />
           </xsl:if>
-          <xsl:call-template name="generate-event-callback">
-            <xsl:with-param name="name" select="'onChange'" />
-            <xsl:with-param name="attribute" select="@onchange" />
-          </xsl:call-template>
+          <xsl:call-template name="generate-event-callback" />
         };
         if (_shiny.<xsl:value-of select="$collection-id" /> != null) {
           _shiny.<xsl:value-of select="$collection-id" />.reset();
@@ -1048,7 +1047,11 @@
               _shiny.<xsl:value-of select="$collection-id" />, {
                 shiny: 'shiny'
                 <xsl:call-template name="generate-event-callback">
-                  <xsl:with-param name="node" select="sml:schema" />
+                  <xsl:with-param name="node" select="sml:schema[1]" />
+                </xsl:call-template>
+                <xsl:call-template name="generate-event-callback">
+                  <xsl:with-param name="name" select="'onReorder'" />
+                  <xsl:with-param name="attribute" select="sml:schema[1]/@onreorder" />
                 </xsl:call-template>
               }
             );
