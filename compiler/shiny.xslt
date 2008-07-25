@@ -185,20 +185,6 @@
   </xsl:template>
 
 
-  <xsl:template name="generate-panel-or-collection-id">
-    <xsl:choose>
-      <xsl:when test="local-name(.) = 'collection'">
-        <xsl:call-template name="generate-id">
-          <xsl:with-param name="suffix">ps</xsl:with-param>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:call-template name="generate-id" />
-      </xsl:otherwise>
-    </xsl:choose> 
-  </xsl:template>
-
-
   <xsl:template name="pluralize-name">
     <xsl:param name="content" select="''" />
     <xsl:param name="if" type="xs:boolean" select="true()" />
@@ -305,7 +291,7 @@
     <xsl:param name="actions" />
     <xsl:for-each select="exsl:node-set($actions)//sml:action">
       <xsl:if test="@type = 'update'">
-        Shiny.Panels.find_container(
+        Shiny.Container.find_container(
           '<xsl:value-of select="@target" />'
         ).update(
           null, '<xsl:value-of select="@href" />'
@@ -316,8 +302,9 @@
 
  
   <xsl:template name="generate-event-handler">
+    <xsl:param name="node" select="." />
     <xsl:param name="name" select="'onchange'" />
-    <xsl:param name="attribute" select="@onchange" />
+    <xsl:param name="attribute" select="$node/@onchange" />
     <xsl:variable name="actions">
       <xsl:call-template name="fetch-library-actions">
         <xsl:with-param name="ref" select="$attribute" />
@@ -332,8 +319,9 @@
 
 
   <xsl:template name="generate-event-callback">
+    <xsl:param name="node" select="." />
     <xsl:param name="name" select="'onChange'" />
-    <xsl:param name="attribute" select="@onchange" />
+    <xsl:param name="attribute" select="$node/@onchange" />
     <xsl:variable name="actions">
       <xsl:call-template name="fetch-library-actions">
         <xsl:with-param name="ref" select="$attribute" />
@@ -895,9 +883,7 @@
     <xsl:for-each select="sml:panels/sml:panel/sml:collection |
                           sml:panel/sml:collection | sml:collection">
       <xsl:variable name="collection-id">
-        <xsl:call-template name="generate-id">
-          <xsl:with-param name="suffix">ps</xsl:with-param>
-        </xsl:call-template>
+        <xsl:call-template name="generate-id" />
       </xsl:variable>
       if ($('<xsl:value-of select="@id" />')) {
         var options = {
@@ -947,7 +933,7 @@
         progress_containers: {
           shiny: 'shiny'
           <xsl:for-each select="$nodes | sml:panel">,
-            <xsl:call-template name="generate-panel-or-collection-id" />:
+            <xsl:call-template name="generate-id" />:
               '<xsl:for-each select="ancestor-or-self::sml:panel[1]">
                 <xsl:call-template name="generate-id" />
               </xsl:for-each>'
@@ -957,7 +943,7 @@
           shiny: 'shiny'
           <xsl:for-each select="$nodes">
             <xsl:if test="@no-reorder = true()">,
-              <xsl:call-template name="generate-panel-or-collection-id" />
+              <xsl:call-template name="generate-id" />
                 : true
             </xsl:if>
           </xsl:for-each>
@@ -967,7 +953,7 @@
           <xsl:for-each select="$nodes">
             <xsl:variable name="id" select="@id" />
             <xsl:variable name="new-id">
-              <xsl:call-template name="generate-panel-or-collection-id" />
+              <xsl:call-template name="generate-id" />
             </xsl:variable>
             <xsl:variable name="fetched">
               <xsl:call-template name="fetch-library-actions">
@@ -989,13 +975,12 @@
         accept: {
           shiny: 'shiny'
           <xsl:for-each select="$nodes">,
-            <xsl:call-template name="generate-panel-or-collection-id" />
+            <xsl:call-template name="generate-id" />
             : [ '<xsl:value-of select="@id" />'
             <xsl:for-each select="str:tokenize(@accept, ' ')">
               <xsl:variable name="panels_id">
                 <xsl:call-template name="generate-id">
                   <xsl:with-param name="id" select="." />
-                  <xsl:with-param name="suffix">ps</xsl:with-param>
                 </xsl:call-template>
               </xsl:variable>
               , '<xsl:value-of select="$panels_id" />'
@@ -1013,7 +998,6 @@
                           | //sml:collection[contains(attribute::accept, $collection-id)]">
               ,<xsl:call-template name="generate-id">
                 <xsl:with-param name="id" select="$collection-id" />
-                <xsl:with-param name="suffix">ps</xsl:with-param>
               </xsl:call-template>: 'shiny'
             </xsl:if>
           </xsl:for-each>
@@ -1047,7 +1031,6 @@
         <xsl:variable name="collection-id">
           <xsl:call-template name="generate-id">
             <xsl:with-param name="id" select="@id" />
-            <xsl:with-param name="suffix">ps</xsl:with-param>
           </xsl:call-template>
         </xsl:variable>
         <xsl:variable name="schema-id">
@@ -1062,7 +1045,12 @@
           } else {
             _shiny.<xsl:value-of select="$schema-id" /> = new Shiny.Collection.Header(
               '<xsl:value-of select="$schema-id" />',
-              _shiny.<xsl:value-of select="$collection-id" />
+              _shiny.<xsl:value-of select="$collection-id" />, {
+                shiny: 'shiny'
+                <xsl:call-template name="generate-event-callback">
+                  <xsl:with-param name="node" select="sml:schema" />
+                </xsl:call-template>
+              }
             );
           }
         }
@@ -1244,14 +1232,15 @@
       </xsl:call-template>
     </xsl:for-each>
     <!-- Attribute @id is required -->
-    <div id="{@id}">
+    <div>
+      <xsl:call-template name="generate-id-attribute">
+        <xsl:with-param name="suffix">cl</xsl:with-param>
+      </xsl:call-template>
       <xsl:call-template name="generate-collection-class">
         <xsl:with-param name="scrollable" select="not($recursive)" />
       </xsl:call-template>
       <div>
-        <xsl:call-template name="generate-id-attribute">
-          <xsl:with-param name="suffix">ps</xsl:with-param>
-        </xsl:call-template>
+        <xsl:call-template name="generate-id-attribute" />
         <xsl:call-template name="generate-collection-panels-class" />
         <xsl:call-template name="generate-collection-content">
         </xsl:call-template>

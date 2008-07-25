@@ -286,7 +286,15 @@ Shiny.Object = Class.create(
     return this._setup_invoked;
   },
 
-  /* static: */
+  /* protected: */
+  unobserve_all: function(elts, name, observers)
+  {
+    for (var i = 0, len = elts.length; i < len; ++i)
+      Event.stopObserving(elts[i], name, observers[i]);
+
+    return this;
+  },
+
   teardown_one: function(container)
   {
     if (container)
@@ -435,6 +443,8 @@ Shiny.Container = Class.create(Shiny.Object,
       this._setup_container_children();
 
     this.bind('form');
+
+    Shiny.Container.track_container(this);
     return this;
   },
 
@@ -450,6 +460,7 @@ Shiny.Container = Class.create(Shiny.Object,
     if (!this.is_resetting())
       this._teardown_container_children();
 
+    Shiny.Container.forget_container(this);
     return this;
   },
 
@@ -616,7 +627,7 @@ Shiny.Container = Class.create(Shiny.Object,
     var c = $(c_id), pc = $(pc_id);
 
     return c && pc && (
-      Element.descendantOf(c, pc) || Element.descendantOf(pc, c)
+      (c == pc) || Element.descendantOf(c, pc) || Element.descendantOf(pc, c)
     );
   },
 
@@ -728,6 +739,8 @@ Shiny.Container.Registry = {
     return this._container_registry.get(id);
   }
 };
+
+Shiny.Container = Object.extend(Shiny.Container, Shiny.Container.Registry);
 
 
 
@@ -1448,9 +1461,6 @@ Shiny.Mirror = Class.create(Shiny.Object, Shiny.Events.prototype,
   _mirror_event: function(ev, method, idx)
   {
     var k1 = this._mirror_unique_id + '.' + idx + '.' + method;
-
-    if (ev)
-      Event.extend(ev);
 
     if (Shiny._mirror_cycle_guard.get(k1)) {
       if (ev && ev.stopPropagation) {
@@ -2662,6 +2672,7 @@ Shiny.Panel = Class.create(Shiny.Control,
   {
     options = $H(options || {});
     internal_options = $H(internal_options || {});
+
     var onComplete = (options.get('onComplete') || Prototype.emptyFunction);
 
     options.set(
@@ -2905,7 +2916,6 @@ Shiny.Collection = Class.create(Shiny.Container, Shiny.Events.prototype,
     if (!$super(id, options))
       return false;
 
-    this.trigger_event('setup', this);
     return this.$setup_collection();
   },
 
@@ -2919,6 +2929,7 @@ Shiny.Collection = Class.create(Shiny.Container, Shiny.Events.prototype,
     for (var i = 0, len = children.length; i < len; ++i)
       this._install_child(children[i]);
 
+    this.trigger_event('setup', this);
     return this;
   },
 
@@ -2928,8 +2939,9 @@ Shiny.Collection = Class.create(Shiny.Container, Shiny.Events.prototype,
       return this;
 
     this.teardown_all(this._facades);
-    this.trigger_event('teardown', this);
     this.teardown_all(this._recursive_collections);
+
+    this.trigger_event('teardown', this);
 
     Shiny.Collection.forget_container(this);
     return this;
@@ -3193,17 +3205,19 @@ Shiny.Collection.Tuple = Object.extend(Shiny.Collection.Tuple, Shiny.Container.R
     Shiny.Collection.Header:
 **/
 
-Shiny.Collection.Header = Class.create(Shiny.Container,
+Shiny.Collection.Header = Class.create(Shiny.Container, Shiny.Events.prototype,
 {
   /* public: */
   initialize: function($super, id, collection, options)
   {
     /* private: */
-    this._resizers = null;
+    this._inputs = null;
     this._facades = null;
+    this._resizers = null;
     this._resizer_skip_hash = null;
-    this._blur_observers = null;
-    this._focus_observers = null;
+    this._input_blur_observers = null;
+    this._input_focus_observers = null;
+    this._input_change_observers = null;
     this._sort_input_offset = null;
     /* */
 
@@ -3218,6 +3232,11 @@ Shiny.Collection.Header = Class.create(Shiny.Container,
     this._setup_observer = this.setup_self.bind(this);
     this._teardown_observer = this.teardown_self.bind(this);
 
+    if (this._collection) {
+      this._collection.observe('setup', this._setup_observer);
+      this._collection.observe('teardown', this._teardown_observer);
+    }
+
     $super(id, options);
     return this.setup(id, options);
   },
@@ -3227,9 +3246,11 @@ Shiny.Collection.Header = Class.create(Shiny.Container,
     if (!$super(id, options))
       return false;
 
+    this._inputs = [];
     this._facades = [];
-    this._blur_observers = [];
-    this._focus_observers = [];
+    this._input_blur_observers = [];
+    this._input_focus_observers = [];
+    this._input_change_observers = [];
     this._sort_images = Shiny.Assets.Images.get('sort');
 
     if (this._options.get('duration') == null)
@@ -3242,18 +3263,12 @@ Shiny.Collection.Header = Class.create(Shiny.Container,
       elements: elts.slice(1), format: /^(.*)$/,
       starteffect:
         Shiny.Options.Processor.starteffect(this._options),
-      onChange:
-        this._handle_header_change.bind(this)
+      onReorder:
+        this._handle_header_reorder.bind(this)
     });
 
-    if (this._collection) {
-      this._collection.observe('setup', this._setup_observer);
-      this._collection.observe('teardown', this._teardown_observer);
-    }
-
-    this._install_resize(elts);
+    this._install_resizers(elts);
     this._install_sort_inputs(elts);
-
     return this;
   },
 
@@ -3262,11 +3277,21 @@ Shiny.Collection.Header = Class.create(Shiny.Container,
     if (!$super())
       return false;
 
-    this._blur_observers = null;
-    this._focus_observers = null;
+    this.unobserve_all(
+      this._inputs, 'blur', this._input_blur_observers
+    );
 
+    this.unobserve_all(
+      this._inputs, 'focus', this._input_focus_observers
+    );
+
+    this.unobserve_all(
+      this._inputs, 'shiny:change', this._input_change_observers
+    );
+
+    this._teardown_resizers();
     this.teardown_all(this._facades);
-    this.teardown_all(this._resizers);
+
     Sortable.destroy(this.get_container_id());
 
     /* Omitted intentionally:
@@ -3276,7 +3301,30 @@ Shiny.Collection.Header = Class.create(Shiny.Container,
   },
 
   /* protected: */
-  _handle_focus: function(ev, style_asset)
+  _reinstall_resizers: function()
+  {
+    var elts = this._find_child_elements();
+
+    this._teardown_resizers();
+    return this._install_resizers(elts);
+  },
+
+  _teardown_resizers: function()
+  {
+    this.teardown_all(this._resizers);
+    this._resizers = null;
+
+    return this;
+  },
+
+  _handle_input_change: function(ev)
+  {
+    console.log('here');
+    this.trigger_callback('onChange', this._options);
+    return true;
+  },
+
+  _handle_input_focus: function(ev, style_asset)
   {
     style_asset.set(
       'background-color',
@@ -3286,18 +3334,16 @@ Shiny.Collection.Header = Class.create(Shiny.Container,
     return true;
   },
 
-  _handle_blur: function(ev, style_asset)
+  _handle_input_blur: function(ev, style_asset)
   {
     style_asset.set('background-color', 'transparent');
     return true;
   },
 
-  _handle_header_change: function(elt, drop_elt)
+  _handle_header_reorder: function(elt, id_sequence)
   {
-    /* Currently dragging:
-        Reset resizers, but avoid teardown of (in-use) sortable. */
-
-    /* this.reset_all(this._resizers); */
+    this.trigger_callback('onReorder', this._options, elt, id_sequence);
+    return this._reinstall_resizers();
   },
 
   _find_child_elements: function()
@@ -3312,7 +3358,7 @@ Shiny.Collection.Header = Class.create(Shiny.Container,
   },
 
   /* private: */
-  _install_resize: function(elts)
+  _install_resizers: function(elts)
   {
     if (this._resizers) {
       this._resizer_skip_hash = this.setup_all(this._resizers);
@@ -3327,14 +3373,14 @@ Shiny.Collection.Header = Class.create(Shiny.Container,
 
     for (var i = 0, len = elts.length; i < len; ++i) {
       Shiny.Recursion.extensible(
-        elts[i], this._install_resize_child.bind(this, elts[i], elts, i)
+        elts[i], this._install_resizer_child.bind(this, elts[i], elts, i)
       );
     }
 
     return this;
   },
 
-  _install_resize_child: function(elt, elts, offset, resize_elt)
+  _install_resizer_child: function(elt, elts, offset, resize_elt)
   {
     if (Element.hasClassName(resize_elt, 'resize')) {
 
@@ -3386,21 +3432,28 @@ Shiny.Collection.Header = Class.create(Shiny.Container,
       this._sort_input_offset++;
       this._style_assets.push(style_asset);
 
+      var change_observer =
+        this._handle_input_change.bindAsEventListener(this);
+
       var blur_observer =
-        this._handle_blur.bindAsEventListener(this, style_asset);
+        this._handle_input_blur.bindAsEventListener(this, style_asset);
 
       var focus_observer =
-        this._handle_focus.bindAsEventListener(this, style_asset);
-
-      this._blur_observers.push(blur_observer);
-      this._focus_observers.push(focus_observer);
+        this._handle_input_focus.bindAsEventListener(this, style_asset);
 
       Event.observe(elt, 'blur', blur_observer);
       Event.observe(elt, 'focus', focus_observer);
+      Event.observe(elt, 'shiny:change', change_observer);
+
+      this._input_change_observers.push(change_observer);
+      this._input_blur_observers.push(blur_observer);
+      this._input_focus_observers.push(focus_observer);
 
       this._facades.push(
         new Shiny.Facade(elt, { images: Shiny.Assets.Images.get('sort') })
       );
+      
+      this._inputs.push(elt);
     }
 
     Shiny.Recursion.extensible(
@@ -4030,8 +4083,8 @@ Shiny.Select = Class.create(Shiny.Control,
         (this._select.selectedIndex + 1) % this._select.options.length;
     }
 
-    this._select.focus();
-    this.sync();
+    this.change(ev);
+    this._select.focus(ev);
 
     return $super(ev);
   },
@@ -4039,6 +4092,8 @@ Shiny.Select = Class.create(Shiny.Control,
   change: function($super, ev)
   {
     this.sync();
+    this._select.fire('shiny:change', (ev ? ev.memo : null));
+
     return $super(ev);
   },
 
