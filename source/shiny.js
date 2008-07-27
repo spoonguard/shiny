@@ -1613,7 +1613,7 @@ Shiny.Facade = Class.create(Shiny.Container,
       elt.parentNode.removeChild(elt);
 
     if (unhide)
-      Element.removeClassName(this.get_container(), 'hidden');
+      Element.removeClassName(this.get_container(), 'subclassed');
 
     Element.removeClassName(this.get_container(), 'shiny-js');
     this._element = null;
@@ -1627,7 +1627,7 @@ Shiny.Facade = Class.create(Shiny.Container,
     var elt = this._element_factory(input, type);
 
     Element.addClassName(elt, type);
-    Element.addClassName(input, 'hidden');
+    Element.addClassName(input, 'subclassed');
     input.parentNode.insertBefore(elt, input);
 
     return elt;
@@ -1660,7 +1660,7 @@ Shiny.Facade = Class.create(Shiny.Container,
     rv.className = input.className + ' ' + rv.className;
 
     if (!Element.hasClassName(rv, 'shiny'))
-      Element.removeClassName(rv, 'hidden');
+      Element.removeClassName(rv, 'subclassed');
 
     Element.addClassName(rv, 'shiny-js');
 
@@ -4064,7 +4064,7 @@ Shiny.Select = Class.create(Shiny.Control,
         Size <= 1 is typically rendered as a drop-down; this
         has implications for keyboard navigation on some platforms. */
 
-    if (Element.hasClassName(select, 'hidden'))
+    if (Element.hasClassName(select, 'subclassed'))
       this._select.size = 16;
 
     return this.sync();

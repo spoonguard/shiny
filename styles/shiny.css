@@ -170,6 +170,14 @@ input.shiny, img.shiny {
   display: inline;
 }
 
+.hidden {
+  display: none;
+}
+
+.invisible {
+  visibility: hidden;
+}
+
 .trace-r {
   border: solid 1px #f49;
 }
@@ -325,7 +333,7 @@ input.shiny, img.shiny {
   border: 0;
 }
 
-.shiny .hidden {
+.shiny .subclassed {
   position: absolute;
   left: -1000%;
   height: 1px;

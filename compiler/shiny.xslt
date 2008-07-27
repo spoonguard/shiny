@@ -550,7 +550,7 @@
 
   <xsl:template name="generate-tuple-input-class">
     <xsl:attribute name="class">shiny selector <xsl:if
-      test="ancestor::sml:collection[@selectors][1]/@selectors = 'none'"> hidden</xsl:if>
+      test="ancestor::sml:collection[@selectors][1]/@selectors = 'none'"> subclassed</xsl:if>
     </xsl:attribute>
     <xsl:attribute name="type"><xsl:choose>
       <xsl:when test="ancestor::sml:collection[@select][1]/@select = 'single'"
@@ -1310,7 +1310,7 @@
       <!-- Sort options for column -->
       <select>
         <xsl:attribute name="class">sort<xsl:if
-          test="$update = true()"> hidden</xsl:if>
+          test="$update = true()"> subclassed</xsl:if>
         </xsl:attribute>
         <xsl:call-template name="generate-id-and-name-attributes">
           <xsl:with-param name="prefix" select="'col'" />
@@ -1337,8 +1337,9 @@
       </select>
       <label>
         <xsl:call-template name="generate-id-attribute">
-          <xsl:with-param name="prefix">sort</xsl:with-param>
-          <xsl:with-param name="attribute">for</xsl:with-param>
+          <xsl:with-param name="prefix" select="'col'" />
+          <xsl:with-param name="suffix" select="'sort'" />
+          <xsl:with-param name="attribute" select="'for'" />
         </xsl:call-template>
         <xsl:choose>
           <xsl:when test="normalize-space(.)">
@@ -1518,6 +1519,12 @@
               </xsl:if>
               <xsl:value-of select="text()" />
             </label>
+            <input type="text" class="inline hidden">
+              <xsl:call-template name="generate-id-and-name-attributes">
+                <xsl:with-param name="id" select="$elt-id" />
+                <xsl:with-param name="suffix" select="'inline'" />
+              </xsl:call-template>
+            </input>
           </xsl:if>
           <xsl:call-template name="output-using-library">
             <xsl:with-param name="id" select="$elt-id" />
