@@ -444,7 +444,7 @@ Shiny.Container = Class.create(Shiny.Object,
 
     this.bind('form');
 
-    Shiny.Container.track_container(this);
+    this.track_container(Shiny.Container);
     return this;
   },
 
@@ -460,7 +460,7 @@ Shiny.Container = Class.create(Shiny.Object,
     if (!this.is_resetting())
       this._teardown_container_children();
 
-    Shiny.Container.forget_container(this);
+    this.forget_container(Shiny.Container);
     return this;
   },
 
@@ -704,43 +704,57 @@ Shiny.Container = Class.create(Shiny.Object,
 
 Shiny.Container.Registry = {
 
-  _container_registry: $H({ }),
-
-  track_container: function(c)
+  track_container: function(klass)
   {
-    var c_id = c.get_container_id();
+    var c_id = this.get_container_id();
 
     Shiny.Log.debug(
       'Shiny.Container.Registry', 'track_container', c_id
     );
 
-    this._container_registry.set(c_id, c);
+    if (!klass._container_registry)
+      klass._container_registry = $H({ });
+
+    klass._container_registry.set(c_id, this);
     return this;
   },
 
-  forget_container: function(c)
+  forget_container: function(klass)
   {
-    var c_id = c.get_container_id();
+    var c_id = this.get_container_id();
 
     Shiny.Log.debug(
       'Shiny.Container.Registry', 'forget_container', c_id
     );
 
-    this._container_registry.unset(c_id);
+    if (klass._container_registry)
+      klass._container_registry.unset(c_id);
+
     return this;
   },
 
-  find_container: function(id)
+  find_container: function(klass_list, id)
   {
+    var rv = null;
+    klass_list = $Array(klass_list);
+
     Shiny.Log.debug(
       'Shiny.Container.Registry', 'find_container', id
     );
 
-    return this._container_registry.get(id);
+    for (var i = 0, len = klass_list.length; i < len; ++i) {
+      if (klass_list[i]._container_registry) {
+        if (rv = klass_list[i]._container_registry.get(id))
+          break;
+      }
+    }
+
+    return rv;
   }
 };
 
-Shiny.Container = Object.extend(Shiny.Container, Shiny.Container.Registry);
+Shiny.Container.addMethods(Shiny.Container.Registry);
+Object.extend(Shiny.Container, Shiny.Container.Registry);
 
 
 
@@ -2620,7 +2634,7 @@ Shiny.Panel = Class.create(Shiny.Control,
     this._sync_fast();
 
     this.trigger_event('setup', this);
-    Shiny.Panel.track_container(this);
+    this.track_container(Shiny.Panel, this);
 
     return this;
   },
@@ -2644,7 +2658,7 @@ Shiny.Panel = Class.create(Shiny.Control,
     this._input = null;
 
     this.trigger_event('teardown', this);
-    Shiny.Panel.forget_container(this);
+    this.forget_container(Shiny.Panel);
 
     return this;
   },
@@ -2868,7 +2882,8 @@ Shiny.Panel = Class.create(Shiny.Control,
 
 });
 
-Shiny.Panel = Object.extend(Shiny.Panel, Shiny.Container.Registry);
+Shiny.Panel.addMethods(Shiny.Container.Registry);
+Object.extend(Shiny.Panel, Shiny.Container.Registry);
 
 
 
@@ -2907,7 +2922,7 @@ Shiny.Collection = Class.create(Shiny.Container, Shiny.Events.prototype,
       this._panels.observe('teardown', this._teardown_observer);
     }
 
-    Shiny.Collection.track_container(this);
+    this.track_container(Shiny.Collection);
     return this;
   },
 
@@ -2943,7 +2958,7 @@ Shiny.Collection = Class.create(Shiny.Container, Shiny.Events.prototype,
 
     this.trigger_event('teardown', this);
 
-    Shiny.Collection.forget_container(this);
+    this.forget_container(Shiny.Collection);
     return this;
   },
 
@@ -3002,7 +3017,8 @@ Shiny.Collection = Class.create(Shiny.Container, Shiny.Events.prototype,
 
 });
 
-Shiny.Collection = Object.extend(Shiny.Collection, Shiny.Container.Registry);
+Shiny.Collection.addMethods(Shiny.Container.Registry);
+Object.extend(Shiny.Collection, Shiny.Container.Registry);
 
 
 
@@ -3054,7 +3070,7 @@ Shiny.Collection.Tuple = Class.create(Shiny.Control,
     );
 
     Element.addClassName(c, this._input.type);
-    Shiny.Collection.Tuple.track_container(this);
+    this.track_container(Shiny.Collection.Tuple);
 
     return this.sync(true);
   },
@@ -3075,7 +3091,7 @@ Shiny.Collection.Tuple = Class.create(Shiny.Control,
     this._mouse_observer = null;
     this._unselect_element(c, true);
 
-    Shiny.Collection.Tuple.forget_container(this);
+    this.forget_container(Shiny.Collection.Tuple);
     return this;
   },
 
@@ -3197,7 +3213,8 @@ Shiny.Collection.Tuple = Class.create(Shiny.Control,
 
 });
 
-Shiny.Collection.Tuple = Object.extend(Shiny.Collection.Tuple, Shiny.Container.Registry);
+Shiny.Collection.Tuple.addMethods(Shiny.Container.Registry);
+Object.extend(Shiny.Collection.Tuple, Shiny.Container.Registry);
 
 
 
@@ -3702,7 +3719,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     }
 
     this.trigger_event('setup', this);
-    Shiny.Panels.track_container(this);
+    this.track_container(Shiny.Panels);
 
     return this.sync();
   },
@@ -3719,7 +3736,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
     Sortable.destroy(this.get_container());
 
     this.trigger_event('teardown', this);
-    Shiny.Panels.forget_container(this);
+    this.forget_container(Shiny.Panels);
 
     return this;
   },
@@ -3865,7 +3882,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
         if (reverse && prev_id_sequence[i] == elt.id)
           break;
 
-        var panel = Shiny.Panel.find_container(prev_id_sequence[i]);
+        var panel = this.find_container(Shiny.Panel, prev_id_sequence[i]);
         panel.update(null, this._ajax_uri, options, { updating: true });
       }
 
@@ -3887,7 +3904,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
           if (reverse && sequence[i] == elt.id)
             break;
 
-          var panel = Shiny.Panel.find_container(sequence[i]);
+          var panel = this.find_container(Shiny.Panel, sequence[i]);
           
           if (panel)
             panel.update(null, this._ajax_uri, options, { updating: true });
@@ -3942,7 +3959,7 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
       /* This Shiny.Panel:
           The panel instance handles update scoping using update_others. */
 
-      var panel = Shiny.Panel.find_container(elt.id);
+      var panel = this.find_container(Shiny.Panel, elt.id);
       panel.update(null, this._ajax_uri, options, { order_updated: true });
     }
 
@@ -3951,7 +3968,8 @@ Shiny.Panels = Class.create(Shiny.Container, Shiny.Events.prototype,
 
 });
 
-Shiny.Panels = Object.extend(Shiny.Panels, Shiny.Container.Registry);
+Shiny.Panels.addMethods(Shiny.Container.Registry);
+Object.extend(Shiny.Panels, Shiny.Container.Registry);
 
 
 

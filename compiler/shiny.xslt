@@ -291,8 +291,8 @@
     <xsl:param name="actions" />
     <xsl:for-each select="exsl:node-set($actions)//sml:action">
       <xsl:if test="@type = 'update'">
-        Shiny.Container.find_container(
-          '<xsl:value-of select="@target" />'
+        Shiny.Panels.find_container(
+          [Shiny.Panels, Shiny.Panel], '<xsl:value-of select="@target" />'
         ).update(
           null, '<xsl:value-of select="@href" />'
         );
