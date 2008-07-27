@@ -1069,14 +1069,24 @@ var Sortable = {
 
   _animateEmpty: function(element, child, offset, options, children, insertElement)
   {
-    if (!child)
+    var isLastChild = false;
+
+    if (!child) {
+      isLastChild = true;
       child = children[[0, children.length - 1].max()];
+    }
     
     if (child == insertElement || child.getStyle('visibility') == 'hidden')
       return false;
 
-    var overlap = (offset / Element.offsetSize(child, options.overlap));
-    var direction = (overlap > 0.5);
+    var childSize = Element.offsetSize(child, options.overlap);
+
+    var childOffset = Element.positionedOffset(child)[
+      (options.overlap == 'vertical' ? 'top' : 'left')
+    ];
+
+    var overlap = (offset / (childSize + childOffset));
+    var direction = (isLastChild ? false : (overlap <= 0.5));
 
     if (!Sortable._shouldHover(element, child, direction))
       return false;
@@ -1120,8 +1130,8 @@ var Sortable = {
           }
         }
       }
-      
-      if (child && droponOptions && droponOptions.animate) {
+
+      if (children && droponOptions && droponOptions.animate) {
         if (!Sortable._animateEmpty(element, child, offset, droponOptions, children, insertElement))
           return;
       } else {
