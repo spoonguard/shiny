@@ -1945,14 +1945,12 @@ Element.Methods = {
     var originalPosition = els.position;
     var originalDisplay = els.display;
     els.visibility = 'hidden';
-    /* Shiny: Fix overestimation of element dimensions */
-    //els.position = 'absolute';
+    els.position = 'absolute';
     els.display = 'block';
     var originalWidth = element.clientWidth;
     var originalHeight = element.clientHeight;
     els.display = originalDisplay;
-    /* Shiny: Fix overestimation of element dimensions */
-    //els.position = originalPosition;
+    els.position = originalPosition;
     els.visibility = originalVisibility;
     return {width: originalWidth, height: originalHeight};
   },

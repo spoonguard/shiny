@@ -22,13 +22,20 @@
     <%= render :partial => 'partials/sidebar' %>
   </sidebar>
   <body>
-    <panels id="workspace" title="Current Workspace - Unsaved" onreorder="reorder_workspace" accept="all_collections my_collections" size="large" scroll="true">
-      <status>
-        <%= render :partial => 'partials/status' %>
-      </status>
-      <% @render[:panel].each { |p| %>
-        <%= render :partial => "partials/#{File.basename(p)}" %>
-      <% } %>
+    <panels id="workspace" title="Current Workspace - Unsaved"
+      onreorder="reorder_workspace" accept="all_collections my_collections" size="large" scroll="true">
+        <status>
+          <%= render :partial => 'partials/status' %>
+        </status>
+        <% previous = nil %>
+        <% @render[:models].each { |m| %>
+          <%=
+            render :partial => "partials/#{File.basename(m.to_s)}", :locals => {
+              :models => @env.fetch_models(m, previous, {})
+            }
+          %>
+          <% previous = m %>
+        <% } %>
     </panels>
   </body>
 </page>

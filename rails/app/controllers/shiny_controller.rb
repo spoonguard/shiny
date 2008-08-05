@@ -6,13 +6,11 @@ class ShinyController < Shiny::Controller
   layout 'application'
 
   def index
+    @env = Shiny::Environment.new(params, logger).parse!
+    @env.allow_models :clinical_trials, :specimens, :storage_location
+
     @render = {};
-    @render[:panel] = [
-      #'tissue_types', 'tumor_sites', 'tumor_types', 'publications',
-      #'extract_types', 'healthcare_locations', 'specimen_types',
-      #'exon_groups', 'primer_sets', 'primer_set_groups', 'mutation_types',
-      'clinical_trials', 'storage_locations', 'genes', 'exons'
-    ]
+    @render[:models] = [ :clinical_trials, :specimens ]
   end
 
 end

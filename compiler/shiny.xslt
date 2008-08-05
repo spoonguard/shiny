@@ -71,51 +71,22 @@
     <xsl:param name="prefix-separator" select="'_'" />
     <xsl:param name="suffix" select="''" />
     <xsl:param name="suffix-separator" select="'_'" />
-    <xsl:param name="random" select="''" />
-    <xsl:param name="base-id" select="''" />
-    <xsl:param name="skip-own-id" select="false()" />
     <xsl:param name="prefer-parent" select="false()" />
     <xsl:choose>
-      <xsl:when test="$id != ''">
-        <xsl:choose>
-          <xsl:when test="$prefer-parent and ../@id">
-            <xsl:value-of select="../@id" />
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="$id" />
-          </xsl:otherwise>
-        </xsl:choose>
+      <xsl:when test="$prefer-parent and ../@id">
+        <xsl:value-of select="../@id" />
       </xsl:when>
-      <xsl:when test="$skip-own-id = false() and @id != ''">
-        <xsl:value-of select="@id" />
+      <xsl:when test="$id">
+        <xsl:value-of select="$id" />
       </xsl:when>
       <xsl:otherwise>
-        <xsl:choose>
-          <xsl:when test="$prefer-parent">
-            <xsl:choose>
-              <xsl:when test="../@id">
-                <xsl:value-of select="../@id" />
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:value-of select="$base-id" />
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:choose>
-              <xsl:when test="$base-id">
-                <xsl:value-of select="$base-id" />
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:value-of select="ancestor::*[@id != ''][1]/@id" />
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:otherwise>
-        </xsl:choose>
-        <xsl:value-of select="$prefix-separator" />
-        <xsl:value-of select="$prefix" /><xsl:number />
+        <xsl:value-of select="ancestor-or-self::*[@id != ''][1]/@id" />
       </xsl:otherwise>
     </xsl:choose>
+    <xsl:if test="$prefix and not($id or @id)">
+      <xsl:value-of select="$prefix-separator" />
+      <xsl:value-of select="$prefix" /><xsl:number />
+    </xsl:if>
     <xsl:if test="$suffix"><xsl:choose>
       <xsl:when test="$suffix-separator = '[]'"
         >[<xsl:value-of select="$suffix" />]</xsl:when>
@@ -133,10 +104,7 @@
     <xsl:param name="prefix-separator" select="'_'" />
     <xsl:param name="suffix" select="''" />
     <xsl:param name="suffix-separator" select="'_'" />
-    <xsl:param name="random" select="''" />
     <xsl:param name="attribute" select="'id'" />
-    <xsl:param name="base-id" select="''" />
-    <xsl:param name="skip-own-id" select="false()" />
     <xsl:param name="prefer-parent" select="false()" />
     <xsl:attribute name="{$attribute}">
       <xsl:call-template name="generate-id">
@@ -145,9 +113,6 @@
         <xsl:with-param name="prefix-separator" select="$prefix-separator" />
         <xsl:with-param name="suffix" select="$suffix" />
         <xsl:with-param name="suffix-separator" select="$suffix-separator" />
-        <xsl:with-param name="random" select="$random" />
-        <xsl:with-param name="base-id" select="$base-id" />
-        <xsl:with-param name="skip-own-id" select="$skip-own-id" />
         <xsl:with-param name="prefer-parent" select="$prefer-parent" />
       </xsl:call-template>
     </xsl:attribute>
@@ -158,28 +123,19 @@
     <xsl:param name="id" select="''" />
     <xsl:param name="prefix" select="''" />
     <xsl:param name="suffix" select="''" />
-    <xsl:param name="random" select="''" />
-    <xsl:param name="base-id" select="''" />
-    <xsl:param name="skip-own-id" select="false()" />
     <xsl:param name="prefer-parent" select="false()" />
     <xsl:call-template name="generate-id-attribute">
       <xsl:with-param name="id" select="$id" />
       <xsl:with-param name="prefix" select="$prefix" />
       <xsl:with-param name="suffix" select="$suffix" />
-      <xsl:with-param name="random" select="$random" />
-      <xsl:with-param name="base-id" select="$base-id" />
-      <xsl:with-param name="skip-own-id" select="$skip-own-id" />
       <xsl:with-param name="prefer-parent" select="$prefer-parent" />
     </xsl:call-template>
     <xsl:call-template name="generate-id-attribute">
       <xsl:with-param name="id" select="$id" />
       <xsl:with-param name="prefix" select="$prefix" />
       <xsl:with-param name="suffix" select="$suffix" />
-      <xsl:with-param name="random" select="$random" />
       <xsl:with-param name="suffix-separator" select="'[]'" />
       <xsl:with-param name="attribute">name</xsl:with-param>
-      <xsl:with-param name="base-id" select="$base-id" />
-      <xsl:with-param name="skip-own-id" select="$skip-own-id" />
       <xsl:with-param name="prefer-parent" select="$prefer-parent" />
     </xsl:call-template>
   </xsl:template>
@@ -294,7 +250,12 @@
         Shiny.Panels.find_container(
           [Shiny.Panels, Shiny.Panel], '<xsl:value-of select="@target" />'
         ).update(
-          null, '<xsl:value-of select="@href" />'
+          null, '<xsl:value-of select="@href" />', {
+            shiny: true
+            <xsl:if test="@scope">,
+              ajax_scope: '<xsl:value-of select="@scope" />'
+            </xsl:if>
+          }
         );
       </xsl:if>
     </xsl:for-each>
@@ -345,7 +306,7 @@
     <xsl:for-each select="$content">
       <xsl:variable name="new-id">
         <xsl:call-template name="generate-id">
-          <xsl:with-param name="base-id" select="$id" />
+          <xsl:with-param name="id" select="$id" />
           <xsl:with-param name="prefix" select="'i'" />
         </xsl:call-template>
       </xsl:variable>
@@ -550,7 +511,7 @@
 
   <xsl:template name="generate-tuple-input-class">
     <xsl:attribute name="class">shiny selector <xsl:if
-      test="ancestor::sml:collection[@selectors][1]/@selectors = 'none'"> subclassed</xsl:if>
+      test="ancestor::sml:collection[@selectors][1]/@selectors = 'none'"> hidden</xsl:if>
     </xsl:attribute>
     <xsl:attribute name="type"><xsl:choose>
       <xsl:when test="ancestor::sml:collection[@select][1]/@select = 'single'"
@@ -889,7 +850,7 @@
       </xsl:variable>
       if ($('<xsl:value-of select="@id" />')) {
         var options = {
-          shiny: 'shiny'
+          shiny: true
           <xsl:if test="ancestor::sml:panels[1]/@id">
             , panels: _shiny.<xsl:value-of select="ancestor::sml:panels[1]/@id" />
           </xsl:if>
@@ -930,7 +891,7 @@
 
       var options = {
         progress_containers: {
-          shiny: 'shiny'
+          shiny: true
           <xsl:for-each select="$nodes | sml:panel">,
             <xsl:call-template name="generate-id" />:
               '<xsl:for-each select="ancestor-or-self::sml:panel[1]">
@@ -939,7 +900,7 @@
           </xsl:for-each>
         },
         no_reorder: {
-          shiny: 'shiny'
+          shiny: true
           <xsl:for-each select="$nodes">
             <xsl:if test="@no-reorder = true()">,
               <xsl:call-template name="generate-id" />
@@ -948,7 +909,7 @@
           </xsl:for-each>
         },
         ajax: {
-          shiny: 'shiny'
+          shiny: true
           <xsl:for-each select="$nodes">
             <xsl:variable name="id" select="@id" />
             <xsl:variable name="new-id">
@@ -972,7 +933,7 @@
           </xsl:for-each>
         },
         accept: {
-          shiny: 'shiny'
+          shiny: true
           <xsl:for-each select="$nodes">,
             <xsl:call-template name="generate-id" />
             : [ '<xsl:value-of select="@id" />'
@@ -988,7 +949,7 @@
           </xsl:for-each>
         },
         reparent: {
-          shiny: 'shiny'
+          shiny: true
           <xsl:for-each select="$nodes">
             <xsl:variable name="collection-id">
               <xsl:value-of select="@id" />
@@ -1002,7 +963,7 @@
           </xsl:for-each>
         },
         sortable: <xsl:choose>
-          <xsl:when test="@sort = 'false' or @sort = ''">false</xsl:when>
+          <xsl:when test="@sortable = 'false' or @sortable = ''">false</xsl:when>
           <xsl:otherwise>true</xsl:otherwise>
         </xsl:choose>,
         scroll: true, recursive: true,
@@ -1045,7 +1006,7 @@
             _shiny.<xsl:value-of select="$schema-id" /> = new Shiny.Collection.Header(
               '<xsl:value-of select="$schema-id" />',
               _shiny.<xsl:value-of select="$collection-id" />, {
-                shiny: 'shiny'
+                shiny: true
                 <xsl:call-template name="generate-event-callback">
                   <xsl:with-param name="node" select="sml:schema[1]" />
                 </xsl:call-template>
@@ -1069,6 +1030,18 @@
       Shiny.Panel
   <-->
 
+  <xsl:template name="generate-pager">
+    <xsl:for-each select="sml:pager">
+      <img alt="&lt;" class="adjust-up pad-right middle png"
+        src="../images/arrow-left-button.png" />Page
+      <input type="text" size="2" maxlength="2" value="{@current}" />
+      of <xsl:value-of select="@total" />
+      <img alt="&gt;" class="adjust-up pad-left middle png"
+        src="../images/arrow-right-button.png" />
+    </xsl:for-each>
+  </xsl:template>
+
+
   <xsl:template name="generate-panel-content">
     <xsl:param name="update" type="xs:boolean" select="false()" />
     <xsl:param name="recursive" type="xs:boolean" select="false()" />
@@ -1079,6 +1052,15 @@
         test="not($decorate) or $decorate[text() = 'round']"> round pad</xsl:if>
       </xsl:attribute>
       <div class="progress"></div>
+      <xsl:for-each select="sml:status[1]">
+        <div class="status">
+          <xsl:call-template name="generate-pager" />
+          <xsl:call-template name="output-using-library">
+            <xsl:with-param name="content" select="*" />
+            <xsl:with-param name="update" select="$update" />
+          </xsl:call-template>
+        </div>
+      </xsl:for-each>
       <div class="handle xr">
         <input class="shiny arrow" type="checkbox">
           <xsl:call-template name="generate-id-and-name-attributes">
@@ -1375,13 +1357,10 @@
 
   <xsl:template name="generate-tuple" match="sml:tuple">
     <xsl:param name="update" type="xs:boolean" select="false()" />
-    <xsl:variable name="panel-id">
-      <xsl:call-template name="generate-id">
-        <xsl:with-param name="prefix" select="'p'" />
-        <xsl:with-param name="skip-own-id" select="true()" />
+    <div>
+      <xsl:call-template name="generate-id-attribute">
+        <xsl:with-param name="suffix" select="'panel'" />
       </xsl:call-template>
-    </xsl:variable>
-    <div id="{$panel-id}">
       <xsl:call-template name="generate-tuple-content">
         <xsl:with-param name="update" select="$update" />
       </xsl:call-template>
@@ -1424,7 +1403,7 @@
       <xsl:for-each select="sml:elt[1]">
         <xsl:variable name="elt-id">
           <xsl:call-template name="generate-id">
-            <xsl:with-param name="base-id" select="$tuple-id" />
+            <xsl:with-param name="id" select="$tuple-id" />
             <xsl:with-param name="prefix" select="'e'" />
             <xsl:with-param name="prefer-parent" select="true()" />
           </xsl:call-template>
@@ -1434,13 +1413,14 @@
             select="ancestor-or-self::sml:collection[1]" />
           <xsl:variable name="decorate"
             select="str:tokenize($collection/@decorate, ' ')" />
-          <xsl:variable name="has-form-decoration"
-            select="$decorate[text() = 'form']" />
           <xsl:attribute name="class">elt i0 xr<xsl:if
-            test="not($has-form-decoration)"> handle</xsl:if></xsl:attribute>
-          <xsl:if test="not($has-form-decoration)">
+            test="not($decorate[text() = 'form'])"> handle</xsl:if></xsl:attribute>
+          <xsl:if test="not($decorate[text() = 'form'])">
             <!-- Attribute 'id' is required on an sml:collection -->
             <input>
+              <xsl:if test="../@selected != 'false' and ../@selected != ''">
+                <xsl:attribute name="checked" select="'checked'" />
+              </xsl:if>
               <xsl:attribute name="name">
                 <xsl:call-template name="generate-tuple-input-name" />
               </xsl:attribute>
@@ -1500,8 +1480,8 @@
       <xsl:for-each select="sml:elt[1]/following-sibling::sml:elt">
         <xsl:variable name="elt-id">
           <xsl:call-template name="generate-id">
+            <xsl:with-param name="id" select="$tuple-id" />
             <xsl:with-param name="prefix" select="'e'" />
-            <xsl:with-param name="base-id" select="$tuple-id" />
             <xsl:with-param name="prefer-parent" select="true()" />
           </xsl:call-template>
         </xsl:variable>

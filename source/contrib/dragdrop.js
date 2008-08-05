@@ -14,7 +14,7 @@ var Droppables = {
   drops: [],
 
   remove: function(element) {
-    this.drops = this.drops.reject(function(d) { return d.element==$(element) });
+    this.drops = this.drops.reject(function(d) { return d.element==$(element); });
   },
 
   add: function(element) {
@@ -30,7 +30,7 @@ var Droppables = {
       options._containers = [];
       var containment = options.containment;
       if(Object.isArray(containment)) {
-        containment.each( function(c) { options._containers.push($(c)) });
+        containment.each( function(c) { options._containers.push($(c)); });
       } else {
         options._containers.push($(containment));
       }
@@ -62,7 +62,7 @@ var Droppables = {
     } else {
       containmentNode = element.parentNode;
     }
-    return drop._containers.detect(function(c) { return containmentNode == c });
+    return drop._containers.detect(function(c) { return containmentNode == c; });
   },
   
   isAffected: function(point, element, drop) {
@@ -72,7 +72,7 @@ var Droppables = {
         this.isContained(element, drop)) &&
       ((!drop.accept) ||
         (Element.classNames(element).detect( 
-          function(v) { return drop.accept.include(v) } ) )) &&
+          function(v) { return drop.accept.include(v); } ) )) &&
       Position.within(drop.element, point[0], point[1]) );
   },
 
@@ -112,7 +112,7 @@ var Droppables = {
   },
 
   fire: function(event, element) {
-    if(!this.last_active) return;
+    if(!this.last_active) return false;
     Position.prepare();
 
     if (this.isAffected([Event.pointerX(event), Event.pointerY(event)], element, this.last_active))
@@ -120,6 +120,8 @@ var Droppables = {
         this.last_active.onDrop(element, this.last_active.element, event); 
         return true; 
       }
+
+    return false;
   },
 
   reset: function() {
@@ -147,7 +149,7 @@ var Draggables = {
   },
   
   unregister: function(draggable) {
-    this.drags = this.drags.reject(function(d) { return d==draggable });
+    this.drags = this.drags.reject(function(d) { return d==draggable; });
     if(this.drags.length == 0) {
       Event.stopObserving(document, "mouseup", this.eventMouseUp);
       Event.stopObserving(document, "mousemove", this.eventMouseMove);
@@ -205,7 +207,7 @@ var Draggables = {
   },
   
   removeObserver: function(element) {  // element instead of observer fixes mem leaks
-    this.observers = this.observers.reject( function(o) { return o.element==element });
+    this.observers = this.observers.reject( function(o) { return o.element==element; });
     this._cacheObserverCallbacks();
   },
   
@@ -243,7 +245,7 @@ var Draggable = Class.create({
         new Effect.Opacity(element, {duration:0.2, from:0.7, to:toOpacity, 
           queue: {scope:'_draggable', position:'end'},
           afterFinish: function(){ 
-            Draggable._dragging[element] = false 
+            Draggable._dragging[element] = false;
           }
         }); 
       },
@@ -296,14 +298,15 @@ var Draggable = Class.create({
   },
   
   destroy: function() {
+    Draggables.reparentCache[this.element.id] = null;
     Event.stopObserving(this.handle, "mousedown", this.eventMouseDown);
     Draggables.unregister(this);
   },
   
   currentDelta: function() {
     return([
-      parseInt(Element.getStyle(this.element,'left') || '0'),
-      parseInt(Element.getStyle(this.element,'top') || '0')]);
+      parseInt(Element.getStyle(this.element,'left') || '0', 10),
+      parseInt(Element.getStyle(this.element,'top') || '0', 10)]);
   },
   
   initDrag: function(event) {
@@ -321,7 +324,7 @@ var Draggable = Class.create({
         
       var pointer = [Event.pointerX(event), Event.pointerY(event)];
       var pos     = Position.cumulativeOffset(this.element);
-      this.offset = [0,1].map( function(i) { return (pointer[i] - pos[i]) });
+      this.offset = [0,1].map( function(i) { return (pointer[i] - pos[i]); });
       
       Draggables.activate(this);
       Event.stop(event);
@@ -358,7 +361,7 @@ var Draggable = Class.create({
       this.delta = this.currentDelta();
     
     if(this.options.zindex) {
-      this.originalZ = parseInt(Element.getStyle(this.element,'z-index')) || '';
+      this.originalZ = parseInt(Element.getStyle(this.element,'z-index'), 10) || '';
       this.element.style.zIndex = this.options.zindex;
     }
     
@@ -541,7 +544,7 @@ var Draggable = Class.create({
     }
     
     var p = [0,1].map(function(i){ 
-      return (point[i]-pos[i]-this.offset[i]) 
+      return (point[i]-pos[i]-this.offset[i]);
     }.bind(this));
     
     if(this.options.snap) {
@@ -550,10 +553,10 @@ var Draggable = Class.create({
       } else {
       if(Object.isArray(this.options.snap)) {
         p = p.map( function(v, i) {
-          return (v/this.options.snap[i]).round()*this.options.snap[i] }.bind(this));
+          return (v/this.options.snap[i]).round()*this.options.snap[i]; }.bind(this));
       } else {
         p = p.map( function(v) {
-          return (v/this.options.snap).round()*this.options.snap }.bind(this));
+          return (v/this.options.snap).round()*this.options.snap; }.bind(this));
       }
     }}
     
@@ -675,11 +678,13 @@ var Sortable = {
       if(element.id && Sortable.sortables[element.id]) return element;
       element = element.parentNode;
     }
+
+    return null;
   },
 
   options: function(element) {
     element = Sortable._findRootElement($(element));
-    if(!element) return;
+    if(!element) return null;
     return Sortable.sortables[element.id];
   },
   
@@ -688,7 +693,7 @@ var Sortable = {
     
     if(s) {
       Draggables.removeObserver(s.element);
-      s.droppables.each(function(d){ Droppables.remove(d) });
+      s.droppables.each(function(d){ Droppables.remove(d); });
       s.draggables.invoke('destroy');
       
       delete Sortable.sortables[s.element.id];
@@ -730,6 +735,8 @@ var Sortable = {
       onReorder:   Prototype.emptyFunction,
       onStart:     Prototype.emptyFunction,
       onEnd:       Prototype.emptyFunction,
+      onAccept:    Prototype.emptyFunction,
+      onDonate:    Prototype.emptyFunction,
       canInsert:   function() { return true; }
     }, arguments[1] || { });
 
@@ -848,15 +855,29 @@ var Sortable = {
   onEnd: function(draggable) {
     var elt = draggable.element;
     var root = Sortable._findRootElement(elt);
-    var options = Sortable.options(root);
+    var savedParent = Draggables.reparentCache[elt.id];
     
     var ids = Sortable.sequence(root);
+    var options = Sortable.options(root);
 
-    if (options)
+    var prevRoot = Sortable._findRootElement(savedParent);
+    var dropOptions = Sortable.options(prevRoot);
+
+    if (options) {
+
+      /* Order matters:
+          We guarantee that the onDonate and onAccept events
+          each trigger prior to onUpdate, onReorder, or onEnd.
+          We also guarantee that onAccept triggers after onDonate. */
+
+      if (prevRoot && root != prevRoot) {
+        if (dropOptions) dropOptions.onDonate(elt);
+        options.onAccept(elt);
+      }
+      
+      options.onEnd(elt);
       options.onReorder(elt, ids);
-
-    if (options)
-      options.onEnd(draggable.element);
+    }
 
     return;
   },
@@ -877,7 +898,7 @@ var Sortable = {
         return;
     }
 
-    if(overlap > .33 && overlap < .66 && Sortable.options(dropon).tree) {
+    if(overlap > 0.33 && overlap < 0.66 && Sortable.options(dropon).tree) {
       return;
     } else if (direction) {
       Sortable.mark(dropon, 'before');
@@ -936,12 +957,14 @@ var Sortable = {
   _cancelAnimations: function(element /* = null */,
                               dropon /* = null */, animate /* = null */)
   {
+    var active = Sortable._activeAnimations;
+
     if (element)
       Sortable._relativizeForAnimation(element);
 
     Sortable.lastDraggable.redraw();
 
-    Sortable._activeAnimations.each(function(kv) {
+    active.each(function(kv) {
       kv.value.effect.cancel();
       var e = kv.value.effect.element;
 
@@ -961,7 +984,7 @@ var Sortable = {
         }
       }
       
-      Sortable._activeAnimations.unset(kv.key);
+      active.unset(kv.key);
     });
 
     Sortable.lastDraggable.redraw();
@@ -976,6 +999,7 @@ var Sortable = {
 
     var eltUp = element.cloneNode(false);
     var extents = element.getDimensions();
+    var active = Sortable._activeAnimations;
 
     eltUp.id = null;
     eltUp.style.width = extents.width + 'px';
@@ -993,42 +1017,60 @@ var Sortable = {
         Lift $element out of the element set, reverse any incomplete
         animations, then start "sliding" in the appropriate direction. */
 
-    var p, e1, e2;
+    var p = null, e1 = null, e2 = null;
 
-    if (direction)
-      { p = insertElement; e1 = element.nextSibling; e2 = dropon; }
-    else
-      { p = e1 = insertElement; e2 = dropon.nextSibling; }
+    if (direction) {
+      p = insertElement; e1 = element.nextSibling;
+      if (dropon) e2 = dropon;
+    } else {
+      p = e1 = insertElement;
+      if (dropon) e2 = dropon.nextSibling;
+    }
 
-    if (Sortable._activeAnimations.size() <= 0)
+    if (active.size() <= 0)
       p.parentNode.insertBefore(eltUp, e1);
 
+    if (dropon) {
+      dropon.parentNode.insertBefore(insertElement, e2);
+      dropon.parentNode.insertBefore(eltDown, e2);
+    }
+
+    Sortable._cancelAnimations(null, element, true);
     Sortable._absolutizeForAnimation(insertElement);
-    dropon.parentNode.insertBefore(insertElement, e2);
-    dropon.parentNode.insertBefore(eltDown, e2);
-    Sortable._cancelAnimations(null, dropon, true);
 
-    var droponOptions = Sortable.options(dropon.parentNode);
+    var droponOptions = {};
 
-    var effect = Effect.BlindDown(eltDown, {
-      scaleX: true, scaleY: true,
-      duration:
-        droponOptions.duration
-    });
+    if (dropon) {
+      droponOptions = Sortable.options(dropon.parentNode);
+      Sortable._cancelAnimations(null, dropon, true);
+      
+      var effect = Effect.BlindDown(eltDown, {
+        scaleX: true, scaleY: true,
+        duration:
+          (droponOptions.duration || 1.0)
+      });
 
-    Sortable._activeAnimations.set(Element.getDroppableIndex(dropon), {
-      direction: direction, effect: effect
-    });
+      active.set(Element.getDroppableIndex(dropon), {
+        direction: direction, effect: effect
+      });
+    }
 
-    Effect.BlindUp(eltUp, {
-      scaleX: true, scaleY: true,
-      duration:
-        droponOptions.duration,
-      afterFinish: function(e) {
-        if (e.parentNode)
-          Element.remove(e);
-      }.bind(this, eltUp)
-    });
+    if (!active.get(Element.getDroppableIndex(element))) {
+
+      var effect = Effect.BlindUp(eltUp, {
+        scaleX: true, scaleY: true,
+        duration:
+          (droponOptions.duration || 1.0),
+        afterFinish: function(e) {
+          if (e.parentNode)
+            Element.remove(e);
+        }.bind(this, eltUp)
+      });
+
+      active.set(Element.getDroppableIndex(element), {
+        direction: direction, effect: effect
+      });
+    }
 
     return this;
   },
@@ -1071,20 +1113,22 @@ var Sortable = {
   {
     var isLastChild = false;
 
+    if ($A(children).length == 0)
+      return Sortable._animate(element, null, false, insertElement);
+
     if (!child) {
       isLastChild = true;
       child = children[[0, children.length - 1].max()];
     }
-    
+
     if (child == insertElement || child.getStyle('visibility') == 'hidden')
       return false;
-
-    var childSize = Element.offsetSize(child, options.overlap);
 
     var childOffset = Element.positionedOffset(child)[
       (options.overlap == 'vertical' ? 'top' : 'left')
     ];
 
+    var childSize = Element.offsetSize(child, options.overlap);
     var overlap = (offset / (childSize + childOffset));
     var direction = (isLastChild ? false : (overlap <= 0.5));
 
@@ -1131,7 +1175,7 @@ var Sortable = {
         }
       }
 
-      if (children && droponOptions && droponOptions.animate) {
+      if ((droponOptions || {}).animate) {
         if (!Sortable._animateEmpty(element, child, offset, droponOptions, children, insertElement))
           return;
       } else {
@@ -1275,14 +1319,14 @@ var Sortable = {
       }).join('&');
     }
   }
-}
+};
 
 // Returns true if child is contained within element
 Element.isParent = function(child, element) {
   if (!child.parentNode || child == element) return false;
   if (child.parentNode == element) return true;
   return Element.isParent(child.parentNode, element);
-}
+};
 
 Element.findChildren = function(element, only, recursive, tagName) {   
   if(!element.hasChildNodes()) return null;
@@ -1292,7 +1336,7 @@ Element.findChildren = function(element, only, recursive, tagName) {
   var elements = [];
   $A(element.childNodes).each( function(e) {
     if(e.tagName && e.tagName.toUpperCase()==tagName &&
-      (!only || (Element.classNames(e).detect(function(v) { return only.include(v) }))))
+      (!only || (Element.classNames(e).detect(function(v) { return only.include(v); }))))
         elements.push(e);
     if(recursive) {
       var grandchildren = Element.findChildren(e, only, recursive, tagName, computeIndicies);
@@ -1301,20 +1345,20 @@ Element.findChildren = function(element, only, recursive, tagName) {
   });
 
   return (elements.length>0 ? elements.flatten() : []);
-}
+};
 
 
 Element.getDroppableIndex = function (element) {
   return element['_droppableIndex'];
-}
+};
 
 Element.setDroppableIndex = function (element, i) {
   element['_droppableIndex'] = i;
   return element;
-}
+};
 
 Element.offsetSize = function (element, type) {
   return element['offset' + ((type=='vertical' || type=='height') ? 'Height' : 'Width')];
-}
+};
 
 

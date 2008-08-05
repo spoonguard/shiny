@@ -592,21 +592,34 @@ input.shiny, img.shiny {
   overflow: hidden;
 }
 
-.shiny .panels .small {
+.shiny .panel .status {
+  float: right;
+  line-height: 1.9em;
+  border: none;
+  padding: 0 1em 0 0;
+  font-size: 0.9em;
+  background-image: none;
+  background-color: transparent;
+  vertical-align: middle;
+}
+
+.shiny .panel .status input {
+  margin: 0;
+  padding: 1px;
+  font-size: 0.9em;
 }
 
 .shiny .panel .progress {
   float: right;
   margin: 0 0.8em 0 0;
-  color: #555;
   font-weight: bold;
   text-shadow: #ddd 2px 2px 2px;
   font-size: 1em;
+  width: 16px;
+  height: 1em;
 }
 
 .shiny .panel .progress img {
-  vertical-align: middle;
-  margin: 0 0 0 0.8em;
 }
 
 .shiny .tuple .elt .progress {
@@ -672,6 +685,8 @@ input.shiny, img.shiny {
 
 .shiny .panel a.title,
 .shiny .panel label.title {
+  font-size: 1em;
+  line-height: 1.3em;
   font-family: 'Lucida Grande', 'Verdana', 'Arial', 'Helvetica', sans-serif;
 }
 
@@ -687,12 +702,9 @@ input.shiny, img.shiny {
   font-size: 0.89em;
 }
 
-.shiny .panel label {
-  padding-top: 1em;
-}
-
 .shiny .panels .large label {
-  font-size: 1.3em;
+  font-size: 1.2em;
+  line-height: 1.5em;
   vertical-align: middle;
   text-shadow: #eee 2px 2px 2px;
 }
@@ -717,7 +729,7 @@ input.shiny, img.shiny {
 
 .shiny .panel .interior {
   margin: 0;
-  padding: 0.2em 0 0.4em 0.8em;
+  padding: 0.1em 0 0.2em 0.8em;
 }
 
 .shiny .panel .body p {
@@ -749,6 +761,14 @@ input.shiny, img.shiny {
   overflow-y: scroll;
 }
 
+.shiny .pad-left {
+  padding-left: 0.6em;
+}
+
+.shiny .pad-right {
+  padding-right: 0.6em;
+}
+
 .shiny .pad {
   padding-left: 0.8em;
   padding-right: 0.8em;
@@ -769,6 +789,14 @@ input.shiny, img.shiny {
 
 .shiny .pad-all {
   padding: 0.8em;
+}
+
+.shiny .adjust-up {
+  padding-bottom: 0.3em;
+}
+
+.shiny .adjust-down {
+  padding-top: 0.3em;
 }
 
 .shiny .margin {
